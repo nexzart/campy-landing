@@ -1,0 +1,57 @@
+<footer id="site-footer" hx-preserve="true" class="on-dark bg-primary text-white">
+  <div class="mx-auto max-w-6xl px-4 pb-10 pt-16 sm:px-6 lg:px-8">
+    <div class="grid gap-12 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <a href="/" class="inline-flex" aria-label="Campy home">
+          <img src="/asset/campy-logo-white.png" alt="Campy" width="495" height="160" class="h-12 w-auto">
+        </a>
+        <p class="mt-5 max-w-xs text-[0.9375rem] leading-relaxed text-white/70">
+          School management software that connects your office, teachers and parents through one shared record.
+        </p>
+      </div>
+
+      <nav class="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:col-span-4" aria-label="Footer">
+        <div>
+          <h2 class="text-sm font-semibold text-white">Product</h2>
+          <ul class="mt-4 space-y-3 text-[0.9375rem] text-white/70">
+            <li><a href="/features" class="hover:text-white">Features</a></li>
+            <li><a href="/portals" class="hover:text-white">Portals</a></li>
+            <li><a href="/platform" class="hover:text-white">Platform and security</a></li>
+            <li><a href="/pricing" class="hover:text-white">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-white">Modules</h2>
+          <ul class="mt-4 space-y-3 text-[0.9375rem] text-white/70">
+            <li><a href="/features#attendance" class="hover:text-white">Attendance</a></li>
+            <li><a href="/features#exams" class="hover:text-white">Exams and marks</a></li>
+            <li><a href="/features#timetable" class="hover:text-white">Timetable</a></li>
+            <li><a href="/features#leave" class="hover:text-white">Leave and substitutes</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="lg:col-span-4">
+        <h2 class="text-sm font-semibold text-white">Product updates</h2>
+        <p class="mt-4 text-[0.9375rem] text-white/70">New modules and release notes, about once a month.</p>
+        <form id="subscribe-form" class="mt-4" hx-post="/api/subscribe" hx-target="#subscribe-form" hx-swap="outerHTML">
+          <label for="subscribe-email" class="sr-only">Email address</label>
+          <div class="flex gap-2">
+            <input id="subscribe-email" name="email" type="email" required autocomplete="email" placeholder="you@school.in"
+                   class="min-w-0 flex-1 rounded-[0.625rem] border border-white/20 bg-white/5 px-3.5 py-2.5 text-[0.9375rem] text-white placeholder:text-white/40 focus:border-secondary focus:outline-none">
+            <button type="submit" class="btn btn-lime btn-sm">
+              <span class="hide-on-request">Subscribe</span>
+              <span class="htmx-indicator items-center gap-2"><i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i>Sending</span>
+            </button>
+          </div>
+          <div id="subscribe-msg" class="mt-2" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 text-sm text-white/60 sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; {{year}} Campy. All rights reserved.</p>
+      <p>A product of <a href="https://nexzart.com/products/school-cms" class="font-semibold text-white underline decoration-secondary decoration-2 underline-offset-4 hover:text-secondary">Nexzart</a>, Chennai</p>
+    </div>
+  </div>
+</footer>

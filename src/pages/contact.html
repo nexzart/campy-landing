@@ -1,0 +1,107 @@
+<main id="main">
+    <section class="mx-auto grid max-w-6xl gap-14 px-4 pb-24 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-8">
+      <div>
+        <h1 class="font-display text-5xl font-extrabold leading-[1.1] sm:text-6xl">See your own school in Campy.</h1>
+        <p class="mt-6 text-lg leading-relaxed text-primary/70">Tell us about your school and we’ll set up a 30-minute walkthrough using your classes and timetable.</p>
+
+        <h2 class="mt-14 text-[0.9375rem] font-semibold">What happens next</h2>
+        <ol class="mt-6 space-y-7">
+          <li class="flex gap-5">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 text-sm font-semibold">1</span>
+            <div>
+              <h3 class="font-semibold">We reply by email</h3>
+              <p class="mt-1 text-primary/70">To find a time that suits you and anyone else who should join.</p>
+            </div>
+          </li>
+          <li class="flex gap-5">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 text-sm font-semibold">2</span>
+            <div>
+              <h3 class="font-semibold">We prepare your school</h3>
+              <p class="mt-1 text-primary/70">A sample class list and timetable are enough to set up a realistic demo.</p>
+            </div>
+          </li>
+          <li class="flex gap-5">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-semibold">3</span>
+            <div>
+              <h3 class="font-semibold">You see all four portals</h3>
+              <p class="mt-1 text-primary/70">Office, teacher and parent views, plus answers to your billing and data questions.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="mt-14 flex items-start gap-4 border-t border-primary/10 pt-8">
+          <i data-lucide="mail" class="mt-0.5 h-5 w-5"></i>
+          <p class="text-primary/70">Prefer email? Write to <a href="mailto:admin@nexzart.com" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">admin@nexzart.com</a>. Campy is built by <a href="https://nexzart.com" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">Nexzart</a>.</p>
+        </div>
+      </div>
+
+      <div>
+        <form id="demo-form" hx-post="/api/demo" hx-target="#demo-form" hx-swap="outerHTML" hx-disabled-elt="find button[type=submit]"
+              action="/api/demo" method="post"
+              class="rounded-2xl border border-primary/10 bg-white p-6 shadow-card sm:p-8">
+          <h2 class="font-display text-2xl font-bold">Book a demo</h2>
+          <p class="mt-1 text-sm text-primary/60">Fields marked optional can be left blank.</p>
+
+          <div class="mt-8 grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="name" class="mb-1.5 block text-sm font-semibold">Full name</label>
+              <input id="name" name="name" type="text" required maxlength="100" autocomplete="name" class="field">
+            </div>
+            <div>
+              <label for="email" class="mb-1.5 block text-sm font-semibold">Work email</label>
+              <input id="email" name="email" type="email" required autocomplete="email" placeholder="principal@yourschool.in" class="field">
+            </div>
+            <div>
+              <label for="phone" class="mb-1.5 block text-sm font-semibold">Phone <span class="font-normal text-primary/60">(optional)</span></label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+91" class="field">
+            </div>
+            <div>
+              <label for="school" class="mb-1.5 block text-sm font-semibold">School name</label>
+              <input id="school" name="school" type="text" required maxlength="150" autocomplete="organization" class="field">
+            </div>
+            <div>
+              <label for="role" class="mb-1.5 block text-sm font-semibold">Your role</label>
+              <select id="role" name="role" required class="field">
+                <option value="" selected disabled>Choose one</option>
+                <option>Principal</option>
+                <option>School administrator</option>
+                <option>Teacher</option>
+                <option>Owner or trustee</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="size" class="mb-1.5 block text-sm font-semibold">Students <span class="font-normal text-primary/60">(optional)</span></label>
+              <select id="size" name="size" class="field">
+                <option value="">Choose a range</option>
+                <option>Under 300</option>
+                <option>300 to 1,000</option>
+                <option>1,000 to 3,000</option>
+                <option>More than 3,000</option>
+                <option>Several schools</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label for="message" class="mb-1.5 block text-sm font-semibold">What would you like to see? <span class="font-normal text-primary/60">(optional)</span></label>
+              <textarea id="message" name="message" rows="4" maxlength="2000" placeholder="For example: period-wise attendance and how parents get absence alerts." class="field resize-y"></textarea>
+            </div>
+          </div>
+
+          <div class="absolute -left-[9999px]" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div id="demo-errors" class="mt-5" aria-live="assertive"></div>
+
+          <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm text-primary/60">We only use these details to arrange your demo.</p>
+            <button type="submit" class="btn btn-primary">
+              <span class="hide-on-request">Request a demo</span>
+              <span class="htmx-indicator items-center gap-2"><i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i>Sending request</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
