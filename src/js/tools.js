@@ -1,4 +1,4 @@
-/* Campy free tools – Alpine components for the /tools pages.
+/* Campy Tools – Alpine components for the /tools pages.
    Everything runs in the browser: nothing typed, pasted or uploaded is sent anywhere. The only
    thing kept is the school's letterhead (name, address, logo) and checklist ticks, in localStorage.
    Loaded on tool pages only, after app.js and before Alpine. */

@@ -1,7 +1,7 @@
 // Free school tools: one entry per /tools/<slug> page.
 // The page body (the tool itself and its explainer) lives in src/tools/pages/<slug>.html.
 // scripts/build.mjs turns this list into the tool pages, the /tools index, the homepage
-// "Free tools" section, sitemap entries and the FAQ/breadcrumb structured data.
+// "Tools" section, sitemap entries and the FAQ/breadcrumb structured data.
 
 export const CATEGORIES = [
   { id: 'calculators', name: 'School calculators', icon: 'calculator', blurb: 'Attendance, ratios, fees, salaries, admission age and staffing.' },

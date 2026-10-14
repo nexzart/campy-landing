@@ -1,0 +1,11 @@
+# Copy to .dev.vars (ignored by Git). Replace all admin values before use.
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=replace-with-a-long-unique-password
+ADMIN_SESSION_SECRET=replace-with-a-random-secret-at-least-32-characters
+# Cloudflare test secret for local development only:
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Optional SMTP: only set this locally when you intend local forms to send real emails.
+EMAIL_DELIVERY_ENABLED=false
+# SMTP_PASSWORD=your-admin-mailbox-password
+# SMTP_HOST=smtpout.secureserver.net
+# SMTP_PORT=465

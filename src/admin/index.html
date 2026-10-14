@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><title>Campy Admin</title>
+  <link rel="icon" href="/asset/favicon-light-mode.png"><link rel="stylesheet" href="/admin/admin.css">
+  <script defer src="/admin/admin.js"></script>
+</head>
+<body>
+  <main id="login" class="login-view" hidden>
+    <form id="login-form" class="login-card">
+      <img src="/asset/campy-logo.png" alt="Campy" width="150">
+      <h1>Welcome back.</h1><p>Sign in to manage your bookings and subscribers.</p>
+      <label>Username<input name="username" autocomplete="username" required maxlength="200"></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required maxlength="500"></label>
+      <p id="login-error" class="error" role="alert"></p>
+      <button type="submit" class="primary">Sign in</button><a href="/">Back to website ↗</a>
+    </form>
+  </main>
+  <div id="workspace" class="workspace" hidden>
+    <aside class="sidebar">
+      <a href="/admin/" class="brand"><img src="/asset/campy-logo-white.png" alt="Campy" width="154"></a>
+      <p class="nav-caption">Workspace</p>
+      <nav aria-label="Admin navigation">
+        <button data-section="bookings" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>Bookings</button>
+        <button data-section="subscribers" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/></svg>Subscribers</button>
+      </nav>
+      <div class="sidebar-bottom"><a href="/" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>View website</a><button id="logout" class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button></div>
+    </aside>
+    <main class="content">
+      <header class="page-header"><div><h1 id="page-title">Bookings</h1><p id="page-description">Manage demo requests and school conversations.</p></div><button id="add" class="primary"><span aria-hidden="true">＋</span> Add booking</button></header>
+      <div id="stats" class="stats" aria-label="Record summary"></div>
+      <form id="filters" class="filters">
+        <label class="search">Search<input name="q" type="search" placeholder="Search school name or email…" maxlength="200"></label>
+        <label>Status<select name="status"></select></label>
+        <label id="plan-filter">Plan<select name="plan"><option value="">All plans</option></select></label>
+        <label>From date (UTC)<input name="from" type="date"></label>
+        <label>To date (UTC)<input name="to" type="date"></label>
+        <button id="clear" type="button" class="outline">Clear filters</button>
+      </form>
+      <div class="table-toolbar"><p id="result-summary" aria-live="polite"></p><div class="table-options"><button id="email-verify" class="outline">Check email connection</button><label>Sort<select id="sort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></label></div></div>
+      <p id="page-error" class="error" role="alert" hidden></p><button id="retry" class="outline" hidden>Try again</button>
+      <div id="table-region" class="table-region" aria-busy="true"><table><caption class="sr-only" id="table-caption">Bookings</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table><div id="empty" class="empty" hidden></div></div>
+      <footer class="pagination"><p id="pagination-summary" aria-live="polite"></p><div><label>Rows per page<select id="page-size"><option>10</option><option>25</option><option>50</option></select></label><button id="previous" class="outline">Previous</button><span id="page-number"></span><button id="next" class="dark">Next</button></div></footer>
+    </main>
+  </div>
+  <p id="boot" class="boot" role="status">Loading admin…</p>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="editor" aria-labelledby="editor-title">
+    <form id="record-form"><header class="dialog-header"><div><h2 id="editor-title">Add booking</h2><p id="record-meta"></p></div><button type="button" class="close" data-close="editor" aria-label="Close">×</button></header>
+      <div class="form-grid">
+        <label class="wide">Email<input name="email" type="email" required maxlength="200"></label>
+        <label data-booking>Name<input name="name" maxlength="100"></label><label data-booking>Phone<input name="phone" type="tel" maxlength="19"></label>
+        <label data-booking class="wide">School<input name="school" maxlength="150"></label>
+        <label data-booking>Role<select name="role"></select></label><label data-booking>School size<select name="size"></select></label>
+        <label data-booking class="wide">Plan<select name="plan"></select></label>
+        <label>Status<select name="status"></select></label><label data-booking>Scheduled demo (local time)<input name="scheduled_at" type="datetime-local"></label>
+        <label data-booking class="wide">Visitor message<textarea name="message" rows="3" maxlength="2000"></textarea></label>
+        <label class="wide">Internal notes<textarea name="notes" rows="3" maxlength="4000"></textarea></label>
+      </div>
+      <p id="record-error" class="error" role="alert"></p><footer class="dialog-footer"><button type="button" data-close="editor" class="outline">Cancel</button><button type="submit" class="primary">Save record</button></footer>
+    </form>
+  </dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title"><form id="delete-form"><h2 id="delete-title">Delete this record?</h2><p id="delete-description"></p><p>This permanently removes the record from your list.</p><p id="delete-error" class="error" role="alert"></p><footer class="dialog-footer"><button type="button" data-close="delete-dialog" class="outline">Cancel</button><button type="submit" class="danger">Delete record</button></footer></form></dialog>
+  <dialog id="email-dialog" aria-labelledby="email-title"><form id="email-form"><h2 id="email-title">Send a Campy confirmation?</h2><p id="email-description"></p><p>The branded email includes the Campy logo, a greeting, and this record’s booking or subscription details. It will be sent from admin@nexzart.com.</p><p id="email-error" class="error" role="alert"></p><footer class="dialog-footer"><button type="button" data-close="email-dialog" class="outline">Cancel</button><button type="submit" class="primary">Send confirmation</button></footer></form></dialog>
+</body>
+</html>

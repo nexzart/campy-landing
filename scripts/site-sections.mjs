@@ -21,16 +21,16 @@ function planBadge(planId, dark = false) {
 
 // Homepage: every module as a card.
 function modulesGrid() {
-  return `<ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+  return `<ul class="cap cap-34 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
 ${MODULES.map((m) => `  <li>
     <a href="/features#${m.id}" class="tool-card group">
       <span class="flex items-start justify-between gap-3">
         <span class="tool-card-icon"><i data-lucide="${m.icon}" class="h-5 w-5"></i></span>
         ${planBadge(m.plan)}
       </span>
-      <span class="mt-5 block text-lg font-semibold leading-snug">${esc(m.name)}</span>
-      <span class="mt-2 block text-sm leading-relaxed text-primary/65">${esc(m.tagline)}</span>
-      <span class="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold">${m.features.length} features<i data-lucide="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5"></i></span>
+      <span class="mt-3 block font-semibold leading-snug">${esc(m.name)}</span>
+      <span class="mt-1 block text-sm leading-relaxed text-primary/65">${esc(m.tagline)}</span>
+      <span class="mt-auto inline-flex items-center gap-1.5 pt-3 text-sm font-semibold">${m.features.length} features<i data-lucide="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5"></i></span>
     </a>
   </li>`).join('\n')}
 </ul>`;
@@ -38,11 +38,11 @@ ${MODULES.map((m) => `  <li>
 
 // Homepage: the new ERP and CMS modules as photo cards.
 function modulesShowcase() {
-  return `<ul class="grid gap-6 md:grid-cols-3">
+  return `<ul class="grid gap-4 md:grid-cols-3">
 ${['fees', 'hr-payroll', 'website'].map((id) => {
     const m = MODULES.find((x) => x.id === id);
     return `  <li>
-    <a href="/features#${m.id}" class="role-card group block !aspect-[4/5] md:!aspect-[3/4]">
+    <a href="/features#${m.id}" class="role-card group block !aspect-[16/10] md:!aspect-[4/5]">
       <img src="/asset/photos/${m.photo}.webp" width="1200" height="900" loading="lazy" alt="${esc(m.alt)}">
       <div class="role-card-body">
         <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-primary"><i data-lucide="${m.icon}" class="h-5 w-5"></i></span>
@@ -112,18 +112,42 @@ ${PLANS.map((p) => {
       ${deal ? `<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary"><i data-lucide="zap" class="h-3.5 w-3.5"></i>${esc(deal.badge)}</span>` : ''}
     </div>
     <p class="relative mt-2 text-[0.9375rem] ${dark ? 'text-white/75' : 'text-primary/65'}">${esc(p.tagline)}</p>
-    <p class="relative mt-6"><span class="font-display text-4xl font-bold${deal ? ' marker' : ''}">${rupees(p.price)}</span><span class="${dark ? 'text-white/70' : 'text-primary/60'}"> /year</span></p>
+    <p class="relative mt-4"><span class="font-display text-3xl font-bold${deal ? ' marker' : ''}">${rupees(p.price)}</span><span class="${dark ? 'text-white/70' : 'text-primary/60'}"> /year</span></p>
     <p class="relative mt-1 text-sm ${dark ? 'text-white/70' : 'text-primary/60'}">+ GST · unlimited students and staff</p>
     ${deal ? `<p class="relative mt-4 flex gap-2 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold"><i data-lucide="lock" class="mt-0.5 h-4 w-4 shrink-0 text-secondary"></i>${esc(deal.note)}</p>` : ''}
-    <ul class="relative mt-7 space-y-3 text-[0.9375rem]">
+    <ul class="relative mt-5 space-y-2 text-sm">
 ${p.highlights.map((h) => `      <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>${esc(h)}</li>`).join('\n')}
       <li class="flex gap-3"><i data-lucide="hard-drive" class="mt-0.5 h-5 w-5 ${dark ? 'text-white/60' : 'text-primary/50'}"></i>${esc(p.storage)} storage</li>
       <li class="flex gap-3"><i data-lucide="life-buoy" class="mt-0.5 h-5 w-5 ${dark ? 'text-white/60' : 'text-primary/50'}"></i>${esc(p.support)}</li>
     </ul>
-    <a href="/contact?plan=${p.id}" class="btn ${dark || deal ? 'btn-lime' : 'btn-outline'} relative mt-8">${esc(p.cta)}${deal ? '<i data-lucide="arrow-right" class="h-4 w-4"></i>' : ''}</a>
+    <a href="/contact?plan=${p.id}" class="btn ${dark || deal ? 'btn-lime' : 'btn-outline'} relative mt-6">${esc(p.cta)}${deal ? '<i data-lucide="arrow-right" class="h-4 w-4"></i>' : ''}</a>
   </li>`;
   }).join('\n')}
 </ul>`;
+}
+
+// Homepage: the Essential plan alone, as one wide card.
+function planEssential() {
+  const p = PLAN.essential;
+  const d = p.deal;
+  return `<div class="relative grid gap-6 rounded-3xl border-2 border-secondary bg-secondary/[0.06] p-5 shadow-card sm:p-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
+  <div class="flex flex-col">
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <h3 class="text-lg font-semibold">${esc(p.name)}</h3>
+      ${d ? `<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary"><i data-lucide="zap" class="h-3.5 w-3.5"></i>${esc(d.badge)}</span>` : ''}
+    </div>
+    <p class="mt-2 text-sm text-primary/65">${esc(p.tagline)}</p>
+    <p class="mt-4"><span class="font-display text-4xl font-bold${d ? ' marker' : ''}">${rupees(p.price)}</span><span class="text-primary/60"> /year</span></p>
+    <p class="mt-1 text-sm text-primary/60">+ GST · unlimited students and staff</p>
+    ${d ? `<p class="mt-4 flex gap-2 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold"><i data-lucide="lock" class="mt-0.5 h-4 w-4 shrink-0 text-secondary"></i>${esc(d.note)}</p>` : ''}
+    <a href="/contact?plan=${p.id}" class="btn btn-lime mt-6 self-start">${esc(p.cta)}<i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+  </div>
+  <ul class="grid content-start gap-x-6 gap-y-2.5 text-sm sm:grid-cols-2">
+${p.highlights.map((h) => `    <li class="flex gap-2.5"><i data-lucide="circle-check" class="mt-0.5 h-4 w-4 shrink-0 text-secondary"></i>${esc(h)}</li>`).join('\n')}
+    <li class="flex gap-2.5"><i data-lucide="hard-drive" class="mt-0.5 h-4 w-4 shrink-0 text-primary/50"></i>${esc(p.storage)} storage</li>
+    <li class="flex gap-2.5"><i data-lucide="life-buoy" class="mt-0.5 h-4 w-4 shrink-0 text-primary/50"></i>${esc(p.support)}</li>
+  </ul>
+</div>`;
 }
 
 function planCompare() {
@@ -183,8 +207,8 @@ function planBuilder() {
 }
 
 function integrationsStrip() {
-  return `<ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-${INTEGRATIONS.slice(0, 8).map((g) => `  <li class="rounded-2xl border border-primary/10 bg-white p-5">
+  return `<ul class="cap cap-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+${INTEGRATIONS.slice(0, 8).map((g) => `  <li class="rounded-2xl border border-primary/10 bg-white p-4">
     <span class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/[0.05]"><i data-lucide="${g.icon}" class="h-5 w-5"></i></span><span class="font-semibold">${esc(g.name)}</span></span>
     <p class="mt-3 text-sm leading-relaxed text-primary/65">${esc(g.items.slice(0, 4).map((i) => i[0]).join(', '))}${g.items.length > 4 ? ' and more' : ''}.</p>
   </li>`).join('\n')}
@@ -300,6 +324,7 @@ export const SECTIONS = {
   'site:modules-showcase': modulesShowcase,
   'site:features': featuresDetail,
   'site:plans': planCards,
+  'site:plan-essential': planEssential,
   'site:plan-compare': planCompare,
   'site:plan-builder': planBuilder,
   'site:integrations-strip': integrationsStrip,

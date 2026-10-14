@@ -3,6 +3,8 @@
   "name": "campy-landing",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "triggers": { "crons": ["*/5 * * * *"] },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
@@ -10,12 +12,11 @@
     "html_handling": "auto-trailing-slash",
     // Unknown paths get dist/404.html with a 404 status.
     "not_found_handling": "404-page",
-    // The Worker only runs for the htmx form endpoints; everything else is static.
+    // Public form and authenticated admin APIs run in the Worker.
     "run_worker_first": ["/api/*"]
   },
-  // Demo requests ("demo:*") and newsletter sign-ups ("subscriber:*") from the htmx forms.
-  "kv_namespaces": [
-    { "binding": "LEADS", "id": "e1e530336e1143d8bed1973647eb65f4" }
+  "d1_databases": [
+    { "binding": "DB", "database_name": "campy-leads", "database_id": "fcf1ea8d-0a0a-42db-9f4b-8ca1202250cf", "migrations_dir": "migrations" }
   ],
   "routes": [
     { "pattern": "campy.nexzart.com", "zone_name": "nexzart.com", "custom_domain": true },

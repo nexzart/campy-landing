@@ -4,6 +4,10 @@
   "private": true,
   "description": "Marketing site for Campy (school management software by Nexzart). htmx + Tailwind + Alpine + Lucide, deployed on Cloudflare Workers.",
   "scripts": {
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "test:integration": "node scripts/test-integration.mjs",
+    "test:email": "node scripts/test-email.mjs",
     "start": "npm run dev",
     "dev": "npm run build -- --dev && wrangler dev",
     "build": "node scripts/build.mjs",
@@ -18,5 +22,8 @@
     "simple-icons": "^16.35.0",
     "tailwindcss": "^3.4.17",
     "wrangler": "^4.149.0"
+  },
+  "dependencies": {
+    "nodemailer": "^10.1.1"
   }
 }

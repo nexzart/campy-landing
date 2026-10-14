@@ -70,9 +70,9 @@ const PAGES = [
     description: 'Campy works with any payment gateway, WhatsApp Business, face recognition and RFID attendance, GPS bus tracking, Tally, Google Workspace and Microsoft 365.',
   },
   {
-    file: 'tools', path: '/tools', type: 'CollectionPage', priority: '0.9', changefreq: 'weekly', crumb: 'Free tools',
+    file: 'tools', path: '/tools', type: 'CollectionPage', priority: '0.9', changefreq: 'weekly', crumb: 'Tools',
     title: `${TOOLS.length} Free School Tools: Calculators, Certificates & Planners | Campy`,
-    description: 'Free tools for Indian schools: attendance and CGPA calculators, TC and bonafide certificates, timetables, seating plans and compliance checklists. No sign-up.',
+    description: 'Tools for Indian schools: attendance and CGPA calculators, TC and bonafide certificates, timetables, seating plans and compliance checklists. No sign-up.',
   },
   {
     file: 'contact', path: '/contact', type: 'ContactPage', priority: '0.8', changefreq: 'yearly', crumb: 'Book a demo',
@@ -82,7 +82,7 @@ const PAGES = [
   {
     file: 'terms', path: '/terms', type: 'WebPage', priority: '0.3', changefreq: 'yearly', crumb: 'Terms and conditions',
     title: 'Terms and Conditions | Campy',
-    description: 'The terms that apply to Campy subscriptions, fee payments, the 0.1% platform fee, school data, the free tools and this website.',
+    description: 'The terms that apply to Campy subscriptions, fee payments, the 0.1% platform fee, school data, the Tools and this website.',
   },
   {
     file: 'privacy', path: '/privacy', type: 'WebPage', priority: '0.3', changefreq: 'yearly', crumb: 'Privacy policy',
@@ -243,7 +243,7 @@ function jsonLd(page, main) {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
 }
 
-// ---------------------------------------------------------------- free tools
+// ---------------------------------------------------------------- Tools
 
 const CATEGORY = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 const TOOL = Object.fromEntries(TOOLS.map((t) => [t.slug, t]));
@@ -291,7 +291,7 @@ function toolMain(t, body) {
         <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-primary/60">
           <li><a href="/" class="hover:text-primary">Home</a></li>
           <li aria-hidden="true">/</li>
-          <li><a href="/tools" class="hover:text-primary">Free tools</a></li>
+          <li><a href="/tools" class="hover:text-primary">Tools</a></li>
           <li aria-hidden="true">/</li>
           <li><a href="/tools#${cat.id}" class="hover:text-primary">${esc(cat.name)}</a></li>
         </ol>
@@ -333,7 +333,7 @@ ${faqSection(t.faqs, 'Frequently asked questions')}
   <section class="border-t border-primary/10 bg-primary/[0.025]">
     <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <div class="flex flex-wrap items-end justify-between gap-4">
-        <h2 class="font-display text-3xl font-bold">More free tools</h2>
+        <h2 class="font-display text-3xl font-bold">More Tools</h2>
         <a href="/tools" class="link-btn">All ${TOOLS.length} tools<i data-lucide="arrow-right" class="h-4 w-4"></i></a>
       </div>
       <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -363,7 +363,7 @@ ${list.map((t) => toolCard(t, true)).join('\n')}
 }
 
 function toolsFeatured() {
-  return `<ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  return `<ul class="cap cap-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
 ${FEATURED.map((s) => toolCard(TOOL[s])).join('\n')}
 </ul>`;
 }
@@ -375,7 +375,7 @@ const TOOL_PAGES = TOOLS.map((t) => ({
   type: 'WebPage',
   priority: '0.7',
   changefreq: 'monthly',
-  crumbs: [{ name: 'Free tools', path: '/tools' }, { name: t.name, path: `/tools/${t.slug}` }],
+  crumbs: [{ name: 'Tools', path: '/tools' }, { name: t.name, path: `/tools/${t.slug}` }],
   title: t.title,
   description: t.description,
   tool: t,
@@ -402,6 +402,9 @@ copy(path.join(NM, 'alpinejs', 'dist', 'cdn.min.js'), path.join(DIST, 'js', 'alp
 copy(path.join(SRC, 'js', 'app.js'), path.join(DIST, 'js', 'app.js'));
 copy(path.join(SRC, 'js', 'tools.js'), path.join(DIST, 'js', 'tools.js'));
 copy(path.join(SRC, 'js', 'dropdown.js'), path.join(DIST, 'js', 'dropdown.js'));
+copy(path.join(SRC, 'admin', 'index.html'), path.join(DIST, 'admin', 'index.html'));
+copy(path.join(SRC, 'admin', 'admin.css'), path.join(DIST, 'admin', 'admin.css'));
+copy(path.join(SRC, 'admin', 'admin.js'), path.join(DIST, 'admin', 'admin.js'));
 for (const w of [400, 500, 600, 700, 800]) {
   for (const subset of ['latin', 'latin-ext']) {
     const f = `poppins-${subset}-${w}-normal.woff2`;
@@ -571,6 +574,11 @@ write(path.join(DIST, '_headers'), `/*
 
 /partials/*
   X-Robots-Tag: noindex
+
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'
 `);
 
 for (const p of [...PAGES, ...TOOL_PAGES]) {

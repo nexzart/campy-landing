@@ -27,3 +27,4 @@ They are cropped and converted to WebP for the site.
 | biometric.webp | Maxim Tolchinskiy | https://unsplash.com/photos/CqSpoJs2ehg |
 | teacher-tablet.webp | SUSHMITA NAG | https://unsplash.com/photos/F9WilWyaOJs |
 | student-uniform.webp | Raj Rana | https://unsplash.com/photos/nWpTGnP_jWE |
+| hero-teacher.webp | Unsplash contributor | https://unsplash.com/photos/3755977927d7 |

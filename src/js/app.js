@@ -135,7 +135,7 @@
 
   document.addEventListener('DOMContentLoaded', markActiveNav);
 
-  // Cookie consent. The choice itself is essential storage; everything the free tools
+  // Cookie consent. The choice itself is essential storage; everything the Tools
   // remember counts as "preferences" and is only kept when the visitor allows it.
   var CONSENT_KEY = 'campy-consent';
   function readConsent() {
@@ -275,7 +275,7 @@
       };
     });
 
-    // Free tools index: filter the cards by search text and category.
+    // Tools index: filter the cards by search text and category.
     Alpine.data('toolFinder', function () {
       return {
         q: '',

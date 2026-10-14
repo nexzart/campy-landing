@@ -21,8 +21,8 @@ Re-run `npm run build` after editing anything in `src/` while `npm run dev` is r
 | `src/pages/*.html` | The `<main>` of each page. The build adds the head, navbar and footer. |
 | `src/partials/` | Navbar, footer and cookie consent banner. |
 | `src/css/app.css` | Tailwind entry point, self-hosted Poppins font, buttons and form styles. |
-| `src/js/app.js` | htmx settings, active-nav state, and the Alpine components (hero register demo, pricing estimator, free tools search). |
-| `src/tools/` | The free tools: `registry.mjs` (names, SEO text, FAQs), `pages/` (each tool’s body) and `partials/` (shared snippets). |
+| `src/js/app.js` | htmx settings, active-nav state, and the Alpine components (hero register demo, pricing estimator, Tools search). |
+| `src/tools/` | The Tools: `registry.mjs` (names, SEO text, FAQs), `pages/` (each tool’s body) and `partials/` (shared snippets). |
 | `src/site/catalog.mjs` | Modules and their features, plans and prices, add-ons, the platform fee and integrations. One source for the homepage, features, pricing and integrations pages. |
 | `scripts/site-sections.mjs` | Renders the catalog into the `{{site:…}}` sections used by those pages. |
 | `src/partials/consent.html` | Cookie banner and settings dialog (Alpine `consent` component in `app.js`). |
@@ -30,8 +30,9 @@ Re-run `npm run build` after editing anything in `src/` while `npm run dev` is r
 | `src/js/dropdown.js` | Turns every `<select>` into the custom dropdown. Write plain `<select>` markup (with `x-model`, `@change` or `name`) and it is upgraded automatically; add `data-native` to keep a browser dropdown. |
 | `scripts/build.mjs` | Page metadata (titles, descriptions, JSON-LD), icon inlining, Tailwind compile, sitemap, robots.txt, `_headers`. |
 | `worker/index.js` | Handles `POST /api/demo` and `POST /api/subscribe` and returns HTML fragments for htmx. |
-| `apps-script/` | Saves form submissions to Google Sheets and calls the SMTP relay. |
-| `smtp-relay/` | Separate Node.js Nodemailer service for GoDaddy SMTP. |
+| `src/admin/` | Standalone admin dashboard at `/admin/`, with bookings, subscribers, filters and CRUD dialogs. |
+| `worker/admin.js` | Authenticated D1 APIs, validation, signed sessions and login throttling. |
+| `migrations/` | Versioned D1 database schema. |
 | `asset/` | Designer logo files, plus the cropped transparent `campy-*.png` copies and the `favicon-light-mode.png` / `favicon-dark-mode.png` tab icons (picked by the browser/OS colour scheme) that the build ships. |
 | `asset/photos/` | Unsplash photos used on the homepage, cropped to WebP. Sources and photographers are in `CREDITS.md`. |
 | `asset/` (logos) | Integration logos aren't stored here. The build writes them to `/asset/logos` from two CC0 packages, `@iconify-json/logos` (SVG Logos, in colour) and `simple-icons`; see `LOGOS` in `src/site/catalog.mjs`. |
@@ -42,9 +43,9 @@ Re-run `npm run build` after editing anything in `src/` while `npm run dev` is r
 Only `#0A204E` (primary) and `#7EBB02` (secondary) on white. Neutrals are opacity tints of the primary colour, such as `text-primary/70`.
 The secondary colour is too light for text on white, so use it only for fills, dots and underlines, or for text on the primary colour.
 
-## Free tools
+## Tools
 
-`/tools` lists 38 free tools (calculators, certificate generators, planners and checklists), and each one has its own page at `/tools/<slug>`. The homepage shows the tools listed in `FEATURED`. Everything runs in the browser. The only thing stored is the school’s letterhead and checklist ticks, in `localStorage`.
+`/tools` lists 38 Tools (calculators, certificate generators, planners and checklists), and each one has its own page at `/tools/<slug>`. The homepage shows the tools listed in `FEATURED`. Everything runs in the browser. The only thing stored is the school’s letterhead and checklist ticks, in `localStorage`.
 
 To add a tool:
 
@@ -66,7 +67,7 @@ Current prices: Essential ₹35,000, Professional ERP ₹1,00,000 and Enterprise
 
 `/terms` and `/privacy` are in `src/pages/`. Have them reviewed by counsel before relying on them, and update the dates at the top when they change.
 
-The cookie banner stores the visitor’s choice in `localStorage` under `campy-consent`. `window.campyConsent()` returns `{ decided, preferences, analytics }`. The free tools only save the letterhead and checklist ticks when `preferences` is true. Add analytics only behind `analytics`, and listen for the `consent-changed` window event to react to changes.
+The cookie banner stores the visitor’s choice in `localStorage` under `campy-consent`. `window.campyConsent()` returns `{ decided, preferences, analytics }`. The Tools only save the letterhead and checklist ticks when `preferences` is true. Add analytics only behind `analytics`, and listen for the `consent-changed` window event to react to changes.
 
 ## SEO
 
@@ -75,26 +76,82 @@ The cookie banner stores the visitor’s choice in `localStorage` under `campy-c
 - `sitemap.xml` and `robots.txt` are generated on every build. The production origin comes from `SITE_URL` (default `https://campy.nexzart.com`).
 - The navbar and footer are in the HTML source, and icons are inline SVG. Crawlers don't need to run JavaScript to see them.
 
-## Form submissions
+## D1 storage and admin panel
 
-Submissions are stored in the `LEADS` KV namespace with `demo:` and `subscriber:` key prefixes.
+Public demo requests and newsletter subscriptions are saved directly to the `DB` D1 binding (`campy-leads`). Apps Script, Google Sheets and the SMTP relay are no longer used. Branded visitor confirmation emails are delivered by Nodemailer over TLS SMTP from `Campy by Nexzart <admin@nexzart.com>`. The original KV namespace is retained as a legacy backup and is not used by the Worker.
 
-```bash
-npx wrangler kv key list --binding LEADS --remote
-npx wrangler kv key get "<key>" --binding LEADS --remote
+The admin panel is available at **`/admin/`**. Bookings and Subscribers have independent views, server-side search, status and inclusive UTC receipt-date filters, newest/oldest sorting and 10/25/50-row pagination. Bookings also have plan filters. Both support create, read, update and delete. Booking editors include contact details, school, role, size, plan, visitor message, status, a local-time scheduled demo and internal notes. Subscriber editors include email, opt-out status and notes. Deleting a record requires confirmation in the panel.
+
+### Local setup
+
+```powershell
+Copy-Item .dev.vars.example .dev.vars  # only if you do not already have .dev.vars
+# Set ADMIN_USERNAME, ADMIN_PASSWORD and ADMIN_SESSION_SECRET in .dev.vars.
+npm run db:migrate:local
+npm run dev
 ```
 
-## Form emails and Google Sheet
+An ignored `.dev.vars` with generated local credentials may already exist. Read it locally to sign in; do not commit or share it. Use a long unique password and an independent random session secret of at least 32 characters. Admin credentials are read only by the Worker and never embedded in frontend assets. Sessions use signed HttpOnly, SameSite=Strict cookies (Secure on HTTPS), expire after eight hours, and become invalid when credentials/session secret change. Login is limited to ten attempts per IP per fifteen-minute window. All admin mutations require a same-origin Origin header. API responses and admin HTML are not cached.
 
-Every valid demo request and subscription is forwarded to the Apps Script web app in `apps-script/`. It saves the submission to a Google Sheet, then calls the separate `smtp-relay/` Node.js service. Nodemailer sends the existing branded visitor confirmation and an admin notification through GoDaddy Professional Email SMTP as **admin@nexzart.com**. Notifications go to **nexzart.main@gmail.com**, with Reply-To set to the visitor.
+### Production setup
 
-See [smtp-relay/README.md](smtp-relay/README.md) for the full setup, required Script properties, SMTP credentials, hosting, and verification steps. The Apps Script can run under any Google account with edit access to the Sheet; a Google Workspace mailbox or Gmail alias for admin@nexzart.com is not required.
+The D1 database has been created and the initial remote migration applied. Before deploying, set Worker secrets interactively (values are never passed in command arguments):
 
-The Worker uses its existing `APPS_SCRIPT_URL` and `APPS_SCRIPT_SECRET` secrets. Submissions also remain in KV. It answers the visitor before background Sheet/email processing completes, so check Worker logs for failures. The Sheet records each email's status; retries are manual.
+```powershell
+npx wrangler secret put ADMIN_USERNAME
+npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put ADMIN_SESSION_SECRET
+# Keep the real TURNSTILE_SECRET configured for production forms.
+npm run db:migrate:remote
+$env:TURNSTILE_SITE_KEY = '<your public production widget key>'
+npm run deploy
+```
+
+`wrangler secret put` deploys a new Worker version; perform these commands as part of your release. Local `.dev.vars` values are not uploaded automatically. Admin APIs fail closed with 503 until credentials and the DB binding are configured. Production builds require the real Turnstile site key; `--dev` uses Cloudflare's test widget. Never deploy a development build to production.
+
+### Branded confirmation emails
+
+New public demo requests and subscriptions queue a transactional confirmation in D1. The Worker attempts delivery after responding; a five-minute cron retries pending/failed jobs up to three attempts. The templates include Campy’s embedded logo (CID attachment), navy/green theme, greeting, details and plain-text fallback. Private admin notes and credentials are never included. Older imported records and manually added records are not emailed automatically. Use **Send email** / **Resend email** in the admin list to send a confirmation after reviewing the recipient. Opted-out subscribers are suppressed. **Check email connection** verifies SMTP connectivity and authentication without sending a message.
+
+Each new public contact/demo request also queues a separate team notification from `admin@nexzart.com` to **`nexzart.main@gmail.com`**. It includes the visitor’s contact details, school, plan, message and receipt time in IST, an admin link, and Reply-To pointing to the visitor. Visitor confirmation and team notification have independent delivery status, claims and retries, so a failure in either does not suppress the other. The Bookings list shows the team status below the visitor email status. Newsletter signups and manually added/imported records do not send team notifications automatically. The authenticated `POST /api/admin/bookings/:id/notification` endpoint can request/retry a notification and skips records already notified.
+
+Production configuration (keep the password out of source and command arguments):
+
+```powershell
+npx wrangler secret put SMTP_PASSWORD
+```
+
+The default SMTP host is `smtpout.secureserver.net`, port `465` with implicit TLS; login and From address are fixed to `admin@nexzart.com`. Nodemailer uses a direct Workers-compatible socket so it does not depend on Node DNS or multi-address connection selection. Optional `SMTP_HOST` / `SMTP_PORT` environment settings can override the server; port `587` requires STARTTLS. Certificate verification remains enabled. `SMTP_PASSWORD` must be the mailbox’s SMTP password. The existing admin login password is unrelated.
+
+Local `.dev.vars` includes `EMAIL_DELIVERY_ENABLED=false` so development/test submissions cannot send real messages. Only remove this setting locally when you deliberately want real delivery. Do not copy that local flag to production when enabling email.
+
+Delivery statuses are visible in both admin lists. “Sent” means the SMTP server accepted the recipient; it does not guarantee inbox placement. D1 claims prevent concurrent sends; as with any SMTP retry, a crash after server acceptance but before persistence can cause a duplicate. A stable Message-ID is used for retries. Error records contain sanitized SMTP error codes, never passwords or complete server responses. Subscriber unsubscribe replies are handled manually by marking the record **Unsubscribed** in admin.
+
+```powershell
+npm run test:email  # No real emails; produces HTML/PNG-ready previews in ignored output/email/
+```
+
+### Legacy submissions
+
+```powershell
+node scripts/import-legacy-leads.mjs --remote
+```
+
+This idempotent import copies the old `demo:` and `subscriber:` KV entries to D1, preserves receipt dates, skips existing duplicates, and never edits/deletes the original KV data. A temporary SQL file containing lead details is created only inside ignored `.wrangler/` and removed after import. Existing unsubscribed records are not reactivated by duplicate public subscription requests.
+
+### Verification
+
+With `npm run dev` running in another terminal:
+
+```powershell
+npm run test:integration
+```
+
+The integration check uses local credentials from `.dev.vars`, creates disposable records in the local database, tests authentication, CRUD, filters, pagination, public form persistence, and removes only records it created. It refuses a non-local server URL.
 
 ## Bot protection (Cloudflare Turnstile)
 
-Both forms (the demo request and the footer subscribe form) carry a Cloudflare Turnstile widget. The Worker verifies the token with Cloudflare before saving or emailing anything, and rejects the submission if the token is missing, invalid, or Cloudflare can't be reached. The footer widget only appears if Cloudflare wants more proof; the demo form always shows it. The honeypot field stays as a second layer.
+Both forms (the demo request and the footer subscribe form) carry a Cloudflare Turnstile widget. The Worker verifies the token with Cloudflare before saving anything, and rejects the submission if the token is missing, invalid, or Cloudflare can't be reached. The footer widget only appears if Cloudflare wants more proof; the demo form always shows it. The honeypot field stays as a second layer.
 
 Setup:
 

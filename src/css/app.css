@@ -124,6 +124,9 @@ body {
   h2.font-display.text-5xl {
     font-size: clamp(1.75rem, 7.5vw, 2.25rem);
   }
+  h2.font-display.text-2xl {
+    font-size: clamp(1.375rem, 6vw, 1.625rem);
+  }
   p, h1, h2, h3, label, .prose-tool {
     overflow-wrap: anywhere;
   }
@@ -136,7 +139,7 @@ body {
     font-size: 1rem;
   }
   .solution-card {
-    padding: 1.5rem;
+    padding: 1.125rem;
   }
   #cookie-consent [role='region'] {
     max-height: calc(100dvh - 1.5rem);
@@ -269,12 +272,43 @@ body {
   box-shadow: 0 1px 2px rgb(10 32 78 / 0.06), 0 24px 48px -24px rgb(10 32 78 / 0.35);
 }
 
+/* Card grids that stop after two rows (one row of three on a phone). .cap shows 3 on a phone and
+   4 on two columns; the modifier sets the cap for the widest column count: -3 shows 6, -4 shows 8,
+   -34 shows 6 on three columns and 8 on four. The rest are on /features. */
+@media (max-width: 639px) {
+  .cap > :nth-child(n + 4) {
+    display: none;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .cap > :nth-child(n + 5) {
+    display: none;
+  }
+}
+@media (min-width: 1024px) {
+  .cap-3 > :nth-child(n + 7),
+  .cap-34 > :nth-child(n + 7) {
+    display: none;
+  }
+  .cap-4 > :nth-child(n + 9) {
+    display: none;
+  }
+}
+@media (min-width: 1280px) {
+  .cap-34 > :nth-child(n + 7) {
+    display: list-item;
+  }
+  .cap-34 > :nth-child(n + 9) {
+    display: none;
+  }
+}
+
 .solution-card {
   display: flex;
   flex-direction: column;
-  border-radius: 1.5rem;
+  border-radius: 1.25rem;
   border: 1px solid rgb(10 32 78 / 0.1);
-  padding: 2rem;
+  padding: 1.5rem;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .solution-card:hover {
@@ -537,7 +571,7 @@ details[open] .chev {
   }
 }
 
-/* ------------------------------------------------------------------ Free tools */
+/* ------------------------------------------------------------------ Tools */
 
 /* Index and homepage cards */
 .tool-card {

@@ -1,12 +1,7 @@
-// Campy landing – Cloudflare Worker.
-// Static pages are served from ./dist by Workers Static Assets; this script only runs
-// for /api/* (see run_worker_first in wrangler.jsonc) and answers the htmx form posts
-// with HTML fragments. Submissions are stored in the LEADS KV namespace, and the
-// Google Apps Script mailer (apps-script/Code.gs) emails the visitor and the team.
+// Campy forms persist directly to D1; admin APIs use environment credentials.
+import { createLead, handleAdmin, ROLES, SIZES, PLANS } from './admin.js';
+import { deliverConfirmation, deliverTeamNotification, drainConfirmationEmails } from './email.js';
 
-const ROLES = ['Principal', 'School administrator', 'Teacher', 'Accountant or bursar', 'Owner or trustee', 'Other'];
-const SIZES = ['Under 300', '300 to 1,000', '1,000 to 3,000', 'More than 3,000', 'Several schools'];
-const PLANS = ['Essential', 'Professional ERP', 'Enterprise ERP + CMS', 'Custom: Essential with add-on modules'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^[+\d][\d\s-]{6,18}$/;
 const MAX_BODY = 16 * 1024;
@@ -40,40 +35,19 @@ async function readForm(request) {
 }
 
 async function save(env, prefix, record, request) {
-  const entry = {
-    ...record,
-    receivedAt: new Date().toISOString(),
-    country: request.cf?.country ?? null,
-    userAgent: request.headers.get('user-agent') ?? null,
-  };
-  if (!env.LEADS) {
-    console.log(`[${prefix}] LEADS binding missing, logging only`, JSON.stringify(entry));
-    return entry;
+  if (!env.DB) throw new Error('DB binding is required');
+  const type = prefix === 'demo' ? 'bookings' : 'subscribers';
+  if (type === 'subscribers') {
+    // Repeated signups are idempotent; only an explicit admin edit reactivates an opt-out.
+    const existing = await env.DB.prepare("SELECT id FROM leads WHERE type = 'subscribers' AND email = ?").bind(record.email.toLowerCase()).first();
+    if (existing) return existing;
   }
-  await env.LEADS.put(`${prefix}:${entry.receivedAt}:${crypto.randomUUID()}`, JSON.stringify(entry));
-  return entry;
-}
-
-// Hands the submission to the Apps Script mailer after the response is sent, so the
-// visitor isn't kept waiting. The lead is already in KV if the email fails.
-function sendEmails(env, ctx, type, lead, entry) {
-  if (!env.APPS_SCRIPT_URL || !env.APPS_SCRIPT_SECRET) {
-    console.log(`[${type}] APPS_SCRIPT_URL or APPS_SCRIPT_SECRET missing, no email sent`);
-    return;
+  try {
+    return await createLead(env, type, { ...record, status: type === 'bookings' ? 'new' : 'active' }, request.cf?.country ?? null, new Date().toISOString(), crypto.randomUUID(), true);
+  } catch (error) {
+    if (type === 'subscribers' && String(error.message).includes('UNIQUE constraint failed')) return {};
+    throw error;
   }
-  const payload = { secret: env.APPS_SCRIPT_SECRET, type, lead, meta: { receivedAt: entry.receivedAt, country: entry.country } };
-  ctx.waitUntil(
-    fetch(env.APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-      .then(async (res) => {
-        const result = await res.json().catch(() => null);
-        if (!res.ok || !result?.ok) console.error(`[${type}] mailer failed`, res.status, JSON.stringify(result));
-      })
-      .catch((err) => console.error(`[${type}] mailer unreachable`, err)),
-  );
 }
 
 // Verifies the Cloudflare Turnstile token the form sent. Fails closed: with no secret
@@ -114,7 +88,6 @@ function demoSuccess(lead) {
   <span class="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary">${ICON_CHECK}</span>
   <h2 class="font-display mt-6 text-2xl font-bold">Request received, ${first}.</h2>
   <p class="mt-3 text-primary/70">Our team will contact you <strong class="font-semibold text-primary">within 24 hours</strong> on ${escapeHtml(lead.phone)} or at <strong class="font-semibold text-primary">${escapeHtml(lead.email)}</strong> to schedule a walkthrough of Campy for ${escapeHtml(lead.school)}.</p>
-  <p class="mt-3 text-primary/70">A confirmation with the details you sent is on its way to your inbox.</p>
   <p class="mt-6 text-sm text-primary/60">Have your class list and current timetable handy. We’ll use them to show you your own school in Campy.</p>
   <a href="/features" class="btn btn-outline mt-8">Read about the features</a>
 </div>`;
@@ -149,7 +122,8 @@ async function handleDemo(request, env, ctx) {
   }
 
   const entry = await save(env, 'demo', lead, request);
-  sendEmails(env, ctx, 'demo', lead, entry);
+  ctx.waitUntil(deliverConfirmation(env, entry.id).catch(error => console.error('Email job failed', { leadId: entry.id, name: error.name })));
+  ctx.waitUntil(deliverTeamNotification(env, entry.id).catch(error => console.error('Team notification job failed', { leadId: entry.id, name: error.name })));
   return isHtmx ? html(demoSuccess(lead)) : redirect('/contact?sent=1');
 }
 
@@ -167,14 +141,17 @@ async function handleSubscribe(request, env, ctx) {
     });
   }
   const entry = await save(env, 'subscriber', { email }, request);
-  sendEmails(env, ctx, 'subscribe', { email }, entry);
+  if (entry.id) ctx.waitUntil(deliverConfirmation(env, entry.id).catch(error => console.error('Email job failed', { leadId: entry.id, name: error.name })));
   return html(`<div id="subscribe-form" class="flex items-start gap-3 rounded-xl bg-white/5 p-4 text-sm" role="status">
   ${ICON_MAIL_CHECK}
-  <p class="text-white/80">Subscribed. A confirmation is on its way to <span class="text-white">${escapeHtml(email)}</span>, and product updates will follow about once a month.</p>
+  <p class="text-white/80">Your subscription request for <span class="text-white">${escapeHtml(email)}</span> has been received.</p>
 </div>`);
 }
 
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(drainConfirmationEmails(env));
+  },
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const { pathname } = url;
@@ -184,13 +161,20 @@ export default {
       return Response.redirect(url, 308);
     }
 
+    if (pathname.startsWith('/api/admin/')) return handleAdmin(request, env);
+
     if (pathname === '/api/demo' || pathname === '/api/subscribe') {
       if (request.method !== 'POST') return html('Method not allowed', { status: 405, headers: { Allow: 'POST' } });
       try {
         return pathname === '/api/demo' ? await handleDemo(request, env, ctx) : await handleSubscribe(request, env, ctx);
       } catch (err) {
         console.error(err);
-        return html('<p class="text-sm">That request could not be read. Refresh the page and try again.</p>', { status: 400 });
+        const isHtmx = request.headers.get('hx-request') === 'true';
+        return html('<p class="text-sm" role="alert">We could not save your request. Please try again shortly.</p>', {
+          // Like field validation errors, show the error without removing the form.
+          status: isHtmx ? 200 : 503,
+          headers: isHtmx ? { 'HX-Retarget': pathname === '/api/demo' ? '#demo-errors' : '#subscribe-msg', 'HX-Reswap': 'innerHTML' } : {},
+        });
       }
     }
 
