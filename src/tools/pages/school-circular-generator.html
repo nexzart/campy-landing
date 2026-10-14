@@ -1,0 +1,64 @@
+<div x-data="circular" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Circular</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Start from a template</span>
+          <select class="field" x-model="template" @change="useTemplate()">
+            <option value="ptm">Parent–teacher meeting</option>
+            <option value="holiday">Holiday notice</option>
+            <option value="fees">Fee reminder</option>
+            <option value="exam">Exam schedule</option>
+            <option value="event">Event invitation</option>
+            <option value="blank">Blank</option>
+          </select>
+        </label>
+        <label><span class="label">Reference number</span><input class="field" x-model="f.ref"></label>
+        <label><span class="label">Date</span><input type="date" class="field" x-model="f.date"></label>
+        <label class="sm:col-span-2"><span class="label">To</span><input class="field" x-model="f.to"></label>
+        <label class="sm:col-span-2"><span class="label">Subject</span><input class="field" x-model="f.subject"></label>
+        <label class="sm:col-span-2"><span class="label">Message</span><textarea rows="10" class="field" x-model="f.body"></textarea>
+          <span class="hint mt-1 block">Leave a blank line between paragraphs.</span>
+        </label>
+        <label><span class="label">Issued by</span><input class="field" x-model="f.sign" :placeholder="$store.school.principal || 'Name'"></label>
+        <label><span class="label">Designation</span><input class="field" x-model="f.designation"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#circular-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="circular-doc" class="paper">
+      {{include:letterhead}}
+      <div class="mt-4 flex justify-between text-[0.8125rem]"><span>Ref.: <span x-text="f.ref"></span></span><span>Date: <span x-text="$date(f.date)"></span></span></div>
+      <p class="doc-title">Circular</p>
+      <p class="mt-4 text-[0.875rem]"><strong>To:</strong> <span x-text="f.to"></span></p>
+      <p class="mt-1 text-[0.875rem]"><strong>Subject:</strong> <span x-text="f.subject"></span></p>
+      <div class="mt-5 space-y-3 text-[0.9375rem] leading-relaxed">
+        <template x-for="(p, i) in paragraphs" :key="i"><p class="whitespace-pre-line" x-text="p"></p></template>
+      </div>
+      <div class="mt-12 text-[0.875rem]">
+        <p class="font-semibold" x-text="f.sign || $store.school.principal || ''"></p>
+        <p x-text="f.designation"></p>
+        <p x-text="$store.school.title"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How to write a clear school circular</h2>
+  <ol>
+    <li><strong>Subject line:</strong> say what it is about in a few words, such as “Parent–Teacher Meeting on 14 November”.</li>
+    <li><strong>First paragraph:</strong> what is happening, when and where.</li>
+    <li><strong>Second paragraph:</strong> what parents or staff need to do, and by when.</li>
+    <li><strong>Close:</strong> the name and designation of the person issuing it.</li>
+  </ol>
+  <p>Give every circular a reference number from your register, such as CIR/2026–27/054, so parents and staff can refer to it later.</p>
+  <h2>Getting circulars to parents</h2>
+  <p>A printed circular often stays in a school bag. Sending the same notice to parents’ phones, and asking them to acknowledge it, means you know who has read it.</p>
+</div>

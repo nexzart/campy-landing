@@ -1,0 +1,54 @@
+<div x-data="bellSchedule" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="panel self-start">
+    <h2 class="panel-title">School day</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label><span class="label">School starts</span><input type="time" class="field" x-model="start"></label>
+      <label><span class="label">Assembly (min)</span><input type="number" min="0" class="field" x-model.number="assembly"></label>
+      <label><span class="label">Periods</span><input type="number" min="1" max="14" class="field" x-model.number="periods"></label>
+      <label><span class="label">Period length (min)</span><input type="number" min="5" class="field" x-model.number="length"></label>
+      <label class="sm:col-span-2"><span class="label">Passing time between periods (min)</span><input type="number" min="0" class="field" x-model.number="passing"></label>
+    </div>
+    <p class="label mt-6">Breaks</p>
+    <div class="space-y-2">
+      <template x-for="(b, i) in breaks" :key="i">
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <input class="field field-sm w-32" x-model="b.label" aria-label="Break name">
+          <span>after period</span>
+          <input type="number" min="1" class="field field-sm w-16" x-model.number="b.after" aria-label="After period">
+          <span>for</span>
+          <input type="number" min="1" class="field field-sm w-16" x-model.number="b.minutes" aria-label="Minutes">
+          <span>min</span>
+          <button type="button" class="icon-btn" @click="breaks.splice(i, 1)" aria-label="Remove break"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+        </div>
+      </template>
+    </div>
+    <button type="button" class="link-btn mt-3" @click="addBreak()"><i data-lucide="plus" class="h-4 w-4"></i>Add break</button>
+  </div>
+
+  <div>
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Bell schedule</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#bell-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print</button>
+    </div>
+    <div id="bell-doc" class="paper">
+      <p class="text-center text-lg font-bold uppercase tracking-wide text-primary" x-text="$store.school.title"></p>
+      <p class="text-center font-semibold">Bell schedule</p>
+      <table class="doc-table mt-4 text-[0.875rem]">
+        <thead><tr><th></th><th>From</th><th>To</th><th class="num">Minutes</th></tr></thead>
+        <tbody>
+          <template x-for="(r, i) in schedule.rows" :key="i">
+            <tr :class="r.kind === 'break' && 'bg-[#f1f3f7] font-semibold'"><td x-text="r.label"></td><td x-text="r.from"></td><td x-text="r.to"></td><td class="num" x-text="r.minutes"></td></tr>
+          </template>
+        </tbody>
+      </table>
+      <p class="mt-4 text-[0.875rem]">School ends at <strong x-text="schedule.ends"></strong>. Teaching time: <strong x-text="Math.floor(teaching / 60) + ' h ' + (teaching % 60) + ' min'"></strong> a day.</p>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How the timings are worked out</h2>
+  <p>The day starts with assembly. Each period runs for the set length, a break is added after the period you choose, and passing time is added between periods that aren’t followed by a break.</p>
+  <h2>Checking against instructional hours</h2>
+  <p>Multiply the daily teaching time by your working days to check the year’s instructional hours. For example, 5 h 20 min a day over 220 days is about 1,173 hours, above the RTE minimum of 1,000 hours for Classes 6–8.</p>
+</div>

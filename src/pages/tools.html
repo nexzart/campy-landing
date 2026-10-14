@@ -1,0 +1,82 @@
+<main id="main" x-data="toolFinder">
+    <section class="mx-auto max-w-6xl px-4 pb-12 pt-16 sm:px-6 sm:pt-20 lg:px-8">
+      <p class="eyebrow">Free school tools</p>
+      <h1 class="font-display mt-6 max-w-4xl text-5xl font-extrabold leading-[1.1] sm:text-6xl">{{tools:count}} free tools for schools. <span class="marker">No sign-up.</span></h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-primary/70">Calculators, certificate generators, timetable planners and compliance checklists built for Indian schools. Each one runs in your browser, so student data never leaves your device.</p>
+      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-[0.9375rem] font-medium">
+        <li class="flex items-center gap-2"><i data-lucide="circle-check" class="h-5 w-5 text-secondary"></i>Free to use, no login</li>
+        <li class="flex items-center gap-2"><i data-lucide="lock" class="h-5 w-5 text-secondary"></i>Nothing is uploaded</li>
+        <li class="flex items-center gap-2"><i data-lucide="printer" class="h-5 w-5 text-secondary"></i>Print or save documents as PDF</li>
+      </ul>
+    </section>
+
+    <div class="sticky top-[73px] z-40 border-y border-primary/10 bg-white/95 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:px-8">
+        <label class="relative block lg:w-80">
+          <span class="sr-only">Search tools</span>
+          <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/50"></i>
+          <input type="search" x-model="q" placeholder="Search, e.g. CGPA, TC, timetable" class="field field-sm field-icon">
+        </label>
+        <nav aria-label="Tool categories" class="-mx-1 overflow-x-auto">
+          <ul class="flex gap-1 px-1 text-sm font-medium">
+            <li><a href="#calculators" class="block whitespace-nowrap rounded-full px-3.5 py-1.5 text-primary/70 hover:bg-primary/[0.05] hover:text-primary">Calculators</a></li>
+            <li><a href="#grades" class="block whitespace-nowrap rounded-full px-3.5 py-1.5 text-primary/70 hover:bg-primary/[0.05] hover:text-primary">Marks and grades</a></li>
+            <li><a href="#documents" class="block whitespace-nowrap rounded-full px-3.5 py-1.5 text-primary/70 hover:bg-primary/[0.05] hover:text-primary">Certificates</a></li>
+            <li><a href="#planning" class="block whitespace-nowrap rounded-full px-3.5 py-1.5 text-primary/70 hover:bg-primary/[0.05] hover:text-primary">Planning</a></li>
+            <li><a href="#compliance" class="block whitespace-nowrap rounded-full px-3.5 py-1.5 text-primary/70 hover:bg-primary/[0.05] hover:text-primary">Compliance</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
+      {{tools:index}}
+      <div x-show="none" x-cloak class="py-16 text-center">
+        <p class="text-lg font-semibold">No tool matches “<span x-text="q.trim()"></span>”.</p>
+        <p class="mt-2 text-primary/65">Try a shorter word, or <a href="/contact" class="font-semibold underline decoration-secondary decoration-2 underline-offset-4">tell us which tool you need</a>.</p>
+      </div>
+    </div>
+
+    <section class="border-t border-primary/10">
+      <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:px-8 lg:py-28">
+        <h2 class="font-display text-4xl font-bold leading-tight">About these tools.</h2>
+        <div class="divide-y divide-primary/10 border-y border-primary/10">
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Are the tools really free?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">Yes. Every tool is free to use as often as you like, with no account, trial or watermark.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Is student data uploaded anywhere?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">No. Calculations, certificates and plans are produced in your browser. Nothing you type, paste or upload is sent to a server. If you allow preference cookies, your school’s name, address and logo are remembered in this browser, so you don’t have to retype them on each certificate.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">How do I save a certificate or report as a PDF?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">Press Print on the tool, then choose “Save as PDF” as the printer in your browser’s print dialog.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Can I use my school’s logo on documents?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">Yes. Every document generator has a School details panel where you add your logo, name, address and affiliation number. They appear on the letterhead of every certificate, receipt and circular.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">How is this different from Campy?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">These tools work on one student, class or calculation at a time. Campy keeps your whole school’s attendance, exams, timetables and records in one system, so reports and certificates come straight from data you already have.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-4 pb-20 sm:px-6 lg:px-8">
+      <div class="on-dark relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-primary px-6 py-12 text-white sm:px-12 sm:py-16">
+        <span class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-secondary/20" aria-hidden="true"></span>
+        <div class="relative max-w-2xl">
+          <p class="eyebrow eyebrow-dark">From one-off tools to one system</p>
+          <h2 class="font-display mt-5 text-3xl font-bold leading-tight sm:text-4xl">Run your whole school from one shared record.</h2>
+          <p class="mt-4 text-lg text-white/75">Attendance, exams, timetables, homework, leave and parent updates in one place, for one annual fee with unlimited students and staff.</p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="/contact" class="btn btn-lime">Book a demo<i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+            <a href="/features" class="btn btn-ghost-light">See all features</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>

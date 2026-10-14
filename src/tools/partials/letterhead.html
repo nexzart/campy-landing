@@ -1,0 +1,10 @@
+<div class="letterhead">
+  <img x-show="$store.school.logo" :src="$store.school.logo || ''" alt="">
+  <div class="min-w-0 flex-1 text-center">
+    <p class="text-lg font-bold uppercase tracking-wide text-primary sm:text-xl" x-text="$store.school.title">Your School Name</p>
+    <p class="text-[0.8125rem]" x-show="$store.school.address" x-text="$store.school.address"></p>
+    <p class="text-[0.8125rem]" x-show="$store.school.code" x-text="$store.school.code"></p>
+    <p class="text-xs" x-show="$store.school.contact" x-text="$store.school.contact"></p>
+  </div>
+  <span x-show="$store.school.logo" class="w-16 shrink-0" aria-hidden="true"></span>
+</div>

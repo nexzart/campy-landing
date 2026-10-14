@@ -1,0 +1,72 @@
+<div x-data="infrastructure" class="space-y-6">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="panel">
+      <h2 class="panel-title">Your school</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label><span class="label">Students</span><input type="number" min="0" class="field" x-model.number="students"></label>
+        <label><span class="label">Sections</span><input type="number" min="0" class="field" x-model.number="sections"></label>
+        <label><span class="label">Classrooms</span><input type="number" min="0" class="field" x-model.number="classrooms"></label>
+        <label><span class="label">Average classroom area (sq ft)</span><input type="number" min="0" class="field" x-model.number="roomArea"></label>
+        <label><span class="label">Largest section (students)</span><input type="number" min="0" class="field" x-model.number="largest"></label>
+        <span></span>
+        <label><span class="label">Boys</span><input type="number" min="0" class="field" x-model.number="boys"></label>
+        <label><span class="label">Toilets for boys</span><input type="number" min="0" class="field" x-model.number="boysToilets"></label>
+        <label><span class="label">Girls</span><input type="number" min="0" class="field" x-model.number="girls"></label>
+        <label><span class="label">Toilets for girls</span><input type="number" min="0" class="field" x-model.number="girlsToilets"></label>
+      </div>
+      <div class="mt-6 rounded-xl bg-primary/[0.04] p-4" x-data="{ open: false }">
+        <button type="button" class="flex w-full items-center justify-between font-semibold" @click="open = !open" :aria-expanded="open.toString()">Adjust the norms<i data-lucide="chevron-down" class="chev h-5 w-5" :class="open && 'rotate-180'"></i></button>
+        <div x-show="open" x-cloak class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label><span class="label">Minimum classroom (sq ft)</span><input type="number" min="0" class="field field-sm" x-model.number="norm.area"></label>
+          <label><span class="label">Space per student (sq ft)</span><input type="number" min="0" step="0.01" class="field field-sm" x-model.number="norm.perStudent"></label>
+          <label><span class="label">Maximum section size</span><input type="number" min="1" class="field field-sm" x-model.number="norm.maxClass"></label>
+          <label><span class="label">Students per toilet (target)</span><input type="number" min="1" class="field field-sm" x-model.number="norm.perToilet"></label>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2 class="panel-title">Facilities</h2>
+      <ul class="mt-3 divide-y divide-primary/[0.07]">
+        <template x-for="(f, i) in facilities" :key="i">
+          <li><label class="flex cursor-pointer items-start gap-3 py-2.5"><input type="checkbox" class="mt-1 h-4 w-4" x-model="f.has"><span class="text-[0.9375rem]" x-text="f.name"></span></label></li>
+        </template>
+      </ul>
+    </div>
+  </div>
+
+  <div id="infra-report" class="panel">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="panel-title">Result</h2>
+        <p class="hint"><span x-text="met"></span> of <span x-text="total"></span> checks met</p>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm no-print" @click="$print('#infra-report')"><i data-lucide="printer" class="h-4 w-4"></i>Print</button>
+    </div>
+    <div class="bar mt-4"><span :style="'width:' + (total ? met / total * 100 : 0) + '%'"></span></div>
+    <div class="mt-5 overflow-x-auto">
+      <table class="tbl">
+        <thead><tr><th>Check</th><th>Your school</th><th>Basis</th><th>Status</th></tr></thead>
+        <tbody>
+          <template x-for="(c, i) in checks" :key="i">
+            <tr><td class="font-semibold" x-text="c.name"></td><td x-text="c.value"></td><td class="hint" x-text="c.source"></td><td><span class="tag" :class="c.ok ? 'tag-ok' : 'tag-bad'" x-text="c.ok ? 'Meets' : 'Short'"></span></td></tr>
+          </template>
+          <template x-for="(f, i) in facilities" :key="'f' + i">
+            <tr><td class="font-semibold" x-text="f.name"></td><td x-text="f.has ? 'Available' : 'Not available'"></td><td class="hint">RTE, CBSE or safety norms</td><td><span class="tag" :class="f.has ? 'tag-ok' : 'tag-bad'" x-text="f.has ? 'Meets' : 'Missing'"></span></td></tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>Norms used by default</h2>
+  <ul>
+    <li><strong>Classrooms:</strong> RTE requires at least one classroom for every teacher. CBSE expects a room for every section.</li>
+    <li><strong>Classroom size:</strong> CBSE norms call for at least 8 m × 6 m (48 m², about 517 sq ft). The default threshold of 500 sq ft is a rounded figure; raise it if your inspector applies the full metric size.</li>
+    <li><strong>Space per student:</strong> at least 1 m² (10.76 sq ft) per student in a classroom.</li>
+    <li><strong>Section size:</strong> CBSE caps a section at 40 students.</li>
+    <li><strong>Toilets:</strong> RTE and CBSE require separate toilets for boys and girls. The students-per-toilet figure is a planning target, so set it to your state’s guideline.</li>
+  </ul>
+  <p>Norms differ between boards, states and school categories, and are revised over time. Treat this as a first check, and confirm against the rules that apply to your school.</p>
+</div>

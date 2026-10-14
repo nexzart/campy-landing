@@ -1,0 +1,126 @@
+<div x-data="resultAnalysis" class="space-y-6">
+  <div class="panel">
+    <h2 class="panel-title">Marks sheet</h2>
+    <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_0.45fr]">
+      <label class="block"><span class="label">Paste from Excel or Google Sheets</span>
+        <textarea rows="11" class="field field-mono" x-model="sheet" spellcheck="false"></textarea>
+        <span class="hint mt-1 block">First row: Name, then one heading per subject. One row per student. Type AB for an absent student.</span>
+      </label>
+      <div class="space-y-4">
+        <label class="block"><span class="label">Report title</span><input class="field" x-model="title"></label>
+        <label class="block"><span class="label">Maximum marks per subject</span><input type="number" min="1" class="field" x-model.number="max"></label>
+        <label class="block"><span class="label">Pass mark (%)</span><input type="number" min="0" max="100" class="field" x-model.number="pass"></label>
+        <div class="flex flex-wrap gap-2">
+          <label class="btn btn-outline btn-sm cursor-pointer"><i data-lucide="upload" class="h-4 w-4"></i>Open CSV<input type="file" accept=".csv,.txt,.tsv" class="sr-only" @change="load($event)"></label>
+          <button type="button" class="btn btn-outline btn-sm" @click="csv()"><i data-lucide="download" class="h-4 w-4"></i>CSV</button>
+          <button type="button" class="btn btn-primary btn-sm" @click="$print('#result-report', true)"><i data-lucide="printer" class="h-4 w-4"></i>Print</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result-report" class="panel space-y-8">
+    <div>
+      <p class="hint">Result analysis</p>
+      <h2 class="font-display text-2xl font-bold" x-text="title"></h2>
+    </div>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div class="stat"><p class="stat-label">Appeared</p><p class="stat-value" x-text="summary.appeared"></p></div>
+      <div class="stat"><p class="stat-label">Passed</p><p class="stat-value" x-text="summary.passed"></p></div>
+      <div class="stat"><p class="stat-label">Failed</p><p class="stat-value" x-text="summary.failed"></p></div>
+      <div class="stat stat-main"><p class="stat-label">Pass percentage</p><p class="stat-value" x-text="$fmt(summary.passPct, 1) + '%'"></p></div>
+      <div class="stat"><p class="stat-label">Class average</p><p class="stat-value" x-text="$fmt(summary.average, 1) + '%'"></p></div>
+      <div class="stat"><p class="stat-label">Highest</p><p class="stat-value" x-text="$fmt(summary.highest, 1) + '%'"></p></div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div class="avoid-break">
+        <h3 class="font-semibold">Toppers</h3>
+        <table class="tbl mt-2">
+          <thead><tr><th>Rank</th><th>Student</th><th class="num">Total</th><th class="num">%</th></tr></thead>
+          <tbody>
+            <template x-for="(s, i) in toppers" :key="i">
+              <tr><td x-text="s.rank"></td><td class="font-semibold" x-text="s.name"></td><td class="num" x-text="s.total"></td><td class="num" x-text="$fmt(s.pct, 1)"></td></tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="avoid-break">
+        <h3 class="font-semibold">Score bands</h3>
+        <div class="mt-3 space-y-2.5">
+          <template x-for="b in bands" :key="b.label">
+            <div class="grid grid-cols-[7.5rem_1fr_2.5rem] items-center gap-3 text-sm">
+              <span x-text="b.label"></span>
+              <div class="bar"><span :style="'width:' + b.share + '%'"></span></div>
+              <span class="text-right tabular-nums" x-text="b.count"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <div class="avoid-break">
+      <h3 class="font-semibold">Subject-wise analysis</h3>
+      <div class="mt-2 overflow-x-auto">
+        <table class="tbl">
+          <thead><tr><th>Subject</th><th class="num">Appeared</th><th class="num">Absent</th><th class="num">Average</th><th>Highest</th><th>Lowest</th><th class="num">Pass %</th></tr></thead>
+          <tbody>
+            <template x-for="(s, i) in subjectStats" :key="i">
+              <tr>
+                <td class="font-semibold" x-text="s.name"></td>
+                <td class="num" x-text="s.appeared"></td>
+                <td class="num" x-text="s.absent"></td>
+                <td class="num" x-text="$fmt(s.average, 1)"></td>
+                <td x-text="s.top ? s.top.m + ' · ' + s.top.name : '–'"></td>
+                <td x-text="s.low ? s.low.m + ' · ' + s.low.name : '–'"></td>
+                <td class="num"><span class="tag" :class="s.passPct === 100 ? 'tag-ok' : s.passPct < 75 ? 'tag-bad' : 'tag-mid'" x-text="$fmt(s.passPct, 0) + '%'"></span></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold">Student results</h3>
+      <div class="mt-2 overflow-x-auto">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Rank</th><th>Student</th>
+              <template x-for="(sub, i) in parsed.subjects" :key="i"><th class="num" x-text="sub"></th></template>
+              <th class="num">Total</th><th class="num">%</th><th>Grade</th><th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(s, si) in students" :key="si">
+              <tr>
+                <td x-text="s.rank"></td>
+                <td class="whitespace-nowrap" x-text="s.name"></td>
+                <template x-for="(m, i) in s.marks" :key="i"><td class="num" :class="(m == null || m < pass * max / 100) && 'font-bold underline decoration-2'" x-text="m == null ? 'AB' : m"></td></template>
+                <td class="num font-semibold" x-text="s.total"></td>
+                <td class="num" x-text="$fmt(s.pct, 1)"></td>
+                <td x-text="s.grade"></td>
+                <td><span class="tag" :class="s.passed ? 'tag-ok' : 'tag-bad'" x-text="s.passed ? 'Pass' : 'Fail (' + s.failed + ')'"></span></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <p class="hint mt-2">Underlined marks are below the pass mark.</p>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>What the analysis shows</h2>
+  <ul>
+    <li><strong>Pass percentage:</strong> students who reached the pass mark in every subject, as a share of students who appeared.</li>
+    <li><strong>Class average:</strong> the mean of every student’s overall percentage.</li>
+    <li><strong>Rank:</strong> by total marks. Students with equal totals share a rank.</li>
+    <li><strong>Subject pass %:</strong> students at or above the pass mark in that subject, out of those who appeared. Absent students are left out of the subject’s averages.</li>
+    <li><strong>Grade:</strong> each student’s overall percentage on the CBSE 8-point scale.</li>
+  </ul>
+  <h2>Using it in the staff meeting</h2>
+  <p>Subjects with a pass percentage below 75% or a low average usually need a remedial plan. Students who failed one or two subjects are the ones to follow up with first, and the toppers list is ready for the notice board.</p>
+</div>

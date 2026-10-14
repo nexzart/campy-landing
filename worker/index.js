@@ -1,10 +1,12 @@
 // Campy landing – Cloudflare Worker.
 // Static pages are served from ./dist by Workers Static Assets; this script only runs
 // for /api/* (see run_worker_first in wrangler.jsonc) and answers the htmx form posts
-// with HTML fragments. Submissions are stored in the LEADS KV namespace.
+// with HTML fragments. Submissions are stored in the LEADS KV namespace, and the
+// Google Apps Script mailer (apps-script/Code.gs) emails the visitor and the team.
 
-const ROLES = ['Principal', 'School administrator', 'Teacher', 'Owner or trustee', 'Other'];
+const ROLES = ['Principal', 'School administrator', 'Teacher', 'Accountant or bursar', 'Owner or trustee', 'Other'];
 const SIZES = ['Under 300', '300 to 1,000', '1,000 to 3,000', 'More than 3,000', 'Several schools'];
+const PLANS = ['Essential', 'Professional ERP', 'Enterprise ERP + CMS', 'Custom: Essential with add-on modules'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^[+\d][\d\s-]{6,18}$/;
 const MAX_BODY = 16 * 1024;
@@ -45,9 +47,32 @@ async function save(env, prefix, record, request) {
   };
   if (!env.LEADS) {
     console.log(`[${prefix}] LEADS binding missing, logging only`, JSON.stringify(entry));
-    return;
+    return entry;
   }
   await env.LEADS.put(`${prefix}:${entry.receivedAt}:${crypto.randomUUID()}`, JSON.stringify(entry));
+  return entry;
+}
+
+// Hands the submission to the Apps Script mailer after the response is sent, so the
+// visitor isn't kept waiting. The lead is already in KV if the email fails.
+function sendEmails(env, ctx, type, lead, entry) {
+  if (!env.APPS_SCRIPT_URL || !env.APPS_SCRIPT_SECRET) {
+    console.log(`[${type}] APPS_SCRIPT_URL or APPS_SCRIPT_SECRET missing, no email sent`);
+    return;
+  }
+  const payload = { secret: env.APPS_SCRIPT_SECRET, type, lead, meta: { receivedAt: entry.receivedAt, country: entry.country } };
+  ctx.waitUntil(
+    fetch(env.APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        const result = await res.json().catch(() => null);
+        if (!res.ok || !result?.ok) console.error(`[${type}] mailer failed`, res.status, JSON.stringify(result));
+      })
+      .catch((err) => console.error(`[${type}] mailer unreachable`, err)),
+  );
 }
 
 function errorList(errors) {
@@ -62,19 +87,20 @@ function demoSuccess(lead) {
   return `<div id="demo-form" class="rounded-2xl border border-primary/10 bg-white p-8 shadow-card" role="status">
   <span class="flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary">${ICON_CHECK}</span>
   <h2 class="font-display mt-6 text-2xl font-bold">Request received, ${first}.</h2>
-  <p class="mt-3 text-primary/70">We’ll email <strong class="font-semibold text-primary">${escapeHtml(lead.email)}</strong> to find a time for a walkthrough of Campy for ${escapeHtml(lead.school)}.</p>
+  <p class="mt-3 text-primary/70">Our team will contact you <strong class="font-semibold text-primary">within 24 hours</strong> on ${escapeHtml(lead.phone)} or at <strong class="font-semibold text-primary">${escapeHtml(lead.email)}</strong> to schedule a walkthrough of Campy for ${escapeHtml(lead.school)}.</p>
+  <p class="mt-3 text-primary/70">A confirmation with the details you sent is on its way to your inbox.</p>
   <p class="mt-6 text-sm text-primary/60">Have your class list and current timetable handy. We’ll use them to show you your own school in Campy.</p>
   <a href="/features" class="btn btn-outline mt-8">Read about the features</a>
 </div>`;
 }
 
-async function handleDemo(request, env) {
+async function handleDemo(request, env, ctx) {
   const form = await readForm(request);
   const v = (k) => (form.get(k) || '').trim();
   const isHtmx = request.headers.get('hx-request') === 'true';
   const lead = {
     name: v('name'), email: v('email'), phone: v('phone'), school: v('school'),
-    role: v('role'), size: v('size'), message: v('message'),
+    role: v('role'), size: v('size'), plan: v('plan'), message: v('message'),
   };
 
   // Honeypot: bots fill every field. Pretend it worked and store nothing.
@@ -83,10 +109,11 @@ async function handleDemo(request, env) {
   const errors = [];
   if (!lead.name || lead.name.length > 100) errors.push('Enter your full name.');
   if (!EMAIL_RE.test(lead.email) || lead.email.length > 200) errors.push('Enter a work email address, like principal@yourschool.in.');
-  if (lead.phone && !PHONE_RE.test(lead.phone)) errors.push('Enter a phone number with digits only, or leave it blank.');
+  if (!PHONE_RE.test(lead.phone)) errors.push('Enter a phone number we can call you on, like +91 98765 43210.');
   if (!lead.school || lead.school.length > 150) errors.push('Enter the name of your school.');
   if (!ROLES.includes(lead.role)) errors.push('Choose your role at the school.');
   if (lead.size && !SIZES.includes(lead.size)) errors.push('Choose a school size from the list.');
+  if (lead.plan && !PLANS.includes(lead.plan)) errors.push('Choose a plan from the list, or leave it as “Not sure yet”.');
   if (lead.message.length > 2000) errors.push('Keep the message under 2,000 characters.');
 
   if (errors.length) {
@@ -94,11 +121,12 @@ async function handleDemo(request, env) {
     return html(errorList(errors), { headers: { 'HX-Retarget': '#demo-errors', 'HX-Reswap': 'innerHTML' } });
   }
 
-  await save(env, 'demo', lead, request);
+  const entry = await save(env, 'demo', lead, request);
+  sendEmails(env, ctx, 'demo', lead, entry);
   return isHtmx ? html(demoSuccess(lead)) : redirect('/contact?sent=1');
 }
 
-async function handleSubscribe(request, env) {
+async function handleSubscribe(request, env, ctx) {
   const form = await readForm(request);
   const email = (form.get('email') || '').trim();
   if (!EMAIL_RE.test(email) || email.length > 200) {
@@ -106,21 +134,22 @@ async function handleSubscribe(request, env) {
       headers: { 'HX-Retarget': '#subscribe-msg', 'HX-Reswap': 'innerHTML' },
     });
   }
-  await save(env, 'subscriber', { email }, request);
+  const entry = await save(env, 'subscriber', { email }, request);
+  sendEmails(env, ctx, 'subscribe', { email }, entry);
   return html(`<div id="subscribe-form" class="flex items-start gap-3 rounded-xl bg-white/5 p-4 text-sm" role="status">
   ${ICON_MAIL_CHECK}
-  <p class="text-white/80">Subscribed. Product updates will go to <span class="text-white">${escapeHtml(email)}</span>.</p>
+  <p class="text-white/80">Subscribed. A confirmation is on its way to <span class="text-white">${escapeHtml(email)}</span>, and product updates will follow about once a month.</p>
 </div>`);
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
 
     if (pathname === '/api/demo' || pathname === '/api/subscribe') {
       if (request.method !== 'POST') return html('Method not allowed', { status: 405, headers: { Allow: 'POST' } });
       try {
-        return pathname === '/api/demo' ? await handleDemo(request, env) : await handleSubscribe(request, env);
+        return pathname === '/api/demo' ? await handleDemo(request, env, ctx) : await handleSubscribe(request, env, ctx);
       } catch (err) {
         console.error(err);
         return html('<p class="text-sm">That request could not be read. Refresh the page and try again.</p>', { status: 400 });

@@ -1,0 +1,47 @@
+<div x-data="teacherNeed" class="space-y-6">
+  <div class="panel">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-xl">
+      <label><span class="label">Max teaching periods per teacher a week</span><input type="number" min="1" class="field" x-model.number="maxLoad"></label>
+      <label><span class="label">Leave reserve (%)</span><input type="number" min="0" max="50" class="field" x-model.number="reserve"></label>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <table class="tbl tbl-edit min-w-[560px]">
+        <thead><tr><th>Subject</th><th>Sections taking it</th><th>Periods a week per section</th><th class="num">Periods a week</th><th class="num">Teachers</th><th><span class="sr-only">Remove</span></th></tr></thead>
+        <tbody>
+          <template x-for="(s, i) in subjects" :key="i">
+            <tr>
+              <td><input class="field field-sm" x-model="s.name" aria-label="Subject"></td>
+              <td><input type="number" min="0" class="field field-sm w-24" x-model.number="s.sections" aria-label="Sections"></td>
+              <td><input type="number" min="0" class="field field-sm w-24" x-model.number="s.periods" aria-label="Periods per section"></td>
+              <td class="num" x-text="periodsFor(s)"></td>
+              <td class="num font-semibold" x-text="teachersFor(s)"></td>
+              <td><button type="button" class="icon-btn" @click="subjects.splice(i, 1)" aria-label="Remove subject"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <button type="button" class="link-btn mt-4" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add subject</button>
+  </div>
+
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-live="polite">
+    <div class="stat"><p class="stat-label">Teaching periods a week</p><p class="stat-value" x-text="$fmt(totalPeriods, 0)"></p></div>
+    <div class="stat"><p class="stat-label">Subject teachers needed</p><p class="stat-value" x-text="specialists"></p></div>
+    <div class="stat stat-main"><p class="stat-label">With <span x-text="reserve"></span>% leave reserve</p><p class="stat-value" x-text="withReserve"></p></div>
+  </div>
+  <p class="text-[0.9375rem] text-primary/75">If teachers can take more than one subject, the school can manage with as few as <strong x-text="Math.ceil(totalPeriods / (maxLoad || 1))"></strong> teachers at full load, before the leave reserve.</p>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How the teacher requirement is calculated</h2>
+  <span class="formula">Teachers for a subject = (sections × periods a week) ÷ max periods per teacher, rounded up</span>
+  <p>18 sections with 7 English periods each make 126 periods a week. At 30 periods per teacher, English needs 126 ÷ 30 = 4.2, so <strong>5 teachers</strong>.</p>
+  <h2>Choosing a teaching load</h2>
+  <ul>
+    <li>A 6-day week of 8 periods has 48 slots. A load of 28 to 32 periods leaves time for correction, planning and substitution duty.</li>
+    <li>Senior secondary teachers with practicals often take fewer theory periods.</li>
+    <li>Class teachers often have a lighter subject load to make room for registers and parent meetings.</li>
+  </ul>
+  <h2>Why add a leave reserve</h2>
+  <p>On any given day, some teachers are away on leave, training or exam duty. A 5–10% reserve keeps substitutions from overloading the rest of the staff.</p>
+</div>

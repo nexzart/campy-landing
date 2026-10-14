@@ -1,0 +1,67 @@
+<div x-data="feeCollection" class="space-y-6">
+  <div class="panel">
+    <h2 class="panel-title">Fee heads</h2>
+    <p class="hint mt-1">“Times a year” is 12 for monthly fees, 4 for quarterly, 1 for annual. “Students paying” is the share of students the head applies to, such as those using transport.</p>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl tbl-edit min-w-[640px]">
+        <thead><tr><th>Fee head</th><th>Amount (₹)</th><th>Times a year</th><th>Students paying (%)</th><th class="num">Per student a year</th><th class="num">Total a year</th><th><span class="sr-only">Remove</span></th></tr></thead>
+        <tbody>
+          <template x-for="(h, i) in heads" :key="i">
+            <tr>
+              <td><input class="field field-sm" x-model="h.name" aria-label="Fee head"></td>
+              <td><input type="number" min="0" class="field field-sm w-28" x-model.number="h.amount" aria-label="Amount"></td>
+              <td><input type="number" min="0" class="field field-sm w-20" x-model.number="h.times" aria-label="Times a year"></td>
+              <td><input type="number" min="0" max="100" class="field field-sm w-20" x-model.number="h.share" aria-label="Students paying"></td>
+              <td class="num" x-text="$inr(perStudent(h))"></td>
+              <td class="num font-semibold" x-text="$inr(headTotal(h))"></td>
+              <td><button type="button" class="icon-btn" @click="heads.splice(i, 1)" aria-label="Remove fee head"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <button type="button" class="link-btn mt-4" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add fee head</button>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+    <div class="panel">
+      <h2 class="panel-title">Students and collection</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Students enrolled</span><input type="number" min="0" class="field" x-model.number="students"></label>
+        <label><span class="label">Students with a concession (%)</span><input type="number" min="0" max="100" class="field" x-model.number="concessionShare"></label>
+        <label><span class="label">Average concession (%)</span><input type="number" min="0" max="100" class="field" x-model.number="concessionAvg"></label>
+        <label><span class="label">Expected collection rate (%)</span><input type="number" min="0" max="100" class="field" x-model.number="collectionRate"></label>
+        <label><span class="label">Instalments a year</span><input type="number" min="1" max="12" class="field" x-model.number="instalments"></label>
+      </div>
+    </div>
+    <div class="panel" aria-live="polite">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="stat"><p class="stat-label">Gross fees billed</p><p class="stat-value" x-text="$inr(gross)"></p></div>
+        <div class="stat"><p class="stat-label">Concessions</p><p class="stat-value" x-text="'−' + $inr(concession)"></p></div>
+        <div class="stat"><p class="stat-label">Net fees due</p><p class="stat-value" x-text="$inr(net)"></p></div>
+        <div class="stat stat-main"><p class="stat-label">Expected collection</p><p class="stat-value" x-text="$inr(expected)"></p></div>
+        <div class="stat"><p class="stat-label">Target per instalment</p><p class="stat-value" x-text="$inr(perInstalment)"></p></div>
+        <div class="stat"><p class="stat-label">Monthly average</p><p class="stat-value" x-text="$inr(expected / 12)"></p></div>
+      </div>
+      <p class="mt-5 text-[0.9375rem] text-primary/75">At <span x-text="collectionRate"></span>% collection, about <strong x-text="$inr(net - expected)"></strong> of fees would still be due at year end. The average fee due per student is <strong x-text="$inr(students ? net / students : 0)"></strong> a year.</p>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How expected fee collection is worked out</h2>
+  <ol>
+    <li><strong>Gross billing:</strong> for each fee head, amount × times a year × students × share of students paying.</li>
+    <li><strong>Concessions:</strong> gross × share of students with a concession × average concession.</li>
+    <li><strong>Net due:</strong> gross − concessions.</li>
+    <li><strong>Expected collection:</strong> net × collection rate. This is the figure to budget salaries and expenses against.</li>
+  </ol>
+  <h2>Setting a realistic collection rate</h2>
+  <p>Look at last year: divide what you actually collected by what was due, and use that rate. Schools that send reminders before each due date, and let parents see pending fees in an app, usually collect more on time.</p>
+  <h2>Concessions to include</h2>
+  <ul>
+    <li>Sibling and staff-ward concessions</li>
+    <li>Merit and sports scholarships paid from school funds</li>
+    <li>RTE Section 12(1)(c) admissions, if state reimbursement arrives late or below your fee</li>
+  </ul>
+</div>

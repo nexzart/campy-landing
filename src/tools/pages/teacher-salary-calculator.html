@@ -1,0 +1,34 @@
+<div x-data="salary()">
+{{include:salary-widget}}
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How a 7th Pay Commission salary is built</h2>
+  <ol>
+    <li><strong>Basic pay</strong> comes from the pay matrix: the entry pay for the level, raised 3% for each increment and rounded to the nearest ₹100.</li>
+    <li><strong>Dearness allowance (DA)</strong> is a percentage of basic pay, revised twice a year (January and July).</li>
+    <li><strong>House rent allowance (HRA)</strong> is 30%, 20% or 10% of basic pay for X, Y and Z cities, with minimums of ₹5,400, ₹3,600 and ₹1,800.</li>
+    <li><strong>Transport allowance (TA)</strong> is a fixed amount by pay level and city, plus DA on it.</li>
+  </ol>
+  <span class="formula">Gross = basic + DA + HRA + TA + DA on TA</span>
+
+  <h2>Entry pay for teachers by level</h2>
+  <table class="tbl">
+    <thead><tr><th>Post (central schools)</th><th>Pay level</th><th class="num">Entry pay</th></tr></thead>
+    <tbody>
+      <tr><td><a class="underline decoration-secondary decoration-2 underline-offset-4" href="/tools/prt-salary-calculator">Primary Teacher (PRT)</a></td><td>Level 6</td><td class="num">₹35,400</td></tr>
+      <tr><td><a class="underline decoration-secondary decoration-2 underline-offset-4" href="/tools/tgt-salary-calculator">Trained Graduate Teacher (TGT)</a></td><td>Level 7</td><td class="num">₹44,900</td></tr>
+      <tr><td><a class="underline decoration-secondary decoration-2 underline-offset-4" href="/tools/pgt-salary-calculator">Post Graduate Teacher (PGT)</a></td><td>Level 8</td><td class="num">₹47,600</td></tr>
+      <tr><td>Vice Principal</td><td>Level 10</td><td class="num">₹56,100</td></tr>
+      <tr><td>Principal</td><td>Level 12</td><td class="num">₹78,800</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Transport allowance rates</h2>
+  <ul>
+    <li><strong>Level 9 and above:</strong> ₹7,200 in higher TPTA cities, ₹3,600 elsewhere.</li>
+    <li><strong>Levels 3 to 8:</strong> ₹3,600 in higher TPTA cities, ₹1,800 elsewhere.</li>
+    <li><strong>Levels 1 and 2:</strong> ₹1,350 and ₹900, or the Level 3–8 rates when pay is ₹24,200 or more.</li>
+  </ul>
+  <p>State governments and private schools set their own pay scales. Use this calculator for central government pay, or as a benchmark when you set salaries.</p>
+</div>

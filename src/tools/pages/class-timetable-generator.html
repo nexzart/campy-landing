@@ -1,0 +1,95 @@
+<div x-data="timetable" class="space-y-6">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+    <div class="panel">
+      <h2 class="panel-title">Subjects and teachers</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="tbl tbl-edit min-w-[460px]">
+          <thead><tr><th>Subject</th><th>Teacher</th><th>Periods a week</th><th class="num">Placed</th><th><span class="sr-only">Remove</span></th></tr></thead>
+          <tbody>
+            <template x-for="(s, i) in subjects" :key="i">
+              <tr>
+                <td><input class="field field-sm" x-model="s.name" aria-label="Subject"></td>
+                <td><input class="field field-sm" x-model="s.teacher" aria-label="Teacher"></td>
+                <td><input type="number" min="0" max="20" class="field field-sm w-20" x-model.number="s.periods" aria-label="Periods a week"></td>
+                <td class="num" :class="count(i) !== s.periods && 'font-bold'" x-text="count(i)"></td>
+                <td><button type="button" class="icon-btn" @click="remove(i)" aria-label="Remove subject"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="link-btn mt-4" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add subject</button>
+    </div>
+    <div class="panel">
+      <h2 class="panel-title">Week and timings</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Title</span><input class="field" x-model="title"></label>
+        <label><span class="label">School days a week</span><select class="field" x-model.number="days"><option value="5">5 (Mon–Fri)</option><option value="6">6 (Mon–Sat)</option></select></label>
+        <label><span class="label">Periods a day</span><input type="number" min="1" max="12" class="field" x-model.number="periods"></label>
+        <label><span class="label">First period starts</span><input type="time" class="field" x-model="start"></label>
+        <label><span class="label">Period length (min)</span><input type="number" min="10" max="120" class="field" x-model.number="length"></label>
+        <label><span class="label">Short break after period</span><input type="number" min="0" class="field" x-model.number="break1After"></label>
+        <label><span class="label">Short break (min)</span><input type="number" min="0" class="field" x-model.number="break1"></label>
+        <label><span class="label">Lunch after period</span><input type="number" min="0" class="field" x-model.number="break2After"></label>
+        <label><span class="label">Lunch (min)</span><input type="number" min="0" class="field" x-model.number="break2"></label>
+      </div>
+      <div class="mt-5 rounded-xl bg-primary/[0.04] p-4 text-[0.9375rem]">
+        <p><strong x-text="demand"></strong> periods requested for <strong x-text="slots"></strong> slots<span x-show="demand < slots">, so <span x-text="slots - demand"></span> will be free periods</span><span x-show="demand > slots">, so <span x-text="demand - slots"></span> won’t fit</span>.</p>
+      </div>
+      <button type="button" class="btn btn-primary mt-5 w-full" @click="generate()"><i data-lucide="refresh-cw" class="h-4 w-4"></i>Generate timetable</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <p class="hint">Change any slot from its menu. Press Generate again for a different arrangement.</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#timetable-doc', true)"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <p x-show="unplaced.length" class="mb-3 rounded-xl border border-primary/20 p-3 text-sm">Didn’t fit: <strong x-text="unplaced.join(', ')"></strong></p>
+    <div id="timetable-doc" class="paper overflow-x-auto">
+      <p class="text-center text-lg font-bold uppercase tracking-wide text-primary" x-text="$store.school.title"></p>
+      <p class="text-center font-semibold" x-text="title"></p>
+      <table class="doc-table mt-4 min-w-[720px] text-[0.8125rem]">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <template x-for="(t, p) in times" :key="p"><th class="text-center"><span x-text="'Period ' + (p + 1)"></span><span class="block text-[0.6875rem] font-normal" x-text="t"></span></th></template>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="(row, d) in grid" :key="d">
+            <tr>
+              <th x-text="dayNames[d]"></th>
+              <template x-for="(c, p) in row" :key="p">
+                <td class="text-center">
+                  <select class="w-full appearance-none rounded bg-transparent text-center font-semibold print:hidden" :aria-label="dayNames[d] + ' period ' + (p + 1)" @change="grid[d][p] = +$event.target.value">
+                    <option value="-1" :selected="c === -1">Free</option>
+                    <template x-for="(s, i) in subjects" :key="i"><option :value="i" x-text="s.name || 'Unnamed'" :selected="c === i"></option></template>
+                  </select>
+                  <span class="hidden font-semibold print:block" x-text="cell(c) ? cell(c).name : 'Free'"></span>
+                  <span class="block text-[0.6875rem] text-[#5a6070]" x-text="cell(c) ? cell(c).teacher : ''"></span>
+                </td>
+              </template>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How the timetable is generated</h2>
+  <p>The generator fills the week one day at a time. For each slot it picks the subject with the most periods left, avoiding:</p>
+  <ul>
+    <li>using a subject more times in one day than its weekly periods divided by the remaining days, and</li>
+    <li>placing the same subject in two periods back to back.</li>
+  </ul>
+  <p>Ties are broken at random, so each press of Generate gives a different, equally balanced timetable.</p>
+  <h2>Good timetable habits</h2>
+  <ul>
+    <li>Put languages and Mathematics in the morning, when attention is highest.</li>
+    <li>Keep Physical Education away from the period just after lunch.</li>
+    <li>Use double periods for practicals and art by placing the same subject in two slots by hand.</li>
+  </ul>
+</div>

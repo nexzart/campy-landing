@@ -1,0 +1,67 @@
+<div x-data="bonafide" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Student details</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Student’s name</span><input class="field" x-model="f.name"></label>
+        <label><span class="label">Gender</span>
+          <select class="field" x-model="f.gender"><option value="f">Female (daughter, she)</option><option value="m">Male (son, he)</option><option value="x">Not specified (child, they)</option></select>
+        </label>
+        <label><span class="label">Parent or guardian</span><input class="field" x-model="f.parent"></label>
+        <label><span class="label">Class</span><input class="field" x-model="f.cls"></label>
+        <label><span class="label">Section</span><input class="field" x-model="f.section"></label>
+        <label><span class="label">Admission number</span><input class="field" x-model="f.admNo"></label>
+        <label><span class="label">Academic year</span><input class="field" x-model="f.year"></label>
+        <label><span class="label">Date of birth</span><input type="date" class="field" x-model="f.dob"></label>
+        <label><span class="label">Certificate number</span><input class="field" x-model="f.certNo"></label>
+        <label><span class="label">Purpose</span>
+          <select class="field" x-model="f.purpose">
+            <option value="scholarship">Scholarship</option>
+            <option value="bank">Bank account</option>
+            <option value="passport">Passport</option>
+            <option value="aadhaar">Aadhaar</option>
+            <option value="pass">Bus or railway pass</option>
+            <option value="exam">Competitive examination</option>
+            <option value="sports">Sports competition</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label><span class="label">Date of issue</span><input type="date" class="field" x-model="f.date"></label>
+        <label class="sm:col-span-2" x-show="f.purpose === 'other'"><span class="label">Purpose, in words</span><input class="field" x-model="f.otherPurpose" placeholder="e.g. applying for a library membership"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#bonafide-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="bonafide-doc" class="paper">
+      <div class="paper-frame">
+        {{include:letterhead}}
+        <div class="mt-4 flex justify-between text-[0.8125rem]"><span>No.: <span x-text="f.certNo"></span></span><span>Date: <span x-text="$date(f.date)"></span></span></div>
+        <p class="doc-title">Bonafide Certificate</p>
+        <div class="mt-6 space-y-4 text-[0.9375rem] leading-relaxed">
+          <template x-for="(p, i) in body" :key="i"><p x-text="p"></p></template>
+        </div>
+        <div class="sign-row"><div>Place and date</div><div><span x-text="$store.school.principal || 'Principal'"></span><br><span class="text-[0.75rem]">Principal (with seal)</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>When students need a bonafide certificate</h2>
+  <ul>
+    <li>Scholarship applications, including the National Scholarship Portal and state schemes</li>
+    <li>Opening a bank account for a minor</li>
+    <li>Passport and Aadhaar applications</li>
+    <li>Student bus or railway concession passes</li>
+    <li>Registering for Olympiads, competitive exams and sports events</li>
+  </ul>
+  <h2>What the certificate should say</h2>
+  <p>It confirms the student is currently enrolled, and gives the class, section, academic year, admission number and date of birth as recorded by the school. It also states the purpose it is issued for. The tool writes these sentences for you and uses the right pronouns for the student.</p>
+  <p>Before signing, check the details against the admission register, and record the certificate number in your issue register.</p>
+</div>

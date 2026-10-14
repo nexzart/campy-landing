@@ -1,0 +1,61 @@
+<div x-data="cgpa" class="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+  <div class="panel">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="panel-title">Subjects</h2>
+      <div class="seg" role="group" aria-label="Input type">
+        <button type="button" :aria-pressed="(!useMarks).toString()" @click="useMarks = false">Grades</button>
+        <button type="button" :aria-pressed="useMarks.toString()" @click="useMarks = true">Marks out of 100</button>
+      </div>
+    </div>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl tbl-edit min-w-[420px]">
+        <thead><tr><th>Subject</th><th x-text="useMarks ? 'Marks' : 'Grade'"></th><th>Grade</th><th class="num">Grade point</th><th><span class="sr-only">Remove</span></th></tr></thead>
+        <tbody>
+          <template x-for="(s, i) in subjects" :key="i">
+            <tr>
+              <td><input class="field field-sm" x-model="s.name" aria-label="Subject"></td>
+              <td>
+                <input x-show="useMarks" type="number" min="0" max="100" class="field field-sm w-20" x-model.number="s.marks" aria-label="Marks">
+                <select x-show="!useMarks" class="field field-sm w-24" x-model="s.grade" aria-label="Grade">
+                  <template x-for="g in grades" :key="g"><option :value="g" x-text="g" :selected="g === s.grade"></option></template>
+                </select>
+              </td>
+              <td><span class="tag tag-mid" x-text="gradeOf(s)"></span></td>
+              <td class="num font-semibold" x-text="pointOf(s)"></td>
+              <td><button type="button" class="icon-btn" @click="subjects.splice(i, 1)" aria-label="Remove subject"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <button type="button" class="link-btn mt-4" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add subject</button>
+  </div>
+  <div class="panel self-start" aria-live="polite">
+    <div class="grid grid-cols-1 gap-3">
+      <div class="stat stat-main"><p class="stat-label">CGPA</p><p class="stat-value text-4xl" x-text="$fmt(value, 1, true)"></p></div>
+      <div class="stat"><p class="stat-label">Equivalent percentage (× 9.5)</p><p class="stat-value" x-text="$fmt(value * 9.5, 1) + '%'"></p></div>
+    </div>
+    <p class="mt-4 text-[0.9375rem] text-primary/75" x-show="needsImprovement">A subject graded E1 or E2 has no grade point. Under CCE, the student had to improve that grade before a final CGPA was awarded.</p>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>CBSE 10-point grading scale</h2>
+  <table class="tbl">
+    <thead><tr><th>Marks</th><th>Grade</th><th class="num">Grade point</th></tr></thead>
+    <tbody>
+      <tr><td>91–100</td><td>A1</td><td class="num">10</td></tr>
+      <tr><td>81–90</td><td>A2</td><td class="num">9</td></tr>
+      <tr><td>71–80</td><td>B1</td><td class="num">8</td></tr>
+      <tr><td>61–70</td><td>B2</td><td class="num">7</td></tr>
+      <tr><td>51–60</td><td>C1</td><td class="num">6</td></tr>
+      <tr><td>41–50</td><td>C2</td><td class="num">5</td></tr>
+      <tr><td>33–40</td><td>D</td><td class="num">4</td></tr>
+      <tr><td>21–32</td><td>E1</td><td class="num">–</td></tr>
+      <tr><td>0–20</td><td>E2</td><td class="num">–</td></tr>
+    </tbody>
+  </table>
+  <h2>How CGPA is calculated</h2>
+  <span class="formula">CGPA = sum of grade points ÷ number of subjects</span>
+  <p>Grades A1, A2, A2, B1 and A1 give 10 + 9 + 9 + 8 + 10 = 46, and 46 ÷ 5 = <strong>9.2 CGPA</strong>, or about 87.4%.</p>
+</div>

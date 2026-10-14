@@ -1,0 +1,46 @@
+<div x-data="finalGrade" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="panel self-start">
+    <h2 class="panel-title">Your grades</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <label><span class="label">Current grade (%)</span><input type="number" min="0" max="100" step="0.1" class="field" x-model.number="current"></label>
+      <label><span class="label">Final exam weight (%)</span><input type="number" min="1" max="100" class="field" x-model.number="weight"></label>
+      <label><span class="label">Target overall (%)</span><input type="number" min="0" max="100" class="field" x-model.number="target"></label>
+    </div>
+    <div class="stat stat-main mt-5" aria-live="polite">
+      <p class="stat-label">You need in the final exam</p>
+      <p class="stat-value text-4xl" x-text="isFinite(required) ? $fmt(Math.max(0, required), 1) + '%' : '–'"></p>
+    </div>
+    <p class="mt-4 text-[0.9375rem] text-primary/75" x-show="required > 100">That is more than 100%, so <span x-text="target"></span>% can’t be reached with the final exam alone.</p>
+    <p class="mt-4 text-[0.9375rem] text-primary/75" x-show="required <= 0">You will reach <span x-text="target"></span>% even with 0 in the final.</p>
+
+    <div class="mt-6 border-t border-primary/10 pt-5">
+      <label class="block"><span class="label">What if I score <span x-text="whatIf"></span>% in the final?</span><input type="range" min="0" max="100" class="mt-2 w-full accent-[#0A204E]" x-model.number="whatIf"></label>
+      <p class="mt-2 text-[0.9375rem]">Overall grade: <strong x-text="$fmt(overall, 1) + '%'"></strong></p>
+    </div>
+  </div>
+  <div class="panel">
+    <h2 class="panel-title">Score needed for each target</h2>
+    <table class="tbl mt-4">
+      <thead><tr><th>Target overall</th><th class="num">Final exam score needed</th></tr></thead>
+      <tbody>
+        <template x-for="r in table" :key="r.label">
+          <tr>
+            <td><span class="font-semibold" x-text="r.target + '%'"></span> <span class="hint" x-text="r.label"></span></td>
+            <td class="num">
+              <span x-show="r.need > 100" class="tag tag-bad">Not possible</span>
+              <span x-show="r.need <= 100" class="font-semibold" x-text="$fmt(Math.max(0, r.need), 1) + '%'"></span>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>The formula</h2>
+  <span class="formula">Final score needed = (target − current × (1 − weight)) ÷ weight</span>
+  <p>Weight is written as a fraction: 40% is 0.4. With a current grade of 78%, a final worth 40% and a target of 80%: (80 − 78 × 0.6) ÷ 0.4 = (80 − 46.8) ÷ 0.4 = <strong>83%</strong>.</p>
+  <h2>Getting the current grade right</h2>
+  <p>Your current grade must be the weighted average of everything except the final exam. If you only know individual scores, use the <a class="underline decoration-secondary decoration-2 underline-offset-4" href="/tools/weighted-grade-calculator">weighted grade calculator</a> first.</p>
+</div>

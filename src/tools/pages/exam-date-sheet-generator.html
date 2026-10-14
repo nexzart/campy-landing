@@ -1,0 +1,56 @@
+<div x-data="dateSheet" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Exam</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Exam name</span><input class="field" x-model="title"></label>
+        <label><span class="label">Classes</span><input class="field" x-model="classes"></label>
+        <label><span class="label">Timing</span><input class="field" x-model="time"></label>
+        <label><span class="label">First paper on</span><input type="date" class="field" x-model="start"></label>
+        <label><span class="label">Study days between papers</span><input type="number" min="0" max="7" class="field" x-model.number="gap"></label>
+        <label class="flex items-center gap-3 sm:col-span-2"><input type="checkbox" class="h-4 w-4" x-model="saturdayOff"><span class="text-[0.9375rem]">No exams on Saturdays</span></label>
+        <label><span class="label">Subjects, in order</span><textarea rows="8" class="field" x-model="subjects"></textarea></label>
+        <label><span class="label">Holidays to skip</span><textarea rows="8" class="field field-mono" x-model="holidays" spellcheck="false"></textarea></label>
+        <label class="sm:col-span-2"><span class="label">Instructions</span><textarea rows="3" class="field" x-model="note"></textarea></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#datesheet-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="datesheet-doc" class="paper">
+      {{include:letterhead}}
+      <p class="doc-title" x-text="title"></p>
+      <p class="mt-1 text-center text-[0.875rem]"><span x-text="classes"></span> · <span x-text="time"></span></p>
+      <table class="doc-table mt-5 text-[0.875rem]">
+        <thead><tr><th class="w-10">#</th><th>Date</th><th>Day</th><th>Subject</th></tr></thead>
+        <tbody>
+          <template x-for="r in schedule" :key="r.n">
+            <tr><td x-text="r.n"></td><td class="whitespace-nowrap" x-text="r.date"></td><td x-text="r.day"></td><td class="font-semibold" x-text="r.subject"></td></tr>
+          </template>
+        </tbody>
+      </table>
+      <p class="mt-4 text-[0.8125rem]" x-show="note"><strong>Note:</strong> <span x-text="note"></span></p>
+      <div class="sign-row"><div>Examination in-charge</div><div>Principal</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How the dates are chosen</h2>
+  <ol>
+    <li>The first paper falls on your start date, or the next school day if that is a Sunday or holiday.</li>
+    <li>Each later paper leaves the number of study days you set, counting only school days.</li>
+    <li>Sundays, holidays and, if you choose, Saturdays are never exam days.</li>
+  </ol>
+  <h2>Tips for a fair date sheet</h2>
+  <ul>
+    <li>Put the heaviest subjects, such as Mathematics and Science, after a weekend or study day.</li>
+    <li>Avoid two language papers back to back.</li>
+    <li>Leave a day free after a long holiday, so students aren’t tested on the day they return.</li>
+  </ul>
+</div>

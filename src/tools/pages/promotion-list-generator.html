@@ -1,0 +1,61 @@
+<div x-data="promotion" class="space-y-6">
+  <div class="panel">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_0.5fr]">
+      <label class="block"><span class="label">Students</span>
+        <textarea rows="11" class="field field-mono" x-model="sheet" spellcheck="false"></textarea>
+        <span class="hint mt-1 block">Four columns: name, overall %, subjects failed, attendance %. Paste from Excel. A heading row is ignored.</span>
+      </label>
+      <div class="space-y-4">
+        <label class="block"><span class="label">List title</span><input class="field" x-model="title"></label>
+        <label class="block"><span class="label">Minimum overall (%)</span><input type="number" min="0" max="100" class="field" x-model.number="minPct"></label>
+        <label class="block"><span class="label">Minimum attendance (%)</span><input type="number" min="0" max="100" class="field" x-model.number="minAttendance"></label>
+        <label class="block"><span class="label">Most failed subjects allowed for compartment</span><input type="number" min="0" max="10" class="field" x-model.number="maxCompartment"></label>
+        <div class="flex flex-wrap gap-2">
+          <label class="btn btn-outline btn-sm cursor-pointer"><i data-lucide="upload" class="h-4 w-4"></i>Open CSV<input type="file" accept=".csv,.txt,.tsv" class="sr-only" @change="load($event)"></label>
+          <button type="button" class="btn btn-outline btn-sm" @click="csv()"><i data-lucide="download" class="h-4 w-4"></i>CSV</button>
+          <button type="button" class="btn btn-primary btn-sm" @click="$print('#promotion-list')"><i data-lucide="printer" class="h-4 w-4"></i>Print</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="promotion-list" class="paper">
+    {{include:letterhead}}
+    <p class="doc-title" x-text="title"></p>
+    <div class="mt-5 grid grid-cols-3 gap-3 text-center">
+      <div class="stat"><p class="stat-label">Promoted</p><p class="stat-value" x-text="group('promoted').length"></p></div>
+      <div class="stat"><p class="stat-label">Compartment</p><p class="stat-value" x-text="group('compartment').length"></p></div>
+      <div class="stat"><p class="stat-label">Detained</p><p class="stat-value" x-text="group('detained').length"></p></div>
+    </div>
+    <template x-for="g in [['promoted', 'Promoted'], ['compartment', 'Supplementary (compartment) examination'], ['detained', 'Detained']]" :key="g[0]">
+      <div class="avoid-break mt-6" x-show="group(g[0]).length">
+        <h3 class="font-semibold text-primary" x-text="g[1] + ' (' + group(g[0]).length + ')'"></h3>
+        <table class="doc-table mt-2 text-[0.8125rem]">
+          <thead><tr><th class="w-10">#</th><th>Student</th><th class="num">Overall %</th><th class="num">Failed</th><th class="num">Attendance %</th><th>Remarks</th></tr></thead>
+          <tbody>
+            <template x-for="(s, i) in group(g[0])" :key="i">
+              <tr><td x-text="i + 1"></td><td x-text="s.name"></td><td class="num" x-text="s.pct"></td><td class="num" x-text="s.failed"></td><td class="num" x-text="s.attendance"></td><td x-text="s.reason"></td></tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <div class="sign-row"><div>Class teacher</div><div>Examination in-charge</div><div>Principal</div></div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How each student is placed</h2>
+  <ol>
+    <li><strong>Detained for attendance</strong> if attendance is below the minimum you set.</li>
+    <li><strong>Promoted</strong> if no subject is failed and the overall percentage meets the minimum.</li>
+    <li><strong>Compartment</strong> if the overall minimum is met and the failed subjects are within the number allowed for a supplementary exam.</li>
+    <li><strong>Detained</strong> in every other case.</li>
+  </ol>
+  <h2>Rules to check before you publish</h2>
+  <ul>
+    <li><strong>CBSE Classes 10 and 12:</strong> candidates who fail in up to two subjects may take the supplementary exam. Your board’s current rules apply for other classes.</li>
+    <li><strong>Classes 1 to 8:</strong> the 2019 RTE amendment lets states hold exams in Classes 5 and 8 and detain students who fail a re-examination. Many states do not detain at all. Follow your state’s notification.</li>
+    <li>Attendance shortfalls can often be condoned for medical or other valid reasons. Record the reason in the remarks before printing.</li>
+  </ul>
+</div>

@@ -8,32 +8,34 @@
       <img src="/asset/campy-logo.png" alt="Campy" width="495" height="160" class="h-10 w-auto">
     </a>
 
-    <ul class="hidden items-center gap-1 md:flex">
+    <ul class="hidden items-center gap-0.5 lg:flex">
       <li><a data-nav href="/features" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary aria-[current=page]:underline aria-[current=page]:decoration-secondary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]">Features</a></li>
-      <li><a data-nav href="/portals" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary aria-[current=page]:underline aria-[current=page]:decoration-secondary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]">Portals</a></li>
+      <li><a data-nav href="/integrations" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary aria-[current=page]:underline aria-[current=page]:decoration-secondary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]">Integrations</a></li>
       <li><a data-nav href="/platform" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary aria-[current=page]:underline aria-[current=page]:decoration-secondary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]">Platform</a></li>
       <li><a data-nav href="/pricing" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary aria-[current=page]:underline aria-[current=page]:decoration-secondary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]">Pricing</a></li>
+      <li><a data-nav href="/tools" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary aria-[current=page]:underline aria-[current=page]:decoration-secondary aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]">Free tools</a></li>
     </ul>
 
-    <div class="hidden items-center gap-2 md:flex">
+    <div class="hidden items-center gap-2 lg:flex">
       <a data-nav href="/contact" class="rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-primary/70 transition-colors hover:text-primary aria-[current=page]:text-primary">Contact</a>
       <a href="/contact" class="btn btn-primary btn-sm">Book a demo</a>
     </div>
 
-    <button type="button" class="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-primary md:hidden"
+    <button type="button" class="-mr-2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-primary lg:hidden"
             @click="open = !open" :aria-expanded="open.toString()" aria-controls="mobile-menu" aria-label="Menu">
       <i data-lucide="menu" class="h-6 w-6" x-show="!open"></i>
       <i data-lucide="x" class="h-6 w-6" x-show="open" x-cloak></i>
     </button>
   </nav>
 
-  <div id="mobile-menu" x-show="open" x-cloak x-transition.opacity.duration.150ms class="border-t border-primary/10 bg-white md:hidden">
+  <div id="mobile-menu" x-show="open" x-cloak x-transition.opacity.duration.150ms class="border-t border-primary/10 bg-white lg:hidden">
     <ul class="mx-auto max-w-6xl space-y-1 px-4 py-4 sm:px-6">
       <li><a data-nav href="/" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Home</a></li>
       <li><a data-nav href="/features" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Features</a></li>
-      <li><a data-nav href="/portals" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Portals</a></li>
+      <li><a data-nav href="/integrations" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Integrations</a></li>
       <li><a data-nav href="/platform" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Platform</a></li>
       <li><a data-nav href="/pricing" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Pricing</a></li>
+      <li><a data-nav href="/tools" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Free tools</a></li>
       <li><a data-nav href="/contact" class="block rounded-lg px-3 py-3 font-medium text-primary/80 aria-[current=page]:bg-primary/[0.04] aria-[current=page]:text-primary">Contact</a></li>
       <li class="pt-3"><a href="/contact" class="btn btn-primary w-full">Book a demo</a></li>
     </ul>

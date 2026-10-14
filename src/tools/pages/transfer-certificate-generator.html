@@ -1,0 +1,78 @@
+<div x-data="tc" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Student details</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label><span class="label">TC number</span><input class="field" x-model="f.tcNo"></label>
+        <label><span class="label">Admission number</span><input class="field" x-model="f.admNo"></label>
+        <label class="sm:col-span-2"><span class="label">Name of pupil</span><input class="field" x-model="f.name"></label>
+        <label><span class="label">Mother’s name</span><input class="field" x-model="f.mother"></label>
+        <label><span class="label">Father’s or guardian’s name</span><input class="field" x-model="f.father"></label>
+        <label><span class="label">Nationality</span><input class="field" x-model="f.nationality"></label>
+        <label><span class="label">Category</span>
+          <select class="field" x-model="f.category"><option>General</option><option>SC</option><option>ST</option><option>OBC</option><option>EWS</option></select>
+        </label>
+        <label><span class="label">Date of birth</span><input type="date" class="field" x-model="f.dob"></label>
+        <label><span class="label">Date of first admission</span><input type="date" class="field" x-model="f.admissionDate"></label>
+        <label><span class="label">Class at first admission</span><input class="field" x-model="f.admissionClass"></label>
+        <label><span class="label">Class last studied</span><input class="field" x-model="f.lastClass"></label>
+        <label class="sm:col-span-2"><span class="label">Last examination taken, with result</span><input class="field" x-model="f.lastExam"></label>
+        <label><span class="label">Failed in the same class?</span><input class="field" x-model="f.failed"></label>
+        <label><span class="label">Qualified for promotion?</span><input class="field" x-model="f.promoted"></label>
+        <label class="sm:col-span-2"><span class="label">Subjects studied</span><input class="field" x-model="f.subjects"></label>
+        <label><span class="label">Dues paid up to</span><input class="field" x-model="f.feesPaid"></label>
+        <label><span class="label">Fee concession</span><input class="field" x-model="f.concession"></label>
+        <label><span class="label">Total working days</span><input type="number" min="0" class="field" x-model.number="f.workingDays"></label>
+        <label><span class="label">Days present</span><input type="number" min="0" class="field" x-model.number="f.present"></label>
+        <label><span class="label">NCC, Scout or Guide</span><input class="field" x-model="f.ncc"></label>
+        <label><span class="label">Games and activities</span><input class="field" x-model="f.games"></label>
+        <label><span class="label">General conduct</span>
+          <select class="field" x-model="f.conduct"><option>Excellent</option><option>Very good</option><option>Good</option><option>Satisfactory</option></select>
+        </label>
+        <label><span class="label">Date of application</span><input type="date" class="field" x-model="f.applicationDate"></label>
+        <label><span class="label">Struck off the rolls on</span><input type="date" class="field" x-model="f.leavingDate"></label>
+        <label><span class="label">Date of issue</span><input type="date" class="field" x-model="f.issueDate"></label>
+        <label class="sm:col-span-2"><span class="label">Reason for leaving</span><input class="field" x-model="f.reason"></label>
+        <label class="sm:col-span-2"><span class="label">Other remarks</span><input class="field" x-model="f.remarks"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#tc-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="tc-doc" class="paper">
+      {{include:letterhead}}
+      <p class="doc-title">Transfer Certificate</p>
+      <div class="mt-3 flex justify-between text-[0.8125rem]">
+        <span>TC No.: <strong x-text="f.tcNo"></strong></span>
+        <span>Admission No.: <strong x-text="f.admNo"></strong></span>
+      </div>
+      <table class="doc-table mt-3 text-[0.8125rem]">
+        <tbody>
+          <template x-for="(r, i) in rows" :key="i">
+            <tr><td class="w-8" x-text="i + 1"></td><td class="w-[52%]" x-text="r[0]"></td><td class="font-semibold" x-text="r[1]"></td></tr>
+          </template>
+        </tbody>
+      </table>
+      <div class="sign-row"><div>Prepared by</div><div>Checked by</div><div>Principal<br><span class="text-[0.75rem]">(with seal)</span></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>What a school transfer certificate contains</h2>
+  <p>The format follows the transfer certificate most CBSE and state board schools use. It records:</p>
+  <ul>
+    <li>Identity: name, parents’ names, nationality, category, and date of birth in figures and words, as in the admission register.</li>
+    <li>School history: date and class of first admission, class last studied, the last exam and its result, and whether the pupil qualifies for promotion.</li>
+    <li>Attendance and dues: working days, days present, and the month up to which fees are paid.</li>
+    <li>Conduct and activities: NCC or Scouts and Guides, games, and general conduct.</li>
+    <li>Leaving details: dates of application, removal from the rolls and issue, and the reason for leaving.</li>
+  </ul>
+  <h2>Issuing the TC</h2>
+  <p>Print the certificate on the school’s letterhead or paper, have it checked against the admission register, and have the principal sign and stamp it. Record the TC number in the school’s TC register. For CBSE schools in Classes 9 to 12, also check the board’s rules on mid-session transfers.</p>
+</div>

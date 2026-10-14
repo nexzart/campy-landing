@@ -2,7 +2,8 @@
 // use opacity modifiers (e.g. text-primary/70, border-primary/10) for neutrals.
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./src/**/*.{html,js}', './worker/**/*.js'],
+  // The build script also writes markup (tool cards and the tool page layout).
+  content: ['./src/**/*.{html,js,mjs}', './worker/**/*.js', './scripts/**/*.mjs'],
   theme: {
     extend: {
       colors: {

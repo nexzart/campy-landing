@@ -1,0 +1,86 @@
+<div x-data="academicCalendar" class="space-y-6">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+    <div class="space-y-6">
+      {{include:school-fields}}
+      <div class="panel">
+        <h2 class="panel-title">Session</h2>
+        <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label class="sm:col-span-2"><span class="label">Title</span><input class="field" x-model="title"></label>
+          <label><span class="label">Starts in</span>
+            <select class="field" x-model.number="month"><template x-for="(m, i) in monthNames" :key="m"><option :value="i" x-text="m" :selected="i === month"></option></template></select>
+          </label>
+          <label><span class="label">Year</span><input type="number" min="2000" max="2100" class="field" x-model.number="year"></label>
+          <label class="sm:col-span-2"><span class="label">Saturdays</span>
+            <select class="field" x-model="saturdays">
+              <option value="none">All Saturdays working</option>
+              <option value="24">2nd and 4th Saturday off</option>
+              <option value="13">1st and 3rd Saturday off</option>
+              <option value="all">All Saturdays off</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <label class="block"><span class="label">Holidays, exams and events</span>
+        <textarea rows="18" class="field field-mono" x-model="events" spellcheck="false"></textarea>
+      </label>
+      <p class="hint mt-2">One per line: <code>date | type | title</code>, or <code>date to date | type | title</code> for a range. Types: holiday, exam, event.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap gap-4 text-sm">
+        <span><span class="cal-key cal-holiday"></span> Holiday</span>
+        <span><span class="cal-key cal-exam"></span> Exam</span>
+        <span><span class="cal-key cal-event"></span> Event</span>
+        <span class="text-primary/60">Grey: weekly off</span>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#calendar-doc', true)"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="calendar-doc" class="paper">
+      {{include:letterhead}}
+      <div class="mt-4 flex flex-wrap items-baseline justify-between gap-2">
+        <p class="text-lg font-bold text-primary" x-text="title"></p>
+        <p class="text-[0.8125rem]">Working days: <strong x-text="totalWorking"></strong></p>
+      </div>
+      <div class="mt-4 grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-4">
+        <template x-for="m in months" :key="m.name">
+          <div class="avoid-break">
+            <div class="flex items-baseline justify-between">
+              <p class="font-semibold text-primary" x-text="m.name"></p>
+              <p class="text-[0.6875rem] text-[#5a6070]"><span x-text="m.working"></span> days</p>
+            </div>
+            <div class="cal-grid mt-1.5 text-[0.625rem] font-semibold text-[#5a6070]">
+              <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+            </div>
+            <div class="cal-grid mt-0.5">
+              <template x-for="(c, i) in m.cells" :key="i">
+                <span :class="c && c.mark && 'cal-' + c.mark" x-text="c ? c.day : ''"></span>
+              </template>
+            </div>
+            <ul class="mt-1.5 space-y-0.5 text-[0.6875rem] leading-snug">
+              <template x-for="(e, i) in m.events" :key="i">
+                <li><strong x-text="e.when"></strong> <span x-text="e.title"></span></li>
+              </template>
+            </ul>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>Building your academic calendar</h2>
+  <ol>
+    <li>Choose the month and year your session starts. April is most common for CBSE and many state boards. Some states and international schools start in June.</li>
+    <li>Choose your Saturday rule.</li>
+    <li>List gazetted holidays, vacations, exam windows and events, one per line.</li>
+    <li>Check the working days per month, and the total against your board’s and RTE minimums (200 days for Classes 1–5, 220 for Classes 6–8).</li>
+  </ol>
+  <h2>Accepted date formats</h2>
+  <p>Dates can be written as 2026-08-15 or 15/08/2026. A range uses “to”: <code>2026-10-19 to 2026-10-23 | holiday | Diwali break</code>.</p>
+  <p>Exam and event days count as working days. Holidays and weekly offs don’t.</p>
+</div>

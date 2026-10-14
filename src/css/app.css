@@ -319,11 +319,61 @@ body {
 .htmx-request .hide-on-request {
   display: none;
 }
-.fade-swap {
-  transition: opacity 160ms ease;
+
+/* Auto-scrolling jump menus (initMarquee in app.js). Until the script marks the menu ready,
+   or with reduced motion, it's a row you can swipe, with no visible scrollbar. */
+.marquee {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 2rem, #000 calc(100% - 2rem), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 2rem, #000 calc(100% - 2rem), transparent);
 }
-.fade-swap.htmx-swapping {
-  opacity: 0;
+.marquee::-webkit-scrollbar {
+  display: none;
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+}
+.marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  padding: 0 1rem;
+}
+.marquee[data-ready] {
+  overflow: hidden;
+}
+.marquee[data-ready] .marquee-group {
+  padding: 0 0.125rem; /* half the gap on each side, so the seam between copies matches */
+}
+.marquee[data-ready] .marquee-track {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+.marquee[data-ready]:hover .marquee-track,
+.marquee[data-ready]:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Integration logos */
+.logo-tile {
+  display: inline-flex;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem;
+  border: 1px solid rgb(10 32 78 / 0.1);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+.logo-tile-wide {
+  padding: 0 0.75rem;
 }
 
 /* Accordion */
@@ -369,5 +419,605 @@ details[open] .chev {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ Free tools */
+
+/* Index and homepage cards */
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(10 32 78 / 0.1);
+  background: #fff;
+  padding: 1.5rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.tool-card:hover {
+  border-color: rgb(10 32 78 / 0.3);
+  box-shadow: 0 24px 48px -32px rgb(10 32 78 / 0.35);
+}
+.tool-card-icon {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: rgb(126 187 2 / 0.22);
+}
+
+/* Tool UI */
+.panel {
+  min-width: 0;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(10 32 78 / 0.1);
+  background: #fff;
+  padding: 1.25rem;
+}
+@media (min-width: 640px) {
+  .panel {
+    padding: 1.75rem;
+  }
+}
+.panel-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.hint {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(10 32 78 / 0.62);
+}
+.field-sm {
+  border-radius: 0.5rem;
+  padding: 0.4375rem 0.625rem;
+  font-size: 0.875rem;
+}
+/* Room for an icon placed inside the field on the left (e.g. the tools search). These field rules
+   come after Tailwind's utilities, so a pl-* class on a field would be overridden. */
+.field-icon {
+  padding-left: 2.25rem;
+}
+.field-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+select.field,
+.dd-button.field {
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A204E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 1rem;
+}
+
+/* Custom dropdowns (src/js/dropdown.js). The native select stays in the DOM, hidden, for forms and x-model. */
+select.dd-native {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+/* :where() keeps these at zero specificity so utility classes copied from the select (text-center, w-24) win. */
+:where(.dd-button) {
+  cursor: pointer;
+  text-align: left;
+}
+:where(.dd-button:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.dd-value {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dd-placeholder .dd-value {
+  color: rgb(10 32 78 / 0.45);
+}
+.dd-button.field[aria-expanded='true'] {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(10 32 78 / 0.12);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A204E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 15-6-6-6 6'/%3E%3C/svg%3E");
+}
+.dd-invalid {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(10 32 78 / 0.08);
+}
+.dd-menu {
+  position: fixed;
+  z-index: 70;
+  max-width: calc(100vw - 16px);
+  margin: 0;
+  padding: 0.25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(10 32 78 / 0.25) transparent;
+  list-style: none;
+  border: 1px solid rgb(10 32 78 / 0.12);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 16px 36px -12px rgb(10 32 78 / 0.28);
+  color: var(--primary);
+  outline: none;
+  animation: dd-in 0.12s ease-out;
+}
+.dd-option {
+  position: relative;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.dd-option.dd-active {
+  background: rgb(10 32 78 / 0.06);
+}
+.dd-option[aria-selected='true'] {
+  font-weight: 600;
+}
+.dd-option[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  transform: translateY(-50%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237EBB02' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.dd-option[aria-disabled='true'] {
+  color: rgb(10 32 78 / 0.4);
+  cursor: default;
+}
+@keyframes dd-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dd-menu {
+    animation: none;
+  }
+}
+@media print {
+  .dd-menu {
+    display: none;
+  }
+}
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--primary);
+}
+.stat {
+  border-radius: 1rem;
+  background: rgb(10 32 78 / 0.04);
+  padding: 1rem 1.25rem;
+}
+.stat-label {
+  font-size: 0.8125rem;
+  color: rgb(10 32 78 / 0.65);
+}
+.stat-value {
+  margin-top: 0.25rem;
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.stat-value.text-3xl {
+  font-size: 1.875rem;
+}
+.stat-value.text-4xl {
+  font-size: 2.25rem;
+}
+.stat-main {
+  background: var(--primary);
+  color: #fff;
+}
+.stat-main .stat-label {
+  color: rgb(255 255 255 / 0.72);
+}
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+/* Cells anchor absolutely positioned children (sr-only labels), which would otherwise
+   escape the horizontal scroll wrapper and widen the page on phones. */
+.tbl th,
+.tbl td,
+.doc-table th,
+.doc-table td {
+  position: relative;
+}
+.tbl th {
+  border-bottom: 1px solid rgb(10 32 78 / 0.14);
+  padding: 0.5rem 0.625rem;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgb(10 32 78 / 0.7);
+  white-space: nowrap;
+}
+.tbl td {
+  border-bottom: 1px solid rgb(10 32 78 / 0.08);
+  padding: 0.5rem 0.625rem;
+  vertical-align: middle;
+}
+.tbl .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tbl-edit td {
+  padding: 0.3125rem 0.25rem;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tag-ok {
+  background: rgb(126 187 2 / 0.25);
+}
+.tag-mid {
+  background: rgb(10 32 78 / 0.08);
+}
+.tag-bad {
+  background: var(--primary);
+  color: #fff;
+}
+.icon-btn {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  color: rgb(10 32 78 / 0.5);
+}
+.icon-btn:hover {
+  background: rgb(10 32 78 / 0.06);
+  color: var(--primary);
+}
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.link-btn:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--secondary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+.bar {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgb(10 32 78 / 0.08);
+}
+.bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--secondary);
+}
+.seg {
+  display: inline-flex;
+  border-radius: 0.625rem;
+  background: rgb(10 32 78 / 0.06);
+  padding: 0.25rem;
+}
+.seg button {
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgb(10 32 78 / 0.65);
+}
+.seg button[aria-pressed='true'] {
+  background: #fff;
+  color: var(--primary);
+  box-shadow: 0 1px 2px rgb(10 32 78 / 0.12);
+}
+
+/* Explainer copy under each tool */
+.prose-tool {
+  max-width: 48rem;
+  color: rgb(10 32 78 / 0.78);
+  line-height: 1.75;
+}
+.prose-tool h2 {
+  margin-top: 2.5rem;
+  font-size: 1.625rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--primary);
+}
+.prose-tool h2:first-child {
+  margin-top: 0;
+}
+.prose-tool h3 {
+  margin-top: 1.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.prose-tool p,
+.prose-tool ul,
+.prose-tool ol,
+.prose-tool table {
+  margin-top: 0.875rem;
+}
+.prose-tool ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.prose-tool ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.prose-tool li + li {
+  margin-top: 0.375rem;
+}
+.prose-tool a {
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--secondary);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+.prose-tool em {
+  font-style: italic;
+}
+.prose-tool .tbl th {
+  white-space: normal;
+}
+.prose-tool strong {
+  font-weight: 600;
+  color: var(--primary);
+}
+.prose-tool .formula {
+  display: block;
+  margin-top: 0.875rem;
+  border-left: 4px solid var(--secondary);
+  background: rgb(10 32 78 / 0.04);
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Documents: certificates, receipts, report cards. Body text stays near-black for printing. */
+.paper {
+  border-radius: 0.75rem;
+  border: 1px solid rgb(10 32 78 / 0.12);
+  background: #fff;
+  padding: 1.25rem;
+  color: #1a1f2b;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgb(10 32 78 / 0.06), 0 24px 48px -24px rgb(10 32 78 / 0.28);
+}
+@media (min-width: 640px) {
+  .paper {
+    padding: 2.5rem;
+  }
+}
+@media screen and (max-width: 639px) {
+  .paper {
+    overflow-x: auto;
+  }
+}
+.paper-frame {
+  border: 2px solid var(--primary);
+  padding: 1.5rem;
+  outline: 1px solid var(--primary);
+  outline-offset: -7px;
+}
+.letterhead {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 0.875rem;
+}
+.letterhead img {
+  width: 4rem;
+  height: 4rem;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.doc-title {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.doc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.doc-table th,
+.doc-table td {
+  border: 1px solid #c9ced8;
+  padding: 0.375rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+.doc-table th {
+  background: #f1f3f7;
+  font-weight: 600;
+}
+.doc-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.sign-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+  font-size: 0.8125rem;
+}
+.sign-row > div {
+  flex: 0 1 9rem;
+  min-width: 0;
+  border-top: 1px solid #1a1f2b;
+  padding-top: 0.375rem;
+  text-align: center;
+}
+
+/* Student ID card: CR80, 85.6 × 54 mm */
+.id-card {
+  display: flex;
+  width: 85.6mm;
+  height: 54mm;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0.3mm solid rgb(10 32 78 / 0.25);
+  border-radius: 3mm;
+  background: #fff;
+  color: var(--primary);
+  font-size: 2.5mm;
+  line-height: 1.35;
+}
+
+/* Academic calendar */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  text-align: center;
+  font-size: 0.75rem;
+}
+.cal-grid > span {
+  display: flex;
+  aspect-ratio: 1;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-variant-numeric: tabular-nums;
+}
+.cal-off {
+  color: rgb(10 32 78 / 0.35);
+}
+.cal-holiday {
+  background: var(--primary);
+  color: #fff;
+}
+.cal-exam {
+  background: var(--secondary);
+  font-weight: 600;
+}
+.cal-event {
+  box-shadow: inset 0 0 0 1.5px var(--primary);
+  font-weight: 600;
+}
+.cal-key {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  vertical-align: -2px;
+}
+
+/* Exam seating chart: one fill per class */
+.seat-grid {
+  display: grid;
+  gap: 4px;
+}
+.seat-grid > span {
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.25rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.seat-0 {
+  background: rgb(10 32 78 / 0.08);
+}
+.seat-1 {
+  background: rgb(126 187 2 / 0.35);
+}
+.seat-2 {
+  background: var(--primary);
+  color: #fff;
+}
+.seat-3 {
+  box-shadow: inset 0 0 0 1.5px var(--primary);
+}
+.seat-4 {
+  background: rgb(10 32 78 / 0.25);
+}
+.seat-5 {
+  background: var(--secondary);
+}
+
+/* Printing. Document tools print one element on its own (printElement in tools.js). */
+#print-root {
+  display: none;
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  #site-header,
+  #site-footer,
+  .no-print {
+    display: none !important;
+  }
+  body.printing > :not(#print-root) {
+    display: none !important;
+  }
+  body.printing #print-root {
+    display: block;
+  }
+  #print-root .paper {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .page-break {
+    break-after: page;
+  }
+  .avoid-break {
+    break-inside: avoid;
   }
 }

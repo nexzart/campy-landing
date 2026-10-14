@@ -1,0 +1,112 @@
+<div x-data="attendance" class="space-y-6">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="panel">
+      <h2 class="panel-title">One student</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label><span class="label">Working days so far</span><input type="number" min="1" class="field" x-model.number="held"></label>
+        <label><span class="label">Days present</span><input type="number" min="0" class="field" x-model.number="attended"></label>
+        <label><span class="label">Required attendance (%)</span><input type="number" min="1" max="99" class="field" x-model.number="target"></label>
+        <label><span class="label">Working days left in the session</span><input type="number" min="0" class="field" x-model.number="remaining"></label>
+      </div>
+      <p class="hint mt-4">Works the same for periods or lectures: enter periods held and periods attended.</p>
+    </div>
+
+    <div class="panel" aria-live="polite">
+      <template x-if="!valid">
+        <p class="text-primary/70">Days present must be between 0 and the number of working days.</p>
+      </template>
+      <template x-if="valid">
+        <div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="stat stat-main sm:col-span-2">
+              <p class="stat-label">Attendance</p>
+              <p class="stat-value text-4xl"><span x-text="$fmt(pct, 2)"></span>%</p>
+            </div>
+            <div class="stat"><p class="stat-label">Days absent</p><p class="stat-value" x-text="held - attended"></p></div>
+            <div class="stat">
+              <template x-if="pct >= target"><div><p class="stat-label">Days you can still miss</p><p class="stat-value" x-text="canMiss"></p></div></template>
+              <template x-if="pct < target"><div><p class="stat-label">Days needed in a row</p><p class="stat-value" x-text="need"></p></div></template>
+            </div>
+          </div>
+          <p class="mt-5 text-[0.9375rem]" x-show="pct >= target">
+            <span class="tag tag-ok">Above <span x-text="target"></span>%</span>
+            The student can miss <strong x-text="canMiss"></strong> more working days and still stay at or above <span x-text="target"></span>%.
+          </p>
+          <p class="mt-5 text-[0.9375rem]" x-show="pct < target">
+            <span class="tag tag-bad">Below <span x-text="target"></span>%</span>
+            <template x-if="need <= remaining"><span>The student must attend the next <strong x-text="need"></strong> working days without a break to reach <span x-text="target"></span>%.</span></template>
+            <template x-if="need > remaining"><span><span x-text="target"></span>% can’t be reached this session. Attending every remaining day gives <strong x-text="$fmt(best, 1) + '%'"></strong>.</span></template>
+          </p>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h2 class="panel-title">Whole class</h2>
+        <p class="hint mt-1">Paste two columns from Excel or Google Sheets: student name and days present.</p>
+      </div>
+      <div class="flex flex-wrap gap-2 no-print">
+        <label class="btn btn-outline btn-sm cursor-pointer"><i data-lucide="upload" class="h-4 w-4"></i>Open CSV<input type="file" accept=".csv,.txt,.tsv" class="sr-only" @change="load($event)"></label>
+        <button type="button" class="btn btn-outline btn-sm" @click="csv()"><i data-lucide="download" class="h-4 w-4"></i>Download CSV</button>
+        <button type="button" class="btn btn-primary btn-sm" @click="$print('#attendance-report')"><i data-lucide="printer" class="h-4 w-4"></i>Print</button>
+      </div>
+    </div>
+    <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <label><span class="label">Total working days</span><input type="number" min="1" class="field" x-model.number="days"></label>
+          <label><span class="label">Minimum %</span><input type="number" min="1" max="100" class="field" x-model.number="min"></label>
+        </div>
+        <label class="block"><span class="label">Name and days present</span><textarea rows="10" class="field field-mono" x-model="sheet" spellcheck="false"></textarea></label>
+      </div>
+      <div id="attendance-report">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="stat"><p class="stat-label">Students</p><p class="stat-value" x-text="rows.length"></p></div>
+          <div class="stat"><p class="stat-label">Class average</p><p class="stat-value" x-text="$fmt(average, 1) + '%'"></p></div>
+          <div class="stat"><p class="stat-label">Below <span x-text="min"></span>%</p><p class="stat-value" x-text="shortCount"></p></div>
+        </div>
+        <div class="mt-4 overflow-x-auto">
+          <table class="tbl">
+            <thead><tr><th>Student</th><th class="num">Present</th><th class="num">Absent</th><th class="num">Attendance</th><th>Status</th></tr></thead>
+            <tbody>
+              <template x-for="(r, i) in rows" :key="i">
+                <tr>
+                  <td x-text="r.name"></td>
+                  <td class="num" x-text="r.present"></td>
+                  <td class="num" x-text="r.absent"></td>
+                  <td class="num font-semibold" x-text="$fmt(r.pct, 1) + '%'"></td>
+                  <td><span class="tag" :class="r.ok ? 'tag-ok' : 'tag-bad'" x-text="r.ok ? 'Eligible' : 'Short'"></span></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How attendance percentage is calculated</h2>
+  <p>Divide the days a student was present by the total working days, then multiply by 100.</p>
+  <span class="formula">Attendance % = (days present ÷ total working days) × 100</span>
+  <p>A student present on 168 of 210 working days has 168 ÷ 210 × 100 = <strong>80%</strong> attendance.</p>
+
+  <h3>Days needed to reach 75%</h3>
+  <span class="formula">Days needed = (0.75 × days held − days present) ÷ 0.25, rounded up</span>
+  <p>With 84 of 120 days (70%), the student needs (90 − 84) ÷ 0.25 = <strong>24</strong> more days in a row: 108 of 144 is exactly 75%.</p>
+
+  <h3>Days a student can still miss</h3>
+  <span class="formula">Days you can miss = (days present − 0.75 × days held) ÷ 0.75, rounded down</span>
+
+  <h2>Minimum attendance rules</h2>
+  <ul>
+    <li><strong>CBSE:</strong> at least 75% attendance to appear in the Class 10 and 12 board exams. Shortages can be condoned only in specific cases, such as serious illness, through the school.</li>
+    <li><strong>CISCE (ICSE and ISC):</strong> schools follow a 75% requirement for board exam candidates.</li>
+    <li><strong>State boards:</strong> most use 75%, and some allow condonation down to a lower figure. Check your board’s current circular.</li>
+  </ul>
+  <p>Catching a shortfall early matters more than the formula. A student at 72% in October can still recover. A student at 72% in February usually cannot.</p>
+</div>

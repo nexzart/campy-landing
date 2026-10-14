@@ -1,0 +1,44 @@
+<div x-data="marksPercent" class="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+  <div class="panel">
+    <h2 class="panel-title">Subject marks</h2>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl tbl-edit min-w-[460px]">
+        <thead><tr><th>Subject</th><th>Marks</th><th>Out of</th><th class="num">%</th><th>Grade</th><th><span class="sr-only">Remove</span></th></tr></thead>
+        <tbody>
+          <template x-for="(s, i) in subjects" :key="i">
+            <tr>
+              <td><input class="field field-sm" x-model="s.name" aria-label="Subject"></td>
+              <td><input type="number" min="0" step="0.5" class="field field-sm w-20" x-model.number="s.got" aria-label="Marks obtained"></td>
+              <td><input type="number" min="1" class="field field-sm w-20" x-model.number="s.max" aria-label="Maximum marks"></td>
+              <td class="num" x-text="$fmt(pct(s), 1)"></td>
+              <td><span class="tag tag-mid" x-text="grade(s)"></span></td>
+              <td><button type="button" class="icon-btn" @click="subjects.splice(i, 1)" aria-label="Remove subject"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <button type="button" class="link-btn mt-4" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add subject</button>
+  </div>
+  <div class="panel self-start" aria-live="polite">
+    <div class="grid grid-cols-1 gap-3">
+      <div class="stat stat-main"><p class="stat-label">Overall percentage</p><p class="stat-value text-4xl" x-text="$fmt(overall, 2) + '%'"></p></div>
+      <div class="stat"><p class="stat-label">Total marks</p><p class="stat-value"><span x-text="$fmt(got, 1)"></span> / <span x-text="$fmt(max, 0)"></span></p></div>
+      <div class="stat" x-show="subjects.length > 5">
+        <p class="stat-label">Best of five</p>
+        <p class="stat-value" x-text="$fmt(bestFive.pct, 2) + '%'"></p>
+        <p class="hint mt-1" x-text="bestFive.names.join(', ')"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How to calculate percentage from marks</h2>
+  <span class="formula">Percentage = (total marks obtained ÷ total maximum marks) × 100</span>
+  <p>With 430 out of 500, the percentage is 430 ÷ 500 × 100 = <strong>86%</strong>. When subjects have different maximum marks, add the marks and the maximums separately before dividing. Don’t average the subject percentages.</p>
+  <h2>Best-of-five percentage</h2>
+  <p>CBSE Class 10 and 12 students often take six subjects. Many colleges and the CBSE merit certificate use the five best. The calculator picks the five subjects with the highest percentage. Some colleges require English among the five, so check the admission rules.</p>
+  <h2>Grades shown</h2>
+  <p>Each subject is graded on the CBSE 8-point scale: A1 91–100, A2 81–90, B1 71–80, B2 61–70, C1 51–60, C2 41–50, D 33–40, E below 33.</p>
+</div>

@@ -1,0 +1,84 @@
+<div x-data="admissionAge" class="space-y-6">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+    <div class="panel">
+      <h2 class="panel-title">Child and session</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Date of birth</span><input type="date" class="field" x-model="dob"></label>
+        <label><span class="label">Session starting in</span><input type="number" min="2000" max="2100" class="field" x-model.number="session"></label>
+        <label><span class="label">Age cut-off date</span>
+          <select class="field" x-model="cutoff">
+            <option value="03-31">31 March</option>
+            <option value="04-01">1 April</option>
+            <option value="06-01">1 June</option>
+            <option value="07-31">31 July</option>
+            <option value="09-30">30 September</option>
+            <option value="12-31">31 December</option>
+          </select>
+        </label>
+        <label class="sm:col-span-2"><span class="label">Minimum age for Class 1</span>
+          <select class="field" x-model.number="minAge">
+            <option value="6">6 years (NEP 2020)</option>
+            <option value="5.5">5 years 6 months</option>
+            <option value="5">5 years</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="panel" aria-live="polite">
+      <template x-if="!age"><p class="text-primary/70">Enter a date of birth before the cut-off date.</p></template>
+      <template x-if="age">
+        <div>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div class="stat stat-main sm:col-span-2">
+              <p class="stat-label">Eligible for <span x-text="sessionLabel"></span></p>
+              <p class="stat-value text-3xl" x-text="eligible ? eligible.name : 'Not yet eligible'"></p>
+            </div>
+            <div class="stat sm:col-span-2">
+              <p class="stat-label">Age on <span x-text="$date(cutoffDate)"></span></p>
+              <p class="stat-value"><span x-text="age.y"></span> years, <span x-text="age.m"></span> months, <span x-text="age.d"></span> days</p>
+            </div>
+          </div>
+          <p class="mt-5 text-[0.9375rem] text-primary/75" x-show="!eligible">The child is younger than the minimum age for pre-school (<span x-text="ageLabel(minAge - 3)"></span>) on the cut-off date.</p>
+          <p class="mt-5 text-[0.9375rem] text-primary/75" x-show="eligible">This is the highest class the child meets the minimum age for. Many schools also set a maximum age for each class, usually one year above the minimum.</p>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 class="panel-title">Date of birth ranges for <span x-text="sessionLabel"></span></h2>
+    <p class="hint mt-1">Children born in each range reach the minimum age, but not the next class’s minimum, by <span x-text="$date(cutoffDate)"></span>.</p>
+    <div class="mt-4 overflow-x-auto">
+      <table class="tbl">
+        <thead><tr><th>Class</th><th>Minimum age</th><th>Born from</th><th>Born up to</th></tr></thead>
+        <tbody>
+          <template x-for="c in ladder" :key="c.name">
+            <tr :class="eligible && eligible.name === c.name && 'bg-secondary/15 font-semibold'">
+              <td x-text="c.name"></td>
+              <td x-text="ageLabel(c.age)"></td>
+              <td x-text="$date(c.earliest)"></td>
+              <td x-text="$date(c.latest)"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How admission age is worked out</h2>
+  <p>A child’s completed age on the cut-off date decides the class. For a 31 March cut-off and the 2026–27 session, a child must be born on or before 31 March 2020 to join Class 1 at 6+.</p>
+  <span class="formula">Eligible class = the highest class whose minimum age the child has completed on the cut-off date</span>
+
+  <h2>Age by class under NEP 2020</h2>
+  <p>NEP 2020’s 5+3+3+4 structure puts three years of pre-school (ages 3 to 6) before Class 1, so Class 1 starts at age 6:</p>
+  <ul>
+    <li><strong>Nursery or Balvatika 1:</strong> 3+</li>
+    <li><strong>LKG or Balvatika 2:</strong> 4+</li>
+    <li><strong>UKG or Balvatika 3:</strong> 5+</li>
+    <li><strong>Class 1:</strong> 6+</li>
+  </ul>
+  <p>The Ministry of Education has asked all states and union territories to apply the 6+ rule for Class 1. Some states phase it in, and cut-off dates differ. Always confirm with your state’s current admission notification.</p>
+</div>

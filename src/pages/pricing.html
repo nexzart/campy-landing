@@ -1,124 +1,181 @@
 <main id="main">
     <section class="mx-auto max-w-6xl px-4 pb-14 pt-16 sm:px-6 sm:pt-20 lg:px-8">
       <p class="eyebrow">Pricing</p>
-      <h1 class="font-display mt-6 max-w-3xl text-5xl font-extrabold leading-[1.1] sm:text-6xl">One annual fee. <span class="marker">Unlimited students and staff.</span></h1>
-      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-primary/70">A predictable annual price with no per-student or per-staff charges. Campy follows a straightforward pricing approach designed to make school management technology accessible.</p>
+      <h1 class="font-display mt-6 max-w-4xl text-5xl font-extrabold leading-[1.1] sm:text-6xl">Zero development cost. <span class="marker">Pick the plan that fits.</span></h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-primary/70">Campy is ready to use from day one. You pay one annual subscription, with no development charges, no per-student fees and no per-staff fees. Plans start at ₹35,000 a year, and you can add modules as your school grows.</p>
+      <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-[0.9375rem] font-medium">
+        <li class="flex items-center gap-2"><i data-lucide="circle-check" class="h-5 w-5 text-secondary"></i>₹0 development cost</li>
+        <li class="flex items-center gap-2"><i data-lucide="circle-check" class="h-5 w-5 text-secondary"></i>Unlimited students and staff</li>
+        <li class="flex items-center gap-2"><i data-lucide="circle-check" class="h-5 w-5 text-secondary"></i>Apps, hosting, backups and updates included</li>
+      </ul>
     </section>
 
-    <!-- Plan -->
-    <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-      <div class="grid overflow-hidden rounded-3xl border border-primary/10 lg:grid-cols-[1fr_1fr]">
-        <div class="on-dark relative overflow-hidden bg-primary p-8 text-white sm:p-10">
-          <span class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-secondary/20" aria-hidden="true"></span>
-          <p class="relative text-sm font-semibold uppercase tracking-wider text-secondary">Annual platform fee</p>
-          <p class="font-display relative mt-4 text-4xl font-bold sm:text-5xl">₹35,000–₹40,000</p>
-          <p class="relative mt-1 text-white/70">per year, for the whole school</p>
-          <dl class="relative mt-8 grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-white/10 text-center">
-            <div class="bg-primary px-2 py-5"><dt class="sr-only">Students</dt><dd><i data-lucide="infinity" class="mx-auto h-6 w-6 text-secondary"></i><span class="mt-2 block text-sm text-white/80">Students</span></dd></div>
-            <div class="bg-primary px-2 py-5"><dt class="sr-only">Staff</dt><dd><i data-lucide="infinity" class="mx-auto h-6 w-6 text-secondary"></i><span class="mt-2 block text-sm text-white/80">Staff</span></dd></div>
-            <div class="bg-primary px-2 py-5"><dt class="sr-only">Included storage</dt><dd><span class="font-display block text-lg font-bold leading-6">40–50 GB</span><span class="mt-2 block text-sm text-white/80">Storage</span></dd></div>
-          </dl>
-          <a href="/contact" class="btn btn-lime relative mt-8 w-full sm:w-auto">Get your school’s quote</a>
-        </div>
-        <div class="p-8 sm:p-10">
-          <h2 class="text-lg font-semibold">What the fee covers</h2>
+    <section class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8" aria-label="Plans">
+      {{site:plans}}
+      <p class="mt-4 text-sm text-primary/60">Prices are per school per year and exclude GST. A {{site:platform-fee}}% platform fee applies to fees collected through Campy on every plan.</p>
+    </section>
+
+    <!-- No development cost -->
+    <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28" aria-labelledby="dev-title">
+      <div class="max-w-2xl">
+        <p class="eyebrow">Why it costs less</p>
+        <h2 id="dev-title" class="font-display mt-5 text-4xl font-bold leading-tight sm:text-5xl">Skip the software project.</h2>
+        <p class="mt-5 text-lg text-primary/70">A custom-built school ERP means paying developers before you see anything, waiting months, and paying again for every change. Campy is already built, tested and running in schools.</p>
+      </div>
+      <div class="mt-12 grid gap-6 lg:grid-cols-2">
+        <div class="rounded-3xl border border-primary/10 p-8">
+          <p class="font-semibold text-primary/60">Building your own ERP</p>
           <ul class="mt-6 space-y-4">
-            <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>Unlimited students and unlimited staff.</li>
-            <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>No additional charges based on student count.</li>
-            <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>No additional charges based on staff count.</li>
-            <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>Approximately 40–50 GB of included storage, according to the selected plan.</li>
-            <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>Affordable additional storage as your school’s records grow.</li>
-            <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>Every module included. None is sold separately.</li>
+            <li class="flex gap-3"><i data-lucide="x" class="mt-0.5 h-5 w-5 text-primary/40"></i>Lakhs of rupees in development, paid up front</li>
+            <li class="flex gap-3"><i data-lucide="x" class="mt-0.5 h-5 w-5 text-primary/40"></i>Months before the first module is ready</li>
+            <li class="flex gap-3"><i data-lucide="x" class="mt-0.5 h-5 w-5 text-primary/40"></i>Separate bills for hosting, apps and maintenance</li>
+            <li class="flex gap-3"><i data-lucide="x" class="mt-0.5 h-5 w-5 text-primary/40"></i>Every change and fix is a new quote</li>
+            <li class="flex gap-3"><i data-lucide="x" class="mt-0.5 h-5 w-5 text-primary/40"></i>Security and backups are your problem</li>
+          </ul>
+        </div>
+        <div class="on-dark relative overflow-hidden rounded-3xl bg-primary p-8 text-white">
+          <span class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-secondary/20" aria-hidden="true"></span>
+          <p class="relative font-semibold text-secondary">Campy</p>
+          <ul class="relative mt-6 space-y-4">
+            <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 text-secondary"></i>₹0 development cost, one annual subscription</li>
+            <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 text-secondary"></i>Set up with your classes and fee structure in days</li>
+            <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 text-secondary"></i>Hosting, Android and iOS apps and backups included</li>
+            <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 text-secondary"></i>New features and fixes arrive as free updates</li>
+            <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 text-secondary"></i>Security, audit logs and data isolation built in</li>
           </ul>
         </div>
       </div>
-      <p class="mt-4 text-sm italic text-primary/60">Final pricing, storage allowance, taxes, and additional-storage rates will be confirmed in your selected plan.</p>
     </section>
 
-    <!-- Size calculator -->
-    <section class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28" x-data="sizer">
-      <div class="grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
-        <div>
-          <h2 class="font-display text-4xl font-bold leading-tight sm:text-5xl">The bigger the school, the better the value.</h2>
-          <p class="mt-5 text-lg text-primary/70">A school of 200 students or 2,000 students uses the same base pricing model. Move the slider to see what the annual fee works out to per student.</p>
-
-          <div class="mt-10">
-            <div class="flex items-baseline justify-between">
-              <label for="size-students" class="font-semibold">Students in your school</label>
-              <input type="number" min="50" max="10000" x-model.number="students" aria-label="Number of students"
-                     class="w-24 rounded-lg border border-primary/15 px-2.5 py-1.5 text-right font-semibold tabular-nums focus:border-primary focus:outline-none">
-            </div>
-            <input id="size-students" type="range" min="50" max="5000" step="50" x-model.number="students" class="mt-4 w-full accent-[#0A204E]">
-          </div>
+    <!-- Build your own -->
+    <section class="border-t border-primary/10 bg-primary/[0.025]" aria-labelledby="builder-title">
+      <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div class="max-w-2xl">
+          <p class="eyebrow">Build your own plan</p>
+          <h2 id="builder-title" class="font-display mt-5 text-4xl font-bold leading-tight sm:text-5xl">Only pay for the modules you use.</h2>
+          <p class="mt-5 text-lg text-primary/70">Start with Essential and add modules one at a time. When your choices cost more than the Professional ERP, we’ll tell you.</p>
         </div>
+        <div class="mt-12">
+          {{site:plan-builder}}
+        </div>
+      </div>
+    </section>
 
-        <div class="lg:pt-4">
-          <div class="rounded-2xl border border-primary/10 bg-white shadow-card" aria-live="polite">
-            <div class="border-b border-primary/10 p-7">
-              <p class="text-sm text-primary/60">Annual platform fee</p>
-              <p class="font-display mt-2 text-4xl font-bold sm:text-5xl">₹35,000–₹40,000</p>
-              <p class="mt-2 text-sm text-primary/60">The same for <span x-text="count.toLocaleString('en-IN')">600</span> students as for any other size.</p>
-            </div>
-            <div class="p-7">
-              <p class="text-sm text-primary/60">Works out to, per student</p>
-              <p class="font-display mt-2 text-4xl font-bold tabular-nums"><span x-text="rupees(perStudent(35000))">₹58</span>–<span x-text="rupees(perStudent(40000))">₹67</span></p>
-              <p class="mt-2 text-sm text-primary/60">a year, or about <span x-text="rupees(perStudent(40000) / 12)">₹6</span> a month at most</p>
-            </div>
-            <div class="rounded-b-2xl bg-primary/[0.03] px-7 py-5">
-              <a href="/contact" class="btn btn-primary w-full">Get an exact quote</a>
-            </div>
+    <!-- Platform fee -->
+    <section class="border-t border-primary/10" aria-labelledby="fee-title">
+      <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1fr] lg:gap-20 lg:px-8 lg:py-28">
+        <div>
+          <p class="eyebrow">Platform fee</p>
+          <h2 id="fee-title" class="font-display mt-5 text-4xl font-bold leading-tight sm:text-5xl">{{site:platform-fee}}% of fees collected. That’s it.</h2>
+          <p class="mt-5 text-lg text-primary/70">When fees are collected through Campy, a platform fee of {{site:platform-fee}}% applies. It covers the payment links, automatic receipts, reconciliation and reminders that come with every collection.</p>
+          <ul class="mt-8 space-y-4">
+            <li class="flex gap-3"><i data-lucide="landmark" class="mt-0.5 h-5 w-5 text-primary/60"></i><span>Money goes straight to <strong class="font-semibold">your school’s bank account</strong> through your own payment gateway. Campy never holds your fees.</span></li>
+            <li class="flex gap-3"><i data-lucide="credit-card" class="mt-0.5 h-5 w-5 text-primary/60"></i><span>Gateway charges are set by your payment gateway and are separate from the platform fee.</span></li>
+            <li class="flex gap-3"><i data-lucide="file-text" class="mt-0.5 h-5 w-5 text-primary/60"></i><span>The platform fee is shown on a monthly statement, line by line.</span></li>
+          </ul>
+        </div>
+        <div x-data="platformFee" class="self-start rounded-3xl border border-primary/10 bg-white p-8 shadow-card">
+          <label for="fee-collected" class="font-semibold">Fees your school collects in a year</label>
+          <div class="relative mt-3">
+            <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/60">₹</span>
+            <input id="fee-collected" type="number" min="0" step="100000" x-model.number="collected" class="field pl-8 text-lg font-semibold tabular-nums">
+          </div>
+          <input type="range" min="500000" max="50000000" step="500000" x-model.number="collected" class="mt-4 w-full accent-[#0A204E]" aria-label="Fees collected in a year">
+          <div class="mt-6 rounded-2xl bg-primary/[0.04] p-5" aria-live="polite">
+            <p class="text-sm text-primary/60">Platform fee for the year</p>
+            <p class="font-display mt-1 text-4xl font-bold tabular-nums" x-text="rupees(fee)">₹5,000</p>
+            <p class="mt-1 text-sm text-primary/60">on <span x-text="rupees(collected || 0)"></span> collected, about <span x-text="rupees(fee / 12)"></span> a month</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Included -->
-    <section class="border-t border-primary/10 bg-primary/[0.025]">
+    <!-- Compare -->
+    <section class="border-t border-primary/10 bg-primary/[0.025]" aria-labelledby="compare-title">
+      <div class="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div class="max-w-2xl">
+          <h2 id="compare-title" class="font-display text-4xl font-bold leading-tight sm:text-5xl">Compare plans.</h2>
+          <p class="mt-5 text-lg text-primary/70">What each plan includes, module by module. <a href="/features" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">See every feature</a>.</p>
+        </div>
+        <div class="mt-12">
+          {{site:plan-compare}}
+        </div>
+      </div>
+    </section>
+
+    <!-- Every plan -->
+    <section class="border-t border-primary/10">
       <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:px-8">
         <div>
-          <h2 class="font-display text-4xl font-bold leading-tight">Included for every school.</h2>
-          <p class="mt-4 text-lg text-primary/70">No module is sold separately.</p>
+          <h2 class="font-display text-4xl font-bold leading-tight">Included in every plan.</h2>
+          <p class="mt-4 text-lg text-primary/70">Whatever you choose, these are never extra.</p>
         </div>
         <ul class="grid gap-x-10 gap-y-4 sm:grid-cols-2">
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Attendance with parent alerts</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Exams, marks and results</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Timetable and academic calendar</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Homework and announcements</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Leave and substitutes</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Academic year, promotion and alumni</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Checklists and reports</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Audit logs and role permissions</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Android and iOS apps</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5"></i>Offline attendance and marks entry</li>
+          <li class="flex gap-3"><i data-lucide="infinity" class="mt-0.5 h-5 w-5"></i>Unlimited students and staff</li>
+          <li class="flex gap-3"><i data-lucide="code" class="mt-0.5 h-5 w-5"></i>No development cost</li>
+          <li class="flex gap-3"><i data-lucide="smartphone" class="mt-0.5 h-5 w-5"></i>Android and iOS apps</li>
+          <li class="flex gap-3"><i data-lucide="cloud" class="mt-0.5 h-5 w-5"></i>Hosting and daily backups</li>
+          <li class="flex gap-3"><i data-lucide="refresh-cw" class="mt-0.5 h-5 w-5"></i>Free product updates</li>
+          <li class="flex gap-3"><i data-lucide="wifi-off" class="mt-0.5 h-5 w-5"></i>Offline attendance and marks</li>
+          <li class="flex gap-3"><i data-lucide="shield-check" class="mt-0.5 h-5 w-5"></i>OTP sign-in, roles and audit logs</li>
+          <li class="flex gap-3"><i data-lucide="graduation-cap" class="mt-0.5 h-5 w-5"></i>Staff training sessions</li>
         </ul>
       </div>
     </section>
 
     <!-- Billing FAQ -->
-    <section class="border-t border-primary/10">
+    <section class="border-t border-primary/10 bg-primary/[0.025]">
       <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:px-8 lg:py-28">
         <h2 class="font-display text-4xl font-bold leading-tight">Billing questions.</h2>
         <div class="divide-y divide-primary/10 border-y border-primary/10">
           <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Is there a development or setup cost?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">No development cost on any plan. Campy is ready-made software that we configure for your school. Professional and Enterprise plans also include onboarding and data migration from your current registers or spreadsheets.</p>
+          </details>
+          <details class="py-2">
             <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Is Campy priced per student or per teacher?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
-            <p class="pb-5 text-primary/70">No. Campy is one annual platform fee for unlimited students and unlimited staff. Enrolling more students or hiring more staff doesn’t increase it.</p>
+            <p class="pb-5 text-primary/70">No. Every plan is one annual price for the whole school, with unlimited students and unlimited staff. Enrolling more students doesn’t change it.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">What is the 0.1% platform fee?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">A fee of 0.1% of the fees your school collects through Campy, on every plan. On ₹50 lakh of fees in a year, that is ₹5,000. It appears on a monthly statement and is separate from your payment gateway’s charges.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Can we use our own payment gateway?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">Yes. Campy works with Razorpay, PhonePe, Paytm, Cashfree, PayU, CCAvenue, Easebuzz, bank gateways and others, and money settles directly into your school’s bank account. If your gateway has an API, we can connect it.</p>
+          </details>
+          <details class="py-2">
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Can we change plans later?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">Yes. You can add modules or upgrade at any time and pay only the difference for the rest of your subscription year. Your data stays exactly where it is.</p>
           </details>
           <details class="py-2">
             <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">How much storage is included?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
-            <p class="pb-5 text-primary/70">Approximately 40 to 50 GB, according to the selected plan. That covers student records, academic archives and school documents.</p>
-          </details>
-          <details class="py-2">
-            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">What if we need more storage?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
-            <p class="pb-5 text-primary/70">You can add storage at affordable rates as your records grow, instead of paying for a larger student or staff package. Additional-storage rates are confirmed in your plan.</p>
+            <p class="pb-5 text-primary/70">About 40 to 50 GB on Essential, 100 GB on Professional and 250 GB on Enterprise. You can add storage at affordable rates as your records grow.</p>
           </details>
           <details class="py-2">
             <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">Are taxes included?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
-            <p class="pb-5 text-primary/70">Final pricing, storage allowance and taxes are confirmed in your selected plan before you sign.</p>
+            <p class="pb-5 text-primary/70">Prices exclude GST, which is added to your invoice at the applicable rate. Final pricing is confirmed in your order before you sign.</p>
           </details>
           <details class="py-2">
-            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">How do we pay?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
-            <p class="pb-5 text-primary/70">Invoices can be paid online through Razorpay.</p>
+            <summary class="flex items-center justify-between gap-6 py-4 text-lg font-semibold">How do we pay for Campy?<i data-lucide="chevron-down" class="chev h-5 w-5"></i></summary>
+            <p class="pb-5 text-primary/70">Annual invoices can be paid online through Razorpay, or by bank transfer.</p>
           </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-4 py-20 sm:px-6 lg:px-8">
+      <div class="on-dark relative mx-auto max-w-6xl overflow-hidden rounded-3xl bg-primary px-6 py-12 text-white sm:px-12 sm:py-16">
+        <span class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-secondary/20" aria-hidden="true"></span>
+        <div class="relative grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+          <div>
+            <h2 class="font-display text-3xl font-bold leading-tight sm:text-4xl">Get an exact quote for your school.</h2>
+            <p class="mt-4 max-w-xl text-lg text-white/75">Tell us your modules and number of campuses. We’ll confirm the price and show you Campy set up with your classes.</p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row lg:flex-col lg:items-end">
+            <a href="/contact" class="btn btn-lime">Book a demo<i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+            <a href="mailto:admin@nexzart.com" class="btn btn-ghost-light">admin@nexzart.com</a>
+          </div>
         </div>
       </div>
     </section>

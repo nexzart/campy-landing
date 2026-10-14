@@ -19,7 +19,8 @@
   function markActiveNav() {
     var here = normalisePath(location.pathname);
     document.querySelectorAll('[data-nav]').forEach(function (link) {
-      if (normalisePath(new URL(link.href).pathname) === here) {
+      var path = normalisePath(new URL(link.href).pathname);
+      if (path === here || (path !== '/' && here.indexOf(path + '/') === 0)) {
         link.setAttribute('aria-current', 'page');
       } else {
         link.removeAttribute('aria-current');
@@ -37,7 +38,69 @@
     }
   });
 
+  // Tool pages need tools.js, and a boosted swap can't add scripts to <head>,
+  // so the first tool page visited loads in full. After that, boosting works as usual.
+  document.addEventListener('htmx:beforeRequest', function (evt) {
+    var info = evt.detail.pathInfo;
+    if (window.CampyTools || !info) return;
+    var target = new URL(info.requestPath, location.href);
+    if (target.origin === location.origin && /^\/tools\/./.test(target.pathname)) {
+      evt.preventDefault();
+      location.assign(target.href);
+    }
+  });
+
+  // Auto-scrolling jump menus ([data-marquee]). The links are repeated until one copy is wider
+  // than the menu, then that copy is doubled so a -50% slide loops without a seam. The extra
+  // copies are hidden from screen readers and the tab order. Reduced motion keeps the plain row.
+  var MARQUEE_SPEED = 28; // px per second
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function initMarquee(box) {
+    var track = box.firstElementChild;
+    var group = track.firstElementChild;
+    if (!box._marqueeItems) {
+      box._marqueeItems = Array.prototype.slice.call(group.children);
+      // Tabbing to a link scrolls the menu to show it; undo that so the loop has no gap.
+      box.addEventListener('focusout', function () { box.scrollLeft = 0; });
+    }
+    box.removeAttribute('data-ready');
+    while (track.children.length > 1) track.removeChild(track.lastElementChild);
+    group.replaceChildren.apply(group, box._marqueeItems);
+    if (reduceMotion.matches) return;
+
+    var hide = function (el) {
+      el.setAttribute('aria-hidden', 'true');
+      el.querySelectorAll('a').forEach(function (a) { a.tabIndex = -1; });
+      return el;
+    };
+    for (var i = 0; group.scrollWidth < box.clientWidth && i < 10; i++) {
+      box._marqueeItems.forEach(function (li) { group.appendChild(hide(li.cloneNode(true))); });
+    }
+    track.appendChild(hide(group.cloneNode(true)));
+    box.style.setProperty('--marquee-duration', Math.round(group.scrollWidth / MARQUEE_SPEED) + 's');
+    box.setAttribute('data-ready', '');
+  }
+
+  // Only new menus by default, so an unrelated htmx swap doesn't restart a running one.
+  function initMarquees(all) {
+    document.querySelectorAll(all === true ? '[data-marquee]' : '[data-marquee]:not([data-ready])').forEach(initMarquee);
+  }
+  function resetMarquees() { initMarquees(true); }
+
+  var marqueeWidth = window.innerWidth;
+  var marqueeTimer;
+  window.addEventListener('resize', function () {
+    if (window.innerWidth === marqueeWidth) return; // mobile URL bar show/hide
+    marqueeWidth = window.innerWidth;
+    clearTimeout(marqueeTimer);
+    marqueeTimer = setTimeout(resetMarquees, 200);
+  });
+  reduceMotion.addEventListener('change', resetMarquees);
+  document.addEventListener('DOMContentLoaded', initMarquees);
+
   document.addEventListener('htmx:afterSettle', function () {
+    initMarquees();
     markActiveNav();
     if (pendingHash) {
       var target = document.querySelector(pendingHash);
@@ -47,6 +110,22 @@
   });
 
   document.addEventListener('DOMContentLoaded', markActiveNav);
+
+  // Cookie consent. The choice itself is essential storage; everything the free tools
+  // remember counts as "preferences" and is only kept when the visitor allows it.
+  var CONSENT_KEY = 'campy-consent';
+  function readConsent() {
+    try { return JSON.parse(localStorage.getItem(CONSENT_KEY)); } catch (e) { return null; }
+  }
+  window.campyConsent = function () {
+    var c = readConsent();
+    return { decided: !!c, preferences: !!(c && c.preferences), analytics: !!(c && c.analytics) };
+  };
+  function forgetPreferences() {
+    try {
+      Object.keys(localStorage).forEach(function (k) { if (k.indexOf('campy-tools:') === 0) localStorage.removeItem(k); });
+    } catch (e) { /* storage unavailable */ }
+  }
 
   document.addEventListener('alpine:init', function () {
     var WINDOW_SECONDS = 14 * 60 + 32;
@@ -100,6 +179,94 @@
           this.students.forEach(function (s) { s.present = s.roll !== 2; });
           this.submitted = false;
           this.secondsLeft = WINDOW_SECONDS;
+        },
+      };
+    });
+
+    Alpine.data('consent', function () {
+      var saved = readConsent();
+      return {
+        banner: !saved,
+        settings: false,
+        preferences: !!(saved && saved.preferences),
+        analytics: !!(saved && saved.analytics),
+        save: function (preferences, analytics) {
+          this.preferences = preferences;
+          this.analytics = analytics;
+          try {
+            localStorage.setItem(CONSENT_KEY, JSON.stringify({ preferences: preferences, analytics: analytics, version: 1, at: new Date().toISOString() }));
+          } catch (e) { /* private mode: the banner comes back next visit */ }
+          if (!preferences) forgetPreferences();
+          this.banner = false;
+          this.settings = false;
+          window.dispatchEvent(new CustomEvent('consent-changed', { detail: { preferences: preferences, analytics: analytics } }));
+        },
+        acceptAll: function () { this.save(true, true); },
+        essentialOnly: function () { this.save(false, false); },
+        saveChoices: function () { this.save(this.preferences, this.analytics); },
+        openSettings: function () {
+          var self = this;
+          this.settings = true;
+          this.$nextTick(function () { if (self.$refs.first) self.$refs.first.focus(); });
+        },
+        closeSettings: function () {
+          this.settings = false;
+        },
+      };
+    });
+
+    // Pricing page: Essential plus chosen add-on modules, compared with the Professional plan.
+    Alpine.data('planBuilder', function () {
+      var el = document.getElementById('plan-builder-data');
+      var data = el ? JSON.parse(el.textContent) : { base: 0, professional: 0, addons: [] };
+      return {
+        addons: data.addons,
+        professional: data.professional,
+        picked: {},
+        get count() {
+          var self = this;
+          return this.addons.filter(function (a) { return self.picked[a.id]; }).length;
+        },
+        get total() {
+          var self = this;
+          return this.addons.reduce(function (sum, a) { return sum + (self.picked[a.id] ? a.price : 0); }, data.base);
+        },
+        rupees: function (n) {
+          return '₹' + Math.round(n).toLocaleString('en-IN');
+        },
+      };
+    });
+
+    // Pricing page: what the 0.1% platform fee comes to for a year's fee collections.
+    Alpine.data('platformFee', function () {
+      return {
+        collected: 5000000,
+        percent: 0.1,
+        get fee() {
+          return (Math.max(0, Number(this.collected) || 0) * this.percent) / 100;
+        },
+        rupees: function (n) {
+          return '₹' + Math.round(n).toLocaleString('en-IN');
+        },
+      };
+    });
+
+    // Free tools index: filter the cards by search text and category.
+    Alpine.data('toolFinder', function () {
+      return {
+        q: '',
+        match: function (el) {
+          var words = this.q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+          var text = el.getAttribute('data-search') || '';
+          return words.every(function (w) { return text.indexOf(w) > -1; });
+        },
+        any: function (section) {
+          var self = this;
+          return Array.prototype.some.call(section.querySelectorAll('[data-search]'), function (el) { return self.match(el); });
+        },
+        get none() {
+          var self = this;
+          return !!this.q.trim() && !Array.prototype.some.call(document.querySelectorAll('[data-search]'), function (el) { return self.match(el); });
         },
       };
     });

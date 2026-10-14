@@ -1,0 +1,127 @@
+<div x-data="reportCard" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Student</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Name</span><input class="field" x-model="f.name"></label>
+        <label><span class="label">Class and section</span><input class="field" x-model="f.cls"></label>
+        <label><span class="label">Roll number</span><input class="field" x-model="f.roll"></label>
+        <label><span class="label">Admission number</span><input class="field" x-model="f.admNo"></label>
+        <label><span class="label">Date of birth</span><input type="date" class="field" x-model="f.dob"></label>
+        <label><span class="label">Parent’s name</span><input class="field" x-model="f.parent"></label>
+        <label><span class="label">Academic year</span><input class="field" x-model="f.year"></label>
+      </div>
+    </div>
+    <div class="panel">
+      <h2 class="panel-title">Marks</h2>
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <label><span class="label">Term 1 out of</span><input type="number" min="1" class="field" x-model.number="f.t1Max"></label>
+        <label><span class="label">Term 2 out of</span><input type="number" min="0" class="field" x-model.number="f.t2Max"></label>
+      </div>
+      <div class="mt-4 space-y-2">
+        <template x-for="(s, i) in subjects" :key="i">
+          <div class="flex items-center gap-2">
+            <input class="field field-sm flex-1" x-model="s.name" aria-label="Subject">
+            <input type="number" min="0" class="field field-sm w-20" x-model.number="s.t1" aria-label="Term 1 marks">
+            <input type="number" min="0" class="field field-sm w-20" x-model.number="s.t2" x-show="twoTerms" aria-label="Term 2 marks">
+            <button type="button" class="icon-btn" @click="subjects.splice(i, 1)" aria-label="Remove subject"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+          </div>
+        </template>
+      </div>
+      <button type="button" class="link-btn mt-3" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add subject</button>
+      <p class="label mt-6">Co-scholastic areas</p>
+      <div class="space-y-2">
+        <template x-for="(c, i) in coScholastic" :key="i">
+          <div class="flex items-center gap-2">
+            <input class="field field-sm flex-1" x-model="c.area" aria-label="Area">
+            <select class="field field-sm w-20" x-model="c.grade" aria-label="Grade"><option>A</option><option>B</option><option>C</option></select>
+          </div>
+        </template>
+      </div>
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label><span class="label">Days present</span><input type="number" min="0" class="field" x-model.number="f.present"></label>
+        <label><span class="label">Working days</span><input type="number" min="0" class="field" x-model.number="f.working"></label>
+        <label class="sm:col-span-2"><span class="label">Class teacher’s remarks</span><textarea rows="3" class="field" x-model="f.remarks"></textarea></label>
+        <label class="sm:col-span-2"><span class="label">Result</span><input class="field" x-model="f.result"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#report-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="report-doc" class="paper">
+      {{include:letterhead}}
+      <p class="doc-title">Report card <span class="normal-case tracking-normal" x-text="f.year"></span></p>
+      <div class="mt-4 grid grid-cols-2 gap-x-6 gap-y-1 text-[0.8125rem]">
+        <span>Name: <strong x-text="f.name"></strong></span>
+        <span>Class: <strong x-text="f.cls"></strong></span>
+        <span>Roll No.: <strong x-text="f.roll"></strong></span>
+        <span>Admission No.: <strong x-text="f.admNo"></strong></span>
+        <span>Date of birth: <strong x-text="$date(f.dob)"></strong></span>
+        <span>Parent: <strong x-text="f.parent"></strong></span>
+      </div>
+      <table class="doc-table mt-4 text-[0.8125rem]">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th class="num">Term 1 <span class="font-normal" x-text="'(' + f.t1Max + ')'"></span></th>
+            <th class="num" x-show="twoTerms">Term 2 <span class="font-normal" x-text="'(' + f.t2Max + ')'"></span></th>
+            <th class="num" x-show="twoTerms">Total <span class="font-normal" x-text="'(' + subjectMax + ')'"></span></th>
+            <th class="num">%</th><th>Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="(s, i) in subjects" :key="i">
+            <tr>
+              <td x-text="s.name"></td>
+              <td class="num" x-text="s.t1"></td>
+              <td class="num" x-show="twoTerms" x-text="s.t2"></td>
+              <td class="num font-semibold" x-show="twoTerms" x-text="total(s)"></td>
+              <td class="num" x-text="$fmt(pct(s), 1)"></td>
+              <td class="font-semibold" x-text="grade(s)"></td>
+            </tr>
+          </template>
+          <tr class="font-bold">
+            <td>Overall</td>
+            <td x-show="twoTerms"></td>
+            <td x-show="twoTerms"></td>
+            <td class="num" x-text="grandTotal + ' / ' + grandMax"></td>
+            <td class="num" x-text="$fmt(overall, 2)"></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <table class="doc-table text-[0.8125rem]">
+          <thead><tr><th>Co-scholastic area</th><th>Grade</th></tr></thead>
+          <tbody><template x-for="(c, i) in coScholastic" :key="i"><tr><td x-text="c.area"></td><td class="font-semibold" x-text="c.grade"></td></tr></template></tbody>
+        </table>
+        <table class="doc-table text-[0.8125rem]">
+          <tbody>
+            <tr><th>Attendance</th><td><span x-text="f.present"></span> / <span x-text="f.working"></span> (<span x-text="$fmt(attendancePct, 1)"></span>%)</td></tr>
+            <tr><th>Result</th><td class="font-semibold" x-text="f.result"></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-4 text-[0.8125rem]"><strong>Remarks:</strong> <span x-text="f.remarks"></span></p>
+      <p class="mt-2 text-[0.6875rem] text-[#5a6070]">Grades: A1 91–100, A2 81–90, B1 71–80, B2 61–70, C1 51–60, C2 41–50, D 33–40, E below 33. Co-scholastic: A outstanding, B very good, C fair.</p>
+      <div class="sign-row"><div>Class teacher</div><div>Principal</div><div>Parent</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How the report card is calculated</h2>
+  <ul>
+    <li><strong>Subject total:</strong> Term 1 + Term 2 marks.</li>
+    <li><strong>Subject percentage:</strong> subject total ÷ (Term 1 maximum + Term 2 maximum) × 100.</li>
+    <li><strong>Grade:</strong> the subject percentage on the CBSE 8-point scale.</li>
+    <li><strong>Overall percentage:</strong> all marks ÷ all maximum marks × 100.</li>
+  </ul>
+  <h2>Writing useful remarks</h2>
+  <p>Good remarks name one strength and one specific next step, in words a parent can act on. “Reads fluently; should practise long division at home” helps more than “Good, can do better”.</p>
+</div>

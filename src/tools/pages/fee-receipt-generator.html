@@ -1,0 +1,95 @@
+<div x-data="feeReceipt" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Receipt details</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label><span class="label">Receipt number</span><input class="field" x-model="f.no"></label>
+        <label><span class="label">Date</span><input type="date" class="field" x-model="f.date"></label>
+        <label><span class="label">Student’s name</span><input class="field" x-model="f.name"></label>
+        <label><span class="label">Class and section</span><input class="field" x-model="f.cls"></label>
+        <label><span class="label">Admission number</span><input class="field" x-model="f.admNo"></label>
+        <label><span class="label">Parent’s name</span><input class="field" x-model="f.parent"></label>
+        <label class="sm:col-span-2"><span class="label">Fee period</span><input class="field" x-model="f.period"></label>
+      </div>
+      <p class="label mt-6">Fee heads</p>
+      <div class="space-y-2">
+        <template x-for="(h, i) in heads" :key="i">
+          <div class="flex items-center gap-2">
+            <input class="field field-sm flex-1" x-model="h.name" aria-label="Fee head">
+            <input type="number" min="0" class="field field-sm w-28" x-model.number="h.amount" aria-label="Amount">
+            <button type="button" class="icon-btn" @click="heads.splice(i, 1)" aria-label="Remove fee head"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+          </div>
+        </template>
+      </div>
+      <button type="button" class="link-btn mt-3" @click="add()"><i data-lucide="plus" class="h-4 w-4"></i>Add fee head</button>
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label><span class="label">Discount or concession (₹)</span><input type="number" min="0" class="field" x-model.number="f.discount"></label>
+        <label><span class="label">Late fee (₹)</span><input type="number" min="0" class="field" x-model.number="f.late"></label>
+        <label><span class="label">Payment mode</span>
+          <select class="field" x-model="f.mode"><template x-for="m in modes" :key="m"><option :value="m" x-text="m" :selected="m === f.mode"></option></template></select>
+        </label>
+        <label><span class="label">Reference (UPI, cheque or transaction no.)</span><input class="field" x-model="f.ref"></label>
+        <label><span class="label">Received by</span><input class="field" x-model="f.cashier" placeholder="Cashier’s name"></label>
+        <label><span class="label">Copies on the page</span>
+          <select class="field" x-model.number="copies"><option value="2">School and parent copy</option><option value="1">One copy</option></select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#receipt-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="receipt-doc" class="paper space-y-0">
+      <template x-for="(label, c) in labels" :key="label">
+        <div :class="c > 0 && 'mt-6 border-t-2 border-dashed border-primary/30 pt-6'">
+          {{include:letterhead}}
+          <div class="mt-3 flex items-center justify-between gap-3">
+            <p class="text-base font-bold uppercase tracking-wider text-primary">Fee receipt</p>
+            <span class="rounded border border-primary/40 px-2 py-0.5 text-xs font-semibold uppercase" x-text="label"></span>
+          </div>
+          <div class="mt-3 grid grid-cols-2 gap-x-6 gap-y-1 text-[0.8125rem]">
+            <span>Receipt No.: <strong x-text="f.no"></strong></span>
+            <span class="text-right">Date: <strong x-text="$date(f.date)"></strong></span>
+            <span>Student: <strong x-text="f.name"></strong></span>
+            <span class="text-right">Class: <strong x-text="f.cls"></strong></span>
+            <span>Admission No.: <strong x-text="f.admNo"></strong></span>
+            <span class="text-right">Parent: <strong x-text="f.parent"></strong></span>
+            <span class="col-span-2">Period: <strong x-text="f.period"></strong></span>
+          </div>
+          <table class="doc-table mt-3 text-[0.8125rem]">
+            <thead><tr><th class="w-10">#</th><th>Particulars</th><th class="num">Amount (₹)</th></tr></thead>
+            <tbody>
+              <template x-for="(h, i) in heads" :key="i"><tr><td x-text="i + 1"></td><td x-text="h.name"></td><td class="num" x-text="$fmt(h.amount || 0, 2, true)"></td></tr></template>
+              <tr x-show="f.discount > 0"><td></td><td>Less: discount or concession</td><td class="num" x-text="'−' + $fmt(f.discount || 0, 2, true)"></td></tr>
+              <tr x-show="f.late > 0"><td></td><td>Add: late fee</td><td class="num" x-text="$fmt(f.late || 0, 2, true)"></td></tr>
+              <tr class="font-bold"><td></td><td>Total received</td><td class="num" x-text="$fmt(total, 2, true)"></td></tr>
+            </tbody>
+          </table>
+          <p class="mt-2 text-[0.8125rem]">Amount in words: <strong x-text="$words(total)"></strong></p>
+          <p class="text-[0.8125rem]">Paid by <strong x-text="f.mode"></strong><span x-show="f.ref"> · Ref. <span x-text="f.ref"></span></span></p>
+          <div class="mt-8 flex justify-between text-[0.75rem]"><span class="hint">Computer-generated receipt. Please keep it for your records.</span><span class="border-t border-[#1a1f2b] px-4 pt-1" x-text="f.cashier ? 'Received by ' + f.cashier : 'Cashier’s signature'"></span></div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>What goes on a school fee receipt</h2>
+  <ul>
+    <li>A unique receipt number and the date of payment</li>
+    <li>The student’s name, class, admission number and parent’s name</li>
+    <li>The period the payment covers, such as a term, quarter or month</li>
+    <li>Each fee head paid, any concession or discount, and any late fee</li>
+    <li>The total in figures and in words, in the Indian format</li>
+    <li>The payment mode, with the UPI, cheque or transaction reference</li>
+  </ul>
+  <h2>Amount in words</h2>
+  <p>Amounts are written in lakhs and crores: ₹1,12,500 becomes “Rupees One Lakh Twelve Thousand Five Hundred Only”. Paise are added when the amount has them.</p>
+  <h2>Keeping receipts in order</h2>
+  <p>Number receipts in sequence for each financial year, such as 2026/0001, and keep the school copy. Fee audits and parent disputes are much easier when every number is accounted for.</p>
+</div>

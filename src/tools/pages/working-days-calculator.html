@@ -1,0 +1,66 @@
+<div x-data="workingDays" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+  <div class="panel">
+    <h2 class="panel-title">Session</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label><span class="label">First day</span><input type="date" class="field" x-model="start"></label>
+      <label><span class="label">Last day</span><input type="date" class="field" x-model="end"></label>
+      <label><span class="label">Saturdays</span>
+        <select class="field" x-model="saturdays">
+          <option value="none">All Saturdays working</option>
+          <option value="24">2nd and 4th Saturday off</option>
+          <option value="13">1st and 3rd Saturday off</option>
+          <option value="all">All Saturdays off</option>
+        </select>
+      </label>
+      <label><span class="label">Instructional hours a day</span><input type="number" min="0" step="0.25" class="field" x-model.number="hoursPerDay"></label>
+      <label class="sm:col-span-2"><span class="label">Holidays and vacations</span>
+        <textarea rows="9" class="field field-mono" x-model="holidays" spellcheck="false"></textarea>
+        <span class="hint mt-1 block">One per line: a date, or “from to until”, then an optional label after a bar (|). Sundays are always off.</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="panel" aria-live="polite">
+    <template x-if="!range"><p class="text-primary/70">Enter a first and last day, with the last day after the first.</p></template>
+    <template x-if="range">
+      <div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div class="stat stat-main"><p class="stat-label">Working days</p><p class="stat-value" x-text="totals.working"></p></div>
+          <div class="stat"><p class="stat-label">Holidays</p><p class="stat-value" x-text="totals.holidays"></p></div>
+          <div class="stat"><p class="stat-label">Weekly offs</p><p class="stat-value" x-text="totals.weekly"></p></div>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2 text-sm">
+          <span class="tag" :class="totals.working >= 200 ? 'tag-ok' : 'tag-bad'" x-text="(totals.working >= 200 ? 'Meets' : 'Below') + ' RTE 200 days (Classes 1–5)'"></span>
+          <span class="tag" :class="totals.working >= 220 ? 'tag-ok' : 'tag-bad'" x-text="(totals.working >= 220 ? 'Meets' : 'Below') + ' RTE 220 days (Classes 6–8)'"></span>
+          <span class="tag tag-mid" x-text="$fmt(hours, 0) + ' instructional hours'"></span>
+        </div>
+        <div class="mt-5 overflow-x-auto">
+          <table class="tbl">
+            <thead><tr><th>Month</th><th class="num">Days</th><th class="num">Weekly offs</th><th class="num">Holidays</th><th class="num">Working</th></tr></thead>
+            <tbody>
+              <template x-for="m in months" :key="m.label">
+                <tr><td x-text="m.label"></td><td class="num" x-text="m.days"></td><td class="num" x-text="m.weekly"></td><td class="num" x-text="m.holidays"></td><td class="num font-semibold" x-text="m.working"></td></tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How working days are counted</h2>
+  <p>Every day from the first to the last day of the session is counted once. Sundays and the Saturdays you mark as off are weekly offs. Holidays and vacations falling on other days are holidays. Every remaining day is a working day.</p>
+  <span class="formula">Working days = calendar days − weekly offs − holidays on other days</span>
+
+  <h2>RTE minimum working days and hours</h2>
+  <table class="tbl">
+    <thead><tr><th>Classes</th><th class="num">Working days a year</th><th class="num">Instructional hours a year</th></tr></thead>
+    <tbody>
+      <tr><td>1 to 5</td><td class="num">200</td><td class="num">800</td></tr>
+      <tr><td>6 to 8</td><td class="num">220</td><td class="num">1,000</td></tr>
+    </tbody>
+  </table>
+  <p>The RTE Act Schedule also requires at least 45 teaching hours a week for each teacher, including preparation. Boards and states can set their own minimums for Classes 9 to 12.</p>
+</div>

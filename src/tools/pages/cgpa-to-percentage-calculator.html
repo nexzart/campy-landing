@@ -1,0 +1,29 @@
+<div x-data="cgpaConvert('toPercent')" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="panel self-start">
+    <h2 class="panel-title">Convert</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label><span class="label">CGPA</span><input type="number" min="0" max="10" step="0.1" class="field" x-model.number="value"></label>
+      <label><span class="label">Multiply by</span><input type="number" min="1" step="0.1" class="field" x-model.number="factor"></label>
+    </div>
+    <div class="stat stat-main mt-5" aria-live="polite"><p class="stat-label">Percentage</p><p class="stat-value text-4xl" x-text="$fmt(result, 2) + '%'"></p></div>
+    <p class="hint mt-3">CBSE’s factor is 9.5. Change it if your university uses another.</p>
+  </div>
+  <div class="panel">
+    <h2 class="panel-title">CGPA to percentage table</h2>
+    <div class="mt-4 grid grid-cols-2 gap-x-6 sm:grid-cols-3">
+      <template x-for="r in table" :key="r[0]">
+        <div class="flex justify-between border-b border-primary/10 py-1.5 text-sm"><span x-text="r[0]"></span><span class="font-semibold tabular-nums" x-text="r[1] + '%'"></span></div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>CGPA to percentage formula</h2>
+  <span class="formula">Percentage = CGPA × 9.5</span>
+  <p>A CGPA of 8.6 is 8.6 × 9.5 = <strong>81.7%</strong>. A CGPA of 9.2 is <strong>87.4%</strong>.</p>
+  <h2>Subject-wise percentage</h2>
+  <p>CBSE also allowed an indicative subject percentage from its grade point: grade point × 9.5. An A2 (grade point 9) is about 85.5%.</p>
+  <h2>Why the result is approximate</h2>
+  <p>A grade covers a band of ten marks. A1 means anything from 91 to 100, so a converted percentage is an estimate, not the student’s actual marks. When a form asks for exact marks, use the mark sheet.</p>
+</div>

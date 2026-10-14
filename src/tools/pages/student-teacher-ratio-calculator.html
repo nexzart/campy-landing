@@ -1,0 +1,54 @@
+<div x-data="ratio" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+  <div class="panel">
+    <h2 class="panel-title">Your school</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4">
+      <label><span class="label">Students enrolled</span><input type="number" min="0" class="field" x-model.number="students"></label>
+      <label><span class="label">Full-time teachers</span><input type="number" min="0" class="field" x-model.number="teachers"></label>
+      <label><span class="label">Sections (class divisions)</span><input type="number" min="0" class="field" x-model.number="sections"></label>
+    </div>
+    <p class="hint mt-4">Count teaching staff only. Leave out the principal, office staff and visiting teachers.</p>
+  </div>
+
+  <div class="panel" aria-live="polite">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div class="stat stat-main"><p class="stat-label">Pupil–teacher ratio</p><p class="stat-value" x-text="teachers > 0 ? $fmt(ptr, 1) + ' : 1' : '–'"></p></div>
+      <div class="stat"><p class="stat-label">Teachers per section</p><p class="stat-value" x-text="sections > 0 ? $fmt(perSection, 2) : '–'"></p></div>
+      <div class="stat"><p class="stat-label">Average section size</p><p class="stat-value" x-text="sections > 0 ? $fmt(classSize, 0) : '–'"></p></div>
+    </div>
+    <div class="mt-6 overflow-x-auto">
+      <table class="tbl">
+        <thead><tr><th>Norm</th><th class="num">Teachers needed</th><th>Your position</th></tr></thead>
+        <tbody>
+          <template x-for="n in norms" :key="n.name">
+            <tr>
+              <td><span class="font-semibold" x-text="n.name"></span><span class="hint block" x-text="n.rule"></span></td>
+              <td class="num font-semibold" x-text="n.need"></td>
+              <td>
+                <span class="tag" :class="n.gap > 0 ? 'tag-bad' : 'tag-ok'" x-text="n.gap > 0 ? n.gap + ' short' : (n.gap === 0 ? 'Meets norm' : -n.gap + ' above norm')"></span>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <p class="hint mt-4" x-show="classSize > 40">Your average section has more than 40 students, the CBSE maximum.</p>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How the pupil–teacher ratio is calculated</h2>
+  <span class="formula">Pupil–teacher ratio = students enrolled ÷ full-time teachers</span>
+  <p>A school with 640 students and 19 teachers has a ratio of 33.7 : 1. To get under 30 : 1, it needs 22 teachers (640 ÷ 30 = 21.3, rounded up).</p>
+
+  <h2>Norms used in this calculator</h2>
+  <h3>RTE Act, 2009 (Schedule)</h3>
+  <ul>
+    <li><strong>Classes 1–5:</strong> 2 teachers for up to 60 children, 3 for 61–90, 4 for 91–120 and 5 for 121–200, with a head teacher above 150. Above 200 children, the ratio excluding the head teacher must not exceed 40 : 1.</li>
+    <li><strong>Classes 6–8:</strong> at least one teacher per class, so that there is a teacher each for science and mathematics, social studies, and languages, and at least one teacher for every 35 children.</li>
+  </ul>
+  <h3>CBSE affiliation</h3>
+  <p>CBSE expects a pupil–teacher ratio of no more than 30 : 1, 1.5 teachers for every section, and no more than 40 students in a section. The calculator uses whichever of the 30 : 1 and 1.5-per-section figures is higher.</p>
+  <h3>NEP 2020</h3>
+  <p>The National Education Policy aims for a ratio under 30 : 1 in every school, and under 25 : 1 in areas with many socio-economically disadvantaged students.</p>
+  <p>Norms are revised from time to time. Check the current RTE rules for your state and your board’s latest affiliation bye-laws before an inspection.</p>
+</div>

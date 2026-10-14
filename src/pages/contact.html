@@ -2,15 +2,15 @@
     <section class="mx-auto grid max-w-6xl gap-14 px-4 pb-24 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-8">
       <div>
         <h1 class="font-display text-5xl font-extrabold leading-[1.1] sm:text-6xl">See your own school in Campy.</h1>
-        <p class="mt-6 text-lg leading-relaxed text-primary/70">Tell us about your school and we’ll set up a 30-minute walkthrough using your classes and timetable.</p>
+        <p class="mt-6 text-lg leading-relaxed text-primary/70">Tell us about your school and we’ll contact you within 24 hours to set up a 30-minute walkthrough using your classes and timetable.</p>
 
         <h2 class="mt-14 text-[0.9375rem] font-semibold">What happens next</h2>
         <ol class="mt-6 space-y-7">
           <li class="flex gap-5">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/20 text-sm font-semibold">1</span>
             <div>
-              <h3 class="font-semibold">We reply by email</h3>
-              <p class="mt-1 text-primary/70">To find a time that suits you and anyone else who should join.</p>
+              <h3 class="font-semibold">We contact you within 24 hours</h3>
+              <p class="mt-1 text-primary/70">By phone or email, to find a time that suits you and anyone else who should join.</p>
             </div>
           </li>
           <li class="flex gap-5">
@@ -29,9 +29,15 @@
           </li>
         </ol>
 
-        <div class="mt-14 flex items-start gap-4 border-t border-primary/10 pt-8">
-          <i data-lucide="mail" class="mt-0.5 h-5 w-5"></i>
-          <p class="text-primary/70">Prefer email? Write to <a href="mailto:admin@nexzart.com" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">admin@nexzart.com</a>. Campy is built by <a href="https://nexzart.com" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">Nexzart</a>.</p>
+        <div class="mt-14 space-y-5 border-t border-primary/10 pt-8">
+          <div class="flex items-start gap-4">
+            <i data-lucide="phone" class="mt-0.5 h-5 w-5"></i>
+            <p class="text-primary/70">Prefer to talk? Call <a href="tel:+917418594229" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4 whitespace-nowrap">+91 74185 94229</a>.</p>
+          </div>
+          <div class="flex items-start gap-4">
+            <i data-lucide="mail" class="mt-0.5 h-5 w-5"></i>
+            <p class="text-primary/70">Prefer email? Write to <a href="mailto:admin@nexzart.com" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">admin@nexzart.com</a>. Campy is built by <a href="https://nexzart.com" class="font-semibold text-primary underline decoration-secondary decoration-2 underline-offset-4">Nexzart</a>.</p>
+          </div>
         </div>
       </div>
 
@@ -52,8 +58,8 @@
               <input id="email" name="email" type="email" required autocomplete="email" placeholder="principal@yourschool.in" class="field">
             </div>
             <div>
-              <label for="phone" class="mb-1.5 block text-sm font-semibold">Phone <span class="font-normal text-primary/60">(optional)</span></label>
-              <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+91" class="field">
+              <label for="phone" class="mb-1.5 block text-sm font-semibold">Phone</label>
+              <input id="phone" name="phone" type="tel" required pattern="[+\d][\d\s\-]{6,18}" title="Digits, spaces and dashes, with an optional + at the start" inputmode="tel" autocomplete="tel" placeholder="+91 98765 43210" class="field">
             </div>
             <div>
               <label for="school" class="mb-1.5 block text-sm font-semibold">School name</label>
@@ -66,6 +72,7 @@
                 <option>Principal</option>
                 <option>School administrator</option>
                 <option>Teacher</option>
+                <option>Accountant or bursar</option>
                 <option>Owner or trustee</option>
                 <option>Other</option>
               </select>
@@ -82,8 +89,18 @@
               </select>
             </div>
             <div class="sm:col-span-2">
+              <label for="plan" class="mb-1.5 block text-sm font-semibold">Plan you’re interested in <span class="font-normal text-primary/60">(optional)</span></label>
+              <select id="plan" name="plan" class="field" x-data x-init="$el.value = ({ essential: 'Essential', professional: 'Professional ERP', enterprise: 'Enterprise ERP + CMS' })[new URLSearchParams(location.search).get('plan')] || ''">
+                <option value="">Not sure yet</option>
+                <option>Essential</option>
+                <option>Professional ERP</option>
+                <option>Enterprise ERP + CMS</option>
+                <option>Custom: Essential with add-on modules</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
               <label for="message" class="mb-1.5 block text-sm font-semibold">What would you like to see? <span class="font-normal text-primary/60">(optional)</span></label>
-              <textarea id="message" name="message" rows="4" maxlength="2000" placeholder="For example: period-wise attendance and how parents get absence alerts." class="field resize-y"></textarea>
+              <textarea id="message" name="message" rows="4" maxlength="2000" placeholder="For example: online fee collection with our Razorpay account, and payroll for 80 staff." class="field resize-y"></textarea>
             </div>
           </div>
 
@@ -95,7 +112,7 @@
           <div id="demo-errors" class="mt-5" aria-live="assertive"></div>
 
           <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <p class="text-sm text-primary/60">We only use these details to arrange your demo.</p>
+            <p class="text-sm text-primary/60">We only use these details to arrange your demo. See our <a href="/privacy" class="underline decoration-secondary decoration-2 underline-offset-4">privacy policy</a>.</p>
             <button type="submit" class="btn btn-primary">
               <span class="hide-on-request">Request a demo</span>
               <span class="htmx-indicator items-center gap-2"><i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i>Sending request</span>

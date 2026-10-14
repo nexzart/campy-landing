@@ -1,0 +1,25 @@
+<div class="panel" x-data="{ open: !$store.school.name }">
+  <button type="button" class="flex w-full items-center justify-between gap-4 text-left" @click="open = !open" :aria-expanded="open.toString()">
+    <span>
+      <span class="panel-title block">School details</span>
+      <span class="hint block" x-text="$store.school.name ? $store.school.name : 'Your letterhead. Remembered in this browser if you allow preference cookies.'"></span>
+    </span>
+    <i data-lucide="chevron-down" class="chev h-5 w-5" :class="open && 'rotate-180'"></i>
+  </button>
+  <div x-show="open" x-cloak class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <label class="sm:col-span-2"><span class="label">School name</span><input class="field" x-model="$store.school.name" placeholder="e.g. Green Valley Public School"></label>
+    <label class="sm:col-span-2"><span class="label">Address</span><input class="field" x-model="$store.school.address" placeholder="Street, city, state, PIN code"></label>
+    <label><span class="label">Affiliation or UDISE line</span><input class="field" x-model="$store.school.code" placeholder="e.g. Affiliated to CBSE, No. 1930xxx"></label>
+    <label><span class="label">Principal’s name</span><input class="field" x-model="$store.school.principal" placeholder="Optional"></label>
+    <label><span class="label">Phone</span><input class="field" x-model="$store.school.phone" inputmode="tel" placeholder="Optional"></label>
+    <label><span class="label">Email</span><input class="field" x-model="$store.school.email" type="email" placeholder="Optional"></label>
+    <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
+      <img x-show="$store.school.logo" :src="$store.school.logo || ''" alt="School logo" class="h-14 w-14 rounded-lg border border-primary/10 object-contain">
+      <label class="btn btn-outline btn-sm cursor-pointer">
+        <i data-lucide="image-plus" class="h-4 w-4"></i><span x-text="$store.school.logo ? 'Change logo' : 'Add logo'">Add logo</span>
+        <input type="file" accept="image/*" class="sr-only" @change="$store.school.pickLogo($event)">
+      </label>
+      <button type="button" x-show="$store.school.logo" @click="$store.school.logo = ''" class="link-btn text-primary/60">Remove logo</button>
+    </div>
+  </div>
+</div>

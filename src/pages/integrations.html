@@ -1,0 +1,73 @@
+<main id="main">
+    <section class="relative overflow-hidden">
+      <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-16 pt-16 sm:px-6 sm:pt-20 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <div>
+          <p class="eyebrow">Integrations</p>
+          <h1 class="font-display mt-6 max-w-3xl text-5xl font-extrabold leading-[1.1] sm:text-6xl">Works with the tools <span class="marker">your school already uses.</span></h1>
+          <p class="mt-6 max-w-2xl text-lg leading-relaxed text-primary/70">Payment gateways, WhatsApp and SMS, biometric devices, GPS trackers, Tally, Google Workspace and more. Keep your providers and contracts; Campy connects to them.</p>
+          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+            <a href="/contact" class="btn btn-primary">Ask about an integration<i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+            <a href="#payments" class="btn btn-outline">Payment gateways</a>
+          </div>
+        </div>
+        <div class="relative mx-auto w-full max-w-md lg:max-w-none">
+          <img src="/asset/photos/payments.webp" width="1200" height="900" fetchpriority="high"
+               alt="A smiling man holding a phone and a bank card, ready to pay"
+               class="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-card">
+          <div class="float-card absolute -bottom-6 left-3 flex w-72 gap-3 sm:-left-8" aria-hidden="true">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary"><i data-lucide="check" class="h-5 w-5"></i></span>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">₹18,400 received by UPI</p>
+              <p class="mt-0.5 text-[13px] text-primary/70">Term 2 fees, Class 6 A. Receipt 2026/1482 sent to the parent.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {{site:integrations-nav}}
+
+    <!-- How payments flow -->
+    <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8" aria-labelledby="flow-title">
+      <h2 id="flow-title" class="font-display text-3xl font-bold sm:text-4xl">Any payment system. Your bank account.</h2>
+      <p class="mt-3 max-w-2xl text-lg text-primary/70">Campy doesn’t lock you into one gateway, and it never holds your money.</p>
+      <ol class="mt-10 grid gap-6 md:grid-cols-4">
+        <li class="rounded-2xl border border-primary/10 p-6">
+          <span class="step-num">1</span>
+          <h3 class="mt-4 font-semibold">Parent gets a reminder</h3>
+          <p class="mt-1 text-[0.9375rem] text-primary/70">By app, WhatsApp or SMS, with a secure payment link.</p>
+        </li>
+        <li class="rounded-2xl border border-primary/10 p-6">
+          <span class="step-num">2</span>
+          <h3 class="mt-4 font-semibold">Pays the way they like</h3>
+          <p class="mt-1 text-[0.9375rem] text-primary/70">UPI, card, netbanking or wallet, through your gateway.</p>
+        </li>
+        <li class="rounded-2xl border border-primary/10 p-6">
+          <span class="step-num">3</span>
+          <h3 class="mt-4 font-semibold">Money reaches the school</h3>
+          <p class="mt-1 text-[0.9375rem] text-primary/70">Settled by the gateway straight into the school’s bank account.</p>
+        </li>
+        <li class="rounded-2xl border border-primary/10 p-6">
+          <span class="step-num">4</span>
+          <h3 class="mt-4 font-semibold">Books update themselves</h3>
+          <p class="mt-1 text-[0.9375rem] text-primary/70">Receipt sent, dues cleared and the entry posted to accounts.</p>
+        </li>
+      </ol>
+    </section>
+
+    {{site:integrations}}
+
+    <section class="border-t border-primary/10">
+      <div class="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16 lg:px-8">
+        <div>
+          <h2 class="font-display text-3xl font-bold sm:text-4xl">Need something that isn’t listed?</h2>
+          <p class="mt-4 text-lg text-primary/70">Campy is built by Nexzart, an ERP and app team in Chennai. If a provider has an API, we can usually connect it. Tell us what you use and we’ll confirm before you sign.</p>
+        </div>
+        <div class="flex flex-col gap-3 sm:flex-row lg:justify-end">
+          <a href="/contact" class="btn btn-primary">Ask about an integration</a>
+          <a href="/pricing" class="btn btn-outline">See pricing</a>
+        </div>
+      </div>
+      <p class="mx-auto max-w-6xl px-4 pb-12 text-sm text-primary/50 sm:px-6 lg:px-8">Product and company names are trademarks of their respective owners. Their use here describes compatibility and doesn’t imply endorsement.</p>
+    </section>
+  </main>

@@ -1,0 +1,43 @@
+<div x-data="rteSeats" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+  <div class="panel">
+    <h2 class="panel-title">Entry class</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label class="sm:col-span-2"><span class="label">Entry class</span>
+        <select class="field" x-model="entry">
+          <option>Nursery / Pre-KG</option>
+          <option>LKG</option>
+          <option>Class 1</option>
+        </select>
+      </label>
+      <label><span class="label">Sections</span><input type="number" min="0" class="field" x-model.number="sections"></label>
+      <label><span class="label">Seats per section</span><input type="number" min="0" class="field" x-model.number="seats"></label>
+      <label><span class="label">State reimbursement per child a year (₹)</span><input type="number" min="0" class="field" x-model.number="perChild" placeholder="As notified"></label>
+      <label><span class="label">Your annual fee per child (₹)</span><input type="number" min="0" class="field" x-model.number="fee" placeholder="Tuition and other fees"></label>
+    </div>
+  </div>
+  <div class="panel" aria-live="polite">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div class="stat"><p class="stat-label">Total seats in <span x-text="entry"></span></p><p class="stat-value" x-text="total"></p></div>
+      <div class="stat stat-main"><p class="stat-label">Seats to reserve</p><p class="stat-value" x-text="reserved"></p></div>
+      <div class="stat"><p class="stat-label">General seats</p><p class="stat-value" x-text="Math.max(0, total - reserved)"></p></div>
+    </div>
+    <p class="mt-5 text-[0.9375rem] text-primary/75">Reserve <strong x-text="perSection"></strong> seats in each of the <span x-text="sections"></span> sections (25% of <span x-text="seats"></span>, rounded up).</p>
+    <template x-if="reimbursePerChild > 0">
+      <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="stat"><p class="stat-label">Reimbursement per child</p><p class="stat-value" x-text="$inr(reimbursePerChild)"></p></div>
+        <div class="stat"><p class="stat-label">Expected for this intake, a year</p><p class="stat-value" x-text="$inr(reimbursePerChild * reserved)"></p></div>
+      </div>
+    </template>
+    <p class="hint mt-4" x-show="perChild && fee">The state pays the lower of its per-child amount and your fee.</p>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>What Section 12(1)(c) requires</h2>
+  <p>Private unaided schools, and specified-category schools, must admit children from weaker sections and disadvantaged groups in the neighbourhood to at least 25% of the strength of the entry class. The children study free until they complete elementary education (Class 8).</p>
+  <span class="formula">Reserved seats = 25% of entry-class seats, rounded up</span>
+  <h2>How reimbursement works</h2>
+  <p>Under Section 12(2), the state reimburses the school the lower of the state’s per-child expenditure and the fee the school actually charges. Each state notifies its per-child amount, often every year, and some states also pay for uniforms and books.</p>
+  <h2>Who counts as weaker sections and disadvantaged groups</h2>
+  <p>States define these groups in their RTE rules. They typically include SC and ST children, children from families below a notified income limit, orphans, children with disabilities, and children affected by HIV. Admission is usually by lottery through a state portal.</p>
+</div>

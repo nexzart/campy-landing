@@ -1,0 +1,29 @@
+<div x-data="cgpaConvert('toCgpa')" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="panel self-start">
+    <h2 class="panel-title">Convert</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label><span class="label">Percentage</span><input type="number" min="0" max="100" step="0.1" class="field" x-model.number="value"></label>
+      <label><span class="label">Divide by</span><input type="number" min="1" step="0.1" class="field" x-model.number="factor"></label>
+    </div>
+    <div class="stat stat-main mt-5" aria-live="polite"><p class="stat-label">CGPA</p><p class="stat-value text-4xl" x-text="$fmt(result, 2, true)"></p></div>
+    <p class="hint mt-3">CBSE’s factor is 9.5. The result is capped at 10.</p>
+  </div>
+  <div class="panel">
+    <h2 class="panel-title">Conversion table</h2>
+    <div class="mt-4 grid grid-cols-2 gap-x-6 sm:grid-cols-3">
+      <template x-for="r in table" :key="r[0]">
+        <div class="flex justify-between border-b border-primary/10 py-1.5 text-sm"><span x-text="r[0]"></span><span class="font-semibold tabular-nums" x-text="r[1]"></span></div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>Percentage to CGPA formula</h2>
+  <span class="formula">CGPA = percentage ÷ 9.5</span>
+  <p>85.5% ÷ 9.5 = <strong>9.0 CGPA</strong>. 76% ÷ 9.5 = <strong>8.0 CGPA</strong>.</p>
+  <h2>Where the 9.5 comes from</h2>
+  <p>Under the CCE scheme, CBSE found that students graded A1 (91–100) scored an average of about 95. A CGPA of 10 was therefore taken as 95%, giving a factor of 9.5.</p>
+  <h2>When not to use 9.5</h2>
+  <p>Universities and other boards often use their own conversions, such as dividing by 10 or a published table. If your institution states a formula, use that factor in the calculator instead.</p>
+</div>

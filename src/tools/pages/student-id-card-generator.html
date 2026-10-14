@@ -1,0 +1,94 @@
+<div x-data="idCard" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Student</h2>
+      <div class="mt-5 flex items-center gap-4">
+        <img x-show="f.photo" :src="f.photo || ''" alt="Student photo" class="h-20 w-16 rounded-lg border border-primary/10 object-cover">
+        <label class="btn btn-outline btn-sm cursor-pointer"><i data-lucide="image-plus" class="h-4 w-4"></i><span x-text="f.photo ? 'Change photo' : 'Add photo'">Add photo</span><input type="file" accept="image/*" class="sr-only" @change="pickPhoto($event)"></label>
+        <button type="button" x-show="f.photo" class="link-btn text-primary/60" @click="f.photo = ''">Remove</button>
+      </div>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Name</span><input class="field" x-model="f.name"></label>
+        <label><span class="label">Class and section</span><input class="field" x-model="f.cls"></label>
+        <label><span class="label">Admission number</span><input class="field" x-model="f.admNo"></label>
+        <label><span class="label">Date of birth</span><input type="date" class="field" x-model="f.dob"></label>
+        <label><span class="label">Blood group</span>
+          <select class="field" x-model="f.blood"><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option><option>O+</option><option>O−</option><option value="">Not known</option></select>
+        </label>
+        <label><span class="label">Parent’s name</span><input class="field" x-model="f.parent"></label>
+        <label><span class="label">Emergency phone</span><input class="field" inputmode="tel" x-model="f.phone"></label>
+        <label class="sm:col-span-2"><span class="label">Home address</span><input class="field" x-model="f.address"></label>
+        <label><span class="label">Valid for</span><input class="field" x-model="f.valid"></label>
+        <label><span class="label">Copies to print</span><input type="number" min="1" max="8" class="field" x-model.number="copies"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Front and back, actual size</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="printCards()"><i data-lucide="printer" class="h-4 w-4"></i>Print cards</button>
+    </div>
+    <div class="flex flex-col items-center gap-4 rounded-2xl bg-primary/[0.04] p-6" id="id-preview">
+      <div class="id-card">
+        <div class="flex items-center gap-[2mm] bg-primary px-[3mm] py-[2mm] text-white">
+          <img x-show="$store.school.logo" :src="$store.school.logo || ''" alt="" class="h-[7mm] w-[7mm] rounded-[1mm] bg-white object-contain p-[0.5mm]">
+          <div class="min-w-0">
+            <p class="truncate text-[3mm] font-bold uppercase leading-tight" x-text="$store.school.title"></p>
+            <p class="truncate text-[2mm] text-white/80" x-text="$store.school.address"></p>
+          </div>
+        </div>
+        <div class="flex flex-1 gap-[3mm] px-[3mm] py-[2.5mm]">
+          <div class="flex h-[26mm] w-[21mm] shrink-0 items-center justify-center overflow-hidden rounded-[1.5mm] bg-primary/10 text-[6mm] font-bold text-primary/50">
+            <img x-show="f.photo" :src="f.photo || ''" alt="" class="h-full w-full object-cover">
+            <span x-show="!f.photo" x-text="initials"></span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[3.4mm] font-bold leading-tight" x-text="f.name"></p>
+            <p class="mt-[0.5mm] text-[2.6mm] font-semibold" x-text="f.cls"></p>
+            <dl class="mt-[1.5mm] grid grid-cols-[auto_1fr] gap-x-[2mm] gap-y-[0.4mm] text-[2.3mm]">
+              <dt class="text-primary/60">Adm. No.</dt><dd class="font-semibold" x-text="f.admNo"></dd>
+              <dt class="text-primary/60">DOB</dt><dd class="font-semibold" x-text="$date(f.dob)"></dd>
+              <dt class="text-primary/60">Blood</dt><dd class="font-semibold" x-text="f.blood || '–'"></dd>
+              <dt class="text-primary/60">Parent</dt><dd class="truncate font-semibold" x-text="f.parent"></dd>
+            </dl>
+          </div>
+        </div>
+        <div class="flex items-center justify-between bg-secondary px-[3mm] py-[1mm] text-[2.2mm] font-semibold">
+          <span>STUDENT ID</span><span x-text="'Valid ' + f.valid"></span>
+        </div>
+      </div>
+
+      <div class="id-card">
+        <div class="flex flex-1 flex-col px-[4mm] py-[3mm] text-[2.4mm]">
+          <p class="font-bold uppercase text-primary/60">Emergency contact</p>
+          <p class="mt-[0.5mm] text-[3mm] font-bold" x-text="f.parent + ' · ' + f.phone"></p>
+          <p class="mt-[2mm] font-bold uppercase text-primary/60">Home address</p>
+          <p class="mt-[0.5mm]" x-text="f.address"></p>
+          <p class="mt-auto border-t border-primary/15 pt-[1.5mm]">If found, please return to <strong x-text="$store.school.title"></strong><span x-show="$store.school.address" x-text="', ' + $store.school.address"></span><span x-show="$store.school.phone" x-text="'. Phone ' + $store.school.phone"></span>.</p>
+        </div>
+        <div class="flex items-end justify-between px-[4mm] pb-[2.5mm] text-[2.2mm]">
+          <span class="text-primary/60">Holder’s signature</span>
+          <span class="border-t border-primary/40 px-[2mm] pt-[0.5mm]">Principal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>Printing ID cards at the right size</h2>
+  <ol>
+    <li>Press <strong>Print cards</strong>. Each front is printed next to its back.</li>
+    <li>In the print dialog, set the scale to 100% (or “Actual size”). Turn off “Fit to page”, which shrinks the cards.</li>
+    <li>Print on thick paper or card stock (250–300 gsm), cut along the edges and laminate. To make a double-sided card, fold along the middle before laminating.</li>
+  </ol>
+  <h2>What a student ID card should show</h2>
+  <ul>
+    <li>The school’s name and logo, and the student’s photo, name and class</li>
+    <li>Admission number and date of birth</li>
+    <li>Blood group and an emergency contact, which help in a medical emergency</li>
+    <li>The school’s address and phone number, so a lost card can be returned</li>
+  </ul>
+</div>

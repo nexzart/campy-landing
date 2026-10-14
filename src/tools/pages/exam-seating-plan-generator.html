@@ -1,0 +1,92 @@
+<div x-data="seating" class="space-y-6">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="panel">
+      <h2 class="panel-title">Classes sitting the exam</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="tbl tbl-edit min-w-[440px]">
+          <thead><tr><th>Class</th><th>Roll prefix</th><th>Roll from</th><th>Roll to</th><th><span class="sr-only">Remove</span></th></tr></thead>
+          <tbody>
+            <template x-for="(c, i) in classes" :key="i">
+              <tr>
+                <td><input class="field field-sm" x-model="c.name" aria-label="Class"></td>
+                <td><input class="field field-sm w-20" x-model="c.prefix" aria-label="Roll prefix"></td>
+                <td><input type="number" min="1" class="field field-sm w-20" x-model.number="c.from" aria-label="First roll number"></td>
+                <td><input type="number" min="1" class="field field-sm w-20" x-model.number="c.to" aria-label="Last roll number"></td>
+                <td><button type="button" class="icon-btn" @click="classes.splice(i, 1)" aria-label="Remove class"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="link-btn mt-4" @click="addClass()"><i data-lucide="plus" class="h-4 w-4"></i>Add class</button>
+    </div>
+    <div class="panel">
+      <h2 class="panel-title">Rooms</h2>
+      <div class="mt-4 overflow-x-auto">
+        <table class="tbl tbl-edit min-w-[360px]">
+          <thead><tr><th>Room</th><th>Rows</th><th>Seats per row</th><th><span class="sr-only">Remove</span></th></tr></thead>
+          <tbody>
+            <template x-for="(r, i) in rooms" :key="i">
+              <tr>
+                <td><input class="field field-sm" x-model="r.name" aria-label="Room"></td>
+                <td><input type="number" min="1" max="20" class="field field-sm w-20" x-model.number="r.rows" aria-label="Rows"></td>
+                <td><input type="number" min="1" max="20" class="field field-sm w-20" x-model.number="r.cols" aria-label="Seats per row"></td>
+                <td><button type="button" class="icon-btn" @click="rooms.splice(i, 1)" aria-label="Remove room"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="link-btn mt-4" @click="addRoom()"><i data-lucide="plus" class="h-4 w-4"></i>Add room</button>
+      <label class="mt-5 block"><span class="label">Exam name for the charts</span><input class="field" x-model="title"></label>
+      <p class="mt-4 text-[0.9375rem]"><strong x-text="totalStudents"></strong> students, <strong x-text="totalSeats"></strong> seats.
+        <span x-show="plan.unseated" class="tag tag-bad" x-text="plan.unseated + ' not seated'"></span>
+        <span x-show="!plan.unseated" class="tag tag-ok">Everyone is seated</span>
+      </p>
+    </div>
+  </div>
+
+  <div>
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap gap-3 text-sm">
+        <template x-for="(c, i) in classes" :key="i"><span class="inline-flex items-center gap-1.5"><span class="cal-key" :class="'seat-' + (i % 6)"></span><span x-text="c.name"></span></span></template>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#seating-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print all rooms</button>
+    </div>
+    <div id="seating-doc" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <template x-for="(room, ri) in plan.rooms" :key="ri">
+        <div class="paper page-break avoid-break">
+          <div class="flex items-baseline justify-between gap-3">
+            <p class="text-lg font-bold text-primary" x-text="room.name"></p>
+            <p class="text-[0.8125rem]"><span x-text="room.used"></span> of <span x-text="room.seats"></span> seats</p>
+          </div>
+          <p class="text-[0.8125rem]" x-text="($store.school.name ? $store.school.name + ' · ' : '') + title"></p>
+          <p class="mt-3 rounded bg-[#f1f3f7] py-1 text-center text-[0.75rem] font-semibold uppercase tracking-wider">Board and invigilator</p>
+          <div class="seat-grid mt-2" :style="'grid-template-columns: repeat(' + (room.grid[0] ? room.grid[0].length : 1) + ', minmax(0, 1fr))'">
+            <template x-for="(seat, si) in room.grid.flat()" :key="si">
+              <span :class="seat ? 'seat-' + (seat.cls % 6) : 'border border-dashed border-primary/20'" x-text="seat ? seat.label : ''"></span>
+            </template>
+          </div>
+          <table class="doc-table mt-4 text-[0.8125rem]">
+            <thead><tr><th>Class</th><th class="num">Students</th><th>Roll numbers</th></tr></thead>
+            <tbody>
+              <template x-for="(d, di) in room.door" :key="di"><tr><td x-text="d.name"></td><td class="num" x-text="d.count"></td><td x-text="d.ranges"></td></tr></template>
+            </tbody>
+          </table>
+          <div class="sign-row mt-8"><div>Invigilator 1</div><div>Invigilator 2</div></div>
+        </div>
+      </template>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How students are seated</h2>
+  <p>Each room is filled column by column, front to back. Every column takes the next class in turn, so the students on either side of a candidate are from different classes and are writing different papers. Classes continue from one room to the next, and the door list for each room shows the roll number ranges seated there.</p>
+  <h2>Getting the most from the plan</h2>
+  <ul>
+    <li>Mix at least two classes per room. With only one class, neighbours will share a paper.</li>
+    <li>Count only usable seats. A two-seater bench is two seats in a row.</li>
+    <li>Paste each room’s door list outside the room on exam morning so students find their room quickly.</li>
+  </ul>
+</div>

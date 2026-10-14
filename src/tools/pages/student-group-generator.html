@@ -1,0 +1,52 @@
+<div x-data="groups" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+  <div class="panel self-start">
+    <label class="block"><span class="label">Class list, one name per line</span>
+      <textarea rows="14" class="field" x-model="names"></textarea>
+    </label>
+    <p class="hint mt-1"><span x-text="list.length"></span> students</p>
+    <div class="mt-5 flex flex-wrap items-end gap-3">
+      <div class="seg" role="group" aria-label="Split by">
+        <button type="button" :aria-pressed="(mode === 'size').toString()" @click="mode = 'size'">Group size</button>
+        <button type="button" :aria-pressed="(mode === 'count').toString()" @click="mode = 'count'">Number of groups</button>
+      </div>
+      <label><span class="sr-only" x-text="mode === 'size' ? 'Students per group' : 'Number of groups'"></span><input type="number" min="1" class="field w-24" x-model.number="value"></label>
+    </div>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <button type="button" class="btn btn-primary" @click="make()"><i data-lucide="shuffle" class="h-4 w-4"></i>Make groups</button>
+      <button type="button" class="btn btn-outline" @click="pick()"><i data-lucide="target" class="h-4 w-4"></i>Pick one student</button>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <div x-show="picked" x-cloak class="stat stat-main text-center" aria-live="polite">
+      <p class="stat-label">Picked</p>
+      <p class="stat-value text-4xl" x-text="picked"></p>
+    </div>
+    <div x-show="result.length" x-cloak>
+      <div class="mb-3 flex items-center justify-between">
+        <p class="hint"><span x-text="result.length"></span> groups</p>
+        <button type="button" class="btn btn-outline btn-sm" @click="$print('#groups-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print</button>
+      </div>
+      <div id="groups-doc" class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <template x-for="(g, i) in result" :key="i">
+          <div class="panel avoid-break">
+            <p class="font-semibold">Group <span x-text="i + 1"></span> <span class="hint" x-text="'· ' + g.length"></span></p>
+            <ul class="mt-2 space-y-1 text-[0.9375rem]"><template x-for="(n, ni) in g" :key="ni"><li x-text="n"></li></template></ul>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div x-show="!result.length && !picked" class="panel text-primary/65">Press <strong>Make groups</strong> to shuffle the class into groups.</div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>How groups are made</h2>
+  <p>Names are shuffled with a Fisher–Yates shuffle, then dealt into groups like playing cards. Group sizes never differ by more than one: 22 students in groups of 4 give four groups of 4 and two groups of 3.</p>
+  <h2>Ideas for using random groups</h2>
+  <ul>
+    <li>Project teams and lab partners that change every term</li>
+    <li>Quiz teams and debate sides</li>
+    <li>Picking who answers next, so every student stays ready</li>
+  </ul>
+</div>

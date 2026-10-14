@@ -6,7 +6,7 @@
           <img src="/asset/campy-logo-white.png" alt="Campy" width="495" height="160" class="h-12 w-auto">
         </a>
         <p class="mt-5 max-w-xs text-[0.9375rem] leading-relaxed text-white/70">
-          School management software that connects your office, teachers and parents through one shared record.
+          The complete school ERP: academics, fees, accounts, HR and payroll, parent apps and your school website, in one system.
         </p>
       </div>
 
@@ -15,18 +15,21 @@
           <h2 class="text-sm font-semibold text-white">Product</h2>
           <ul class="mt-4 space-y-3 text-[0.9375rem] text-white/70">
             <li><a href="/features" class="hover:text-white">Features</a></li>
-            <li><a href="/portals" class="hover:text-white">Portals</a></li>
+            <li><a href="/integrations" class="hover:text-white">Integrations</a></li>
             <li><a href="/platform" class="hover:text-white">Platform and security</a></li>
             <li><a href="/pricing" class="hover:text-white">Pricing</a></li>
+            <li><a href="/tools" class="hover:text-white">Free school tools</a></li>
           </ul>
         </div>
         <div>
           <h2 class="text-sm font-semibold text-white">Modules</h2>
           <ul class="mt-4 space-y-3 text-[0.9375rem] text-white/70">
-            <li><a href="/features#attendance" class="hover:text-white">Attendance</a></li>
-            <li><a href="/features#exams" class="hover:text-white">Exams and marks</a></li>
-            <li><a href="/features#timetable" class="hover:text-white">Timetable</a></li>
-            <li><a href="/features#leave" class="hover:text-white">Leave and substitutes</a></li>
+            <li><a href="/features#academics" class="hover:text-white">Academics</a></li>
+            <li><a href="/features#fees" class="hover:text-white">Fees and payments</a></li>
+            <li><a href="/features#accounting" class="hover:text-white">Accounts and finance</a></li>
+            <li><a href="/features#hr-payroll" class="hover:text-white">HR and payroll</a></li>
+            <li><a href="/features#communication" class="hover:text-white">Parent Connect</a></li>
+            <li><a href="/features#website" class="hover:text-white">School website</a></li>
           </ul>
         </div>
       </nav>
@@ -49,8 +52,15 @@
       </div>
     </div>
 
-    <div class="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 text-sm text-white/60 sm:flex-row sm:items-center sm:justify-between">
-      <p>&copy; {{year}} Campy. All rights reserved.</p>
+    <div class="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 text-sm text-white/60 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+        <p>&copy; {{year}} Campy. All rights reserved.</p>
+        <ul class="flex flex-wrap gap-x-5 gap-y-2">
+          <li><a href="/terms" class="hover:text-white">Terms and conditions</a></li>
+          <li><a href="/privacy" class="hover:text-white">Privacy policy</a></li>
+          <li><button type="button" class="hover:text-white" x-data @click="$dispatch('open-cookie-settings')">Cookie settings</button></li>
+        </ul>
+      </div>
       <p>A product of <a href="https://nexzart.com/products/school-cms" class="font-semibold text-white underline decoration-secondary decoration-2 underline-offset-4 hover:text-secondary">Nexzart</a>, Chennai</p>
     </div>
   </div>

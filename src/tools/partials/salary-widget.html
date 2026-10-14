@@ -1,0 +1,53 @@
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-[0.85fr_1.15fr]">
+  <div class="panel">
+    <h2 class="panel-title">Pay details</h2>
+    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <label><span class="label">Pay level</span>
+        <select class="field" x-model="level">
+          <template x-for="l in levels" :key="l"><option :value="l" x-text="'Level ' + l" :selected="l === level"></option></template>
+        </select>
+      </label>
+      <label><span class="label">Increments earned</span><input type="number" min="0" max="39" class="field" x-model.number="steps"></label>
+      <label><span class="label">DA rate (%)</span><input type="number" min="0" step="0.5" class="field" x-model.number="da"></label>
+      <label><span class="label">City class for HRA</span>
+        <select class="field" x-model="hraClass">
+          <option value="X">X (30%): metros and large cities</option>
+          <option value="Y">Y (20%): other large cities</option>
+          <option value="Z">Z (10%): all other places</option>
+        </select>
+      </label>
+      <label class="sm:col-span-2"><span class="label">Transport allowance rate</span>
+        <select class="field" x-model="taCity">
+          <option value="higher">Higher TPTA cities (Delhi, Mumbai, Chennai, Kolkata, Bengaluru and others)</option>
+          <option value="other">Other places</option>
+        </select>
+      </label>
+      <label><span class="label">Professional tax (₹ a month)</span><input type="number" min="0" class="field" x-model.number="pt"></label>
+      <label><span class="label">Other deductions (₹ a month)</span><input type="number" min="0" class="field" x-model.number="other"></label>
+      <label class="flex items-center gap-3 sm:col-span-2"><input type="checkbox" class="h-4 w-4" x-model="nps"><span class="text-[0.9375rem]">Deduct NPS (10% of basic pay + DA)</span></label>
+    </div>
+    <p class="hint mt-4">Increments: one a year is usual, so a teacher in their fourth year typically has 3. Enter the DA rate currently notified for your employer.</p>
+  </div>
+
+  <div class="panel" aria-live="polite">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div class="stat"><p class="stat-label">Gross salary a month</p><p class="stat-value" x-text="$inr(gross)"></p></div>
+      <div class="stat stat-main"><p class="stat-label">In-hand salary a month</p><p class="stat-value" x-text="$inr(net)"></p></div>
+    </div>
+    <table class="tbl mt-5">
+      <tbody>
+        <tr><td>Basic pay (Level <span x-text="level"></span>, cell <span x-text="Math.min(40, (steps || 0) + 1)"></span>)</td><td class="num" x-text="$inr(basic)"></td></tr>
+        <tr><td>Dearness allowance (<span x-text="da"></span>%)</td><td class="num" x-text="$inr(daAmount)"></td></tr>
+        <tr><td>House rent allowance (<span x-text="hraClass"></span> city)</td><td class="num" x-text="$inr(hra)"></td></tr>
+        <tr><td>Transport allowance</td><td class="num" x-text="$inr(ta)"></td></tr>
+        <tr><td>DA on transport allowance</td><td class="num" x-text="$inr(daOnTa)"></td></tr>
+        <tr class="font-semibold"><td>Gross salary</td><td class="num" x-text="$inr(gross)"></td></tr>
+        <tr><td>NPS (employee, 10%)</td><td class="num" x-text="'−' + $inr(npsAmount)"></td></tr>
+        <tr><td>Professional tax</td><td class="num" x-text="'−' + $inr(pt || 0)"></td></tr>
+        <tr><td>Other deductions</td><td class="num" x-text="'−' + $inr(other || 0)"></td></tr>
+        <tr class="font-semibold"><td>In-hand salary</td><td class="num" x-text="$inr(net)"></td></tr>
+      </tbody>
+    </table>
+    <p class="mt-4 text-[0.9375rem] text-primary/75">That is <strong x-text="$inr(gross * 12)"></strong> gross a year. Income tax is not included.</p>
+  </div>
+</div>

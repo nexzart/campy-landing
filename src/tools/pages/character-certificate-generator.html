@@ -1,0 +1,49 @@
+<div x-data="character" class="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <div class="space-y-6">
+    {{include:school-fields}}
+    <div class="panel">
+      <h2 class="panel-title">Student details</h2>
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class="sm:col-span-2"><span class="label">Student’s name</span><input class="field" x-model="f.name"></label>
+        <label><span class="label">Gender</span>
+          <select class="field" x-model="f.gender"><option value="f">Female (daughter, she)</option><option value="m">Male (son, he)</option><option value="x">Not specified (child, they)</option></select>
+        </label>
+        <label><span class="label">Parent or guardian</span><input class="field" x-model="f.parent"></label>
+        <label><span class="label">Studied from (year)</span><input class="field" x-model="f.from"></label>
+        <label><span class="label">Studied to (year)</span><input class="field" x-model="f.to"></label>
+        <label><span class="label">Class last studied</span><input class="field" x-model="f.lastClass"></label>
+        <label><span class="label">Admission number</span><input class="field" x-model="f.admNo"></label>
+        <label><span class="label">Conduct</span>
+          <select class="field" x-model="f.conduct"><option value="excellent">Excellent</option><option value="very good">Very good</option><option value="good">Good</option><option value="satisfactory">Satisfactory</option></select>
+        </label>
+        <label><span class="label">Certificate number</span><input class="field" x-model="f.certNo"></label>
+        <label><span class="label">Date of issue</span><input type="date" class="field" x-model="f.date"></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="lg:sticky lg:top-24 lg:self-start">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <p class="hint">Preview</p>
+      <button type="button" class="btn btn-primary btn-sm" @click="$print('#character-doc')"><i data-lucide="printer" class="h-4 w-4"></i>Print or save PDF</button>
+    </div>
+    <div id="character-doc" class="paper">
+      <div class="paper-frame">
+        {{include:letterhead}}
+        <div class="mt-4 flex justify-between text-[0.8125rem]"><span>No.: <span x-text="f.certNo"></span></span><span>Date: <span x-text="$date(f.date)"></span></span></div>
+        <p class="doc-title">Character Certificate</p>
+        <div class="mt-6 space-y-4 text-[0.9375rem] leading-relaxed">
+          <template x-for="(p, i) in body" :key="i"><p x-text="p"></p></template>
+        </div>
+        <div class="sign-row"><div>Class teacher</div><div><span x-text="$store.school.principal || 'Principal'"></span><br><span class="text-[0.75rem]">Principal (with seal)</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="prose-tool mt-16">
+  <h2>What a character certificate includes</h2>
+  <p>A character certificate, also called a conduct certificate, states how long the student studied at the school, the last class they attended, and the school’s view of their conduct. Colleges and new schools usually ask for it along with the transfer certificate.</p>
+  <h2>Choosing the conduct rating</h2>
+  <p>Base the rating on the student’s records: disciplinary entries, the class teacher’s remarks and participation in school life. Most schools use Excellent, Very good, Good or Satisfactory. If there were serious disciplinary issues, the principal should decide the wording.</p>
+</div>
