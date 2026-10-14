@@ -5,7 +5,7 @@
   "description": "Marketing site for Campy (school management software by Nexzart). htmx + Tailwind + Alpine + Lucide, deployed on Cloudflare Workers.",
   "scripts": {
     "start": "npm run dev",
-    "dev": "npm run build && wrangler dev",
+    "dev": "npm run build -- --dev && wrangler dev",
     "build": "node scripts/build.mjs",
     "deploy": "npm run build && wrangler deploy"
   },

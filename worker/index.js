@@ -176,7 +176,13 @@ async function handleSubscribe(request, env, ctx) {
 
 export default {
   async fetch(request, env, ctx) {
-    const { pathname } = new URL(request.url);
+    const url = new URL(request.url);
+    const { pathname } = url;
+
+    if (url.hostname === 'cms.nexzart.com') {
+      url.hostname = 'campy.nexzart.com';
+      return Response.redirect(url, 308);
+    }
 
     if (pathname === '/api/demo' || pathname === '/api/subscribe') {
       if (request.method !== 'POST') return html('Method not allowed', { status: 405, headers: { Allow: 'POST' } });

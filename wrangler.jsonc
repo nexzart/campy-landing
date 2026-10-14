@@ -18,7 +18,8 @@
     { "binding": "LEADS", "id": "e1e530336e1143d8bed1973647eb65f4" }
   ],
   "routes": [
-    { "pattern": "campy.nexzart.com", "zone_name": "nexzart.com", "custom_domain": true }
+    { "pattern": "campy.nexzart.com", "zone_name": "nexzart.com", "custom_domain": true },
+    { "pattern": "cms.nexzart.com", "zone_name": "nexzart.com", "custom_domain": true }
   ],
   // Keep the *.workers.dev URL as a fallback; canonical tags point search engines at campy.nexzart.com.
   "workers_dev": true,

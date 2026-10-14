@@ -20,9 +20,11 @@ const NM = path.join(ROOT, 'node_modules');
 const SITE_URL = (process.env.SITE_URL || 'https://campy.nexzart.com').replace(/\/$/, '');
 const TODAY = new Date().toISOString().slice(0, 10);
 const YEAR = new Date().getFullYear();
-// Cloudflare Turnstile site key (public). The default is Cloudflare's always-passes test key.
-const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
-if (!process.env.TURNSTILE_SITE_KEY) console.warn('TURNSTILE_SITE_KEY not set: using the Turnstile test key, which accepts every visitor.');
+// Cloudflare Turnstile site key (public). Production builds must provide a real widget key.
+const isDevBuild = process.argv.includes('--dev');
+const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || (isDevBuild ? '1x00000000000000000000AA' : '');
+if (!TURNSTILE_SITE_KEY) throw new Error('TURNSTILE_SITE_KEY is required; refusing to build with Cloudflare’s test key.');
+if (isDevBuild && !process.env.TURNSTILE_SITE_KEY) console.warn('TURNSTILE_SITE_KEY not set: using Cloudflare’s local development test key.');
 
 const NEXZART = {
   '@type': 'Organization',
@@ -56,11 +58,6 @@ const PAGES = [
     file: 'features', path: '/features', type: 'WebPage', priority: '0.9', changefreq: 'monthly', crumb: 'Features',
     title: 'School ERP Features: Academics, Fees, Accounts, HR & CMS | Campy',
     description: 'Every Campy module: academics, attendance and exams, fees and online payments, accounting, HR and payroll, transport, library, parent app and school website CMS.',
-  },
-  {
-    file: 'platform', path: '/platform', type: 'AboutPage', priority: '0.7', changefreq: 'monthly', crumb: 'Platform',
-    title: 'Platform, Security and Technology | Campy by Nexzart',
-    description: 'How Campy keeps each school’s data separate, permissioned, audited and available offline, the technology behind it, and the Nexzart team that builds it.',
   },
   {
     file: 'pricing', path: '/pricing', type: 'WebPage', priority: '0.9', changefreq: 'monthly', crumb: 'Pricing',

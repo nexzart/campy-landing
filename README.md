@@ -121,10 +121,10 @@ Both forms (the demo request and the footer subscribe form) carry a Cloudflare T
 Setup:
 
 1. In the Cloudflare dashboard, go to **Turnstile → Add widget**. Add `campy.nexzart.com` (and `localhost` if you want it for dev), choose **Managed**, and copy the **site key** and **secret key**.
-2. Build with the site key, which is public: `TURNSTILE_SITE_KEY=0x4AAAA… npm run deploy`. Without it the build uses Cloudflare's test key, which accepts everyone, and prints a warning.
+2. Build with the site key, which is public: `TURNSTILE_SITE_KEY=0x4AAAA… npm run deploy`. A production build refuses to continue without this real widget key; it never falls back to Cloudflare's test key.
 3. Give the Worker the secret: `npx wrangler secret put TURNSTILE_SECRET`. With no secret, every submission is rejected.
 
-For `npm run dev`, add `TURNSTILE_SECRET=1x0000000000000000000000000000000AA` to `.dev.vars` (Cloudflare's always-pass test secret, which pairs with the default test site key).
+`npm run dev` uses Cloudflare's local development test site key when `TURNSTILE_SITE_KEY` is not set. Add `TURNSTILE_SECRET=1x0000000000000000000000000000000AA` to `.dev.vars` (Cloudflare's always-pass test secret, which pairs with the test site key).
 
 ## Custom domain
 

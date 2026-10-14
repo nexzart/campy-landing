@@ -39,10 +39,10 @@
         <p class="mt-4 text-[0.9375rem] text-white/70">New modules and release notes, about once a month.</p>
         <form id="subscribe-form" class="mt-4" hx-post="/api/subscribe" hx-target="#subscribe-form" hx-swap="outerHTML">
           <label for="subscribe-email" class="sr-only">Email address</label>
-          <div class="flex gap-2">
+          <div class="flex-col md:flex gap-2 ">
             <input id="subscribe-email" name="email" type="email" required autocomplete="email" placeholder="you@school.in"
-                   class="min-w-0 flex-1 rounded-[0.625rem] border border-white/20 bg-white/5 px-3.5 py-2.5 text-[0.9375rem] text-white placeholder:text-white/40 focus:border-secondary focus:outline-none">
-            <button type="submit" class="btn btn-lime btn-sm">
+                   class="h-11 min-w-0 flex-1 rounded-[0.625rem] border border-white/20 bg-white/5 px-3.5 py-2.5 text-[0.9375rem] text-white placeholder:text-white/40 focus:border-secondary focus:outline-none">
+            <button type="submit" class="h-11 btn btn-lime btn-sm mt-2 md:mt-0">
               <span class="hide-on-request">Subscribe</span>
               <span class="htmx-indicator items-center gap-2"><i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i>Sending</span>
             </button>
