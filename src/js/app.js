@@ -28,6 +28,29 @@
     });
   }
 
+  // Cloudflare Turnstile: every .campy-turnstile placeholder becomes a widget. The widget adds a
+  // hidden cf-turnstile-response field that htmx sends with the form. Tokens are single use, so
+  // the widget is reset after each request that leaves the form on the page (for example an error).
+  function renderTurnstile() {
+    if (!window.turnstile) return;
+    document.querySelectorAll('.campy-turnstile:not([data-rendered])').forEach(function (el) {
+      el.setAttribute('data-rendered', '');
+      window.turnstile.render(el, {
+        sitekey: el.getAttribute('data-sitekey'),
+        appearance: el.getAttribute('data-appearance') || 'always',
+        theme: 'light',
+      });
+    });
+  }
+  window.campyTurnstileReady = renderTurnstile;
+  document.addEventListener('htmx:afterSettle', renderTurnstile);
+  document.addEventListener('htmx:afterRequest', function (evt) {
+    var form = evt.detail.elt;
+    if (!window.turnstile || !form || form.tagName !== 'FORM' || !document.body.contains(form)) return;
+    var widget = form.querySelector('.campy-turnstile[data-rendered]');
+    if (widget) window.turnstile.reset(widget);
+  });
+
   // Boosted links that point at /page#section scroll to the section once the page has swapped in.
   var pendingHash = '';
   document.addEventListener('htmx:beforeRequest', function (evt) {

@@ -230,50 +230,28 @@ export const ADDONS = [
 
 export const PLATFORM_FEE_PERCENT = 0.1;
 
-// Brand logos for /integrations. `si` is a Simple Icons slug, inlined in the brand colour;
-// `file` is an image in asset/logos (sources in asset/logos/SOURCES.md); `wide` marks a wordmark.
+// Brand logos for /integrations, only from openly licensed (CC0) sets, written to /asset/logos
+// at build time. `logos` is an icon in the colour SVG Logos set (@iconify-json/logos); `si` is a
+// Simple Icons slug, drawn in the brand colour. `wide` marks a wordmark. Brands in neither set
+// get a Lucide icon in INTEGRATIONS instead.
 export const LOGOS = {
   razorpay: { name: 'Razorpay', si: 'razorpay' },
   phonepe: { name: 'PhonePe', si: 'phonepe' },
   paytm: { name: 'Paytm', si: 'paytm' },
-  stripe: { name: 'Stripe', si: 'stripe' },
-  cashfree: { name: 'Cashfree Payments', file: 'cashfree.png' },
-  payu: { name: 'PayU', file: 'payu.png' },
-  ccavenue: { name: 'CCAvenue', file: 'ccavenue.png', wide: true },
-  easebuzz: { name: 'Easebuzz', file: 'easebuzz.png' },
-  billdesk: { name: 'BillDesk', file: 'billdesk.png' },
-  hdfc: { name: 'HDFC Bank', file: 'hdfc.svg' },
-  icici: { name: 'ICICI Bank', file: 'icici.png' },
-  sbi: { name: 'State Bank of India', file: 'sbi.svg' },
-  axis: { name: 'Axis Bank', file: 'axis.svg' },
-  upi: { name: 'UPI', file: 'upi.png' },
-  whatsapp: { name: 'WhatsApp', si: 'whatsapp' },
-  msg91: { name: 'MSG91', file: 'msg91.svg' },
-  gupshup: { name: 'Gupshup', file: 'gupshup.png' },
-  twilio: { name: 'Twilio', file: 'twilio.png' },
-  aws: { name: 'Amazon Web Services', file: 'aws.png' },
-  firebase: { name: 'Firebase', si: 'firebase' },
-  apple: { name: 'Apple', si: 'apple' },
-  zkteco: { name: 'ZKTeco', file: 'zkteco.png' },
-  essl: { name: 'eSSL', file: 'essl.png' },
-  realtime: { name: 'Realtime Biometrics', file: 'realtime.png' },
-  mantra: { name: 'Mantra Softech', file: 'mantra.png' },
-  googlemaps: { name: 'Google Maps', si: 'googlemaps' },
-  tally: { name: 'Tally', file: 'tally.png' },
-  zoho: { name: 'Zoho', si: 'zoho' },
+  stripe: { name: 'Stripe', logos: 'stripe', wide: true },
+  whatsapp: { name: 'WhatsApp', logos: 'whatsapp-icon' },
+  googlemaps: { name: 'Google Maps', logos: 'google-maps' },
+  zoho: { name: 'Zoho', logos: 'zoho', wide: true },
   quickbooks: { name: 'QuickBooks', si: 'quickbooks' },
-  excel: { name: 'Microsoft Excel', file: 'excel.png' },
-  google: { name: 'Google', si: 'google' },
-  googleclassroom: { name: 'Google Classroom', si: 'googleclassroom' },
-  googlemeet: { name: 'Google Meet', si: 'googlemeet' },
-  googledrive: { name: 'Google Drive', si: 'googledrive' },
-  microsoft: { name: 'Microsoft', file: 'microsoft.svg' },
-  zoom: { name: 'Zoom', si: 'zoom' },
-  youtube: { name: 'YouTube', si: 'youtube' },
+  googleworkspace: { name: 'Google Workspace', logos: 'google-workspace', wide: true },
+  google: { name: 'Google', logos: 'google-icon' },
+  microsoft: { name: 'Microsoft', logos: 'microsoft-icon' },
+  zoom: { name: 'Zoom', logos: 'zoom-icon' },
+  youtube: { name: 'YouTube', logos: 'youtube-icon' },
 };
 
 // Each item is [name, what it does for a school, logos]. A logo is a key in LOGOS, or
-// 'icon:<lucide name>' where the item is a kind of thing rather than one company.
+// 'icon:<lucide name>' where the item is a kind of thing, or a brand with no openly licensed logo.
 export const INTEGRATIONS = [
   {
     id: 'payments', name: 'Payment gateways', nav: 'Payments', icon: 'credit-card',
@@ -282,32 +260,25 @@ export const INTEGRATIONS = [
       ['Razorpay', 'UPI, cards, netbanking, wallets and EMI', ['razorpay']],
       ['PhonePe Payment Gateway', 'UPI-first payments from India’s most used UPI app', ['phonepe']],
       ['Paytm', 'UPI, wallet and cards', ['paytm']],
-      ['Cashfree', 'Fast settlements and easy refunds', ['cashfree']],
-      ['PayU', 'Cards, netbanking and pay-later', ['payu']],
-      ['CCAvenue', 'Wide bank coverage, often preferred by trusts', ['ccavenue']],
-      ['Easebuzz', 'Low-cost education payments', ['easebuzz']],
-      ['BillDesk', 'Used by many institutions and banks', ['billdesk']],
-      ['Bank gateways', 'HDFC, ICICI, SBI, Axis and other bank-owned gateways', ['hdfc', 'icici', 'sbi', 'axis']],
+      ['Cashfree', 'Fast settlements and easy refunds', ['icon:credit-card']],
+      ['PayU', 'Cards, netbanking and pay-later', ['icon:credit-card']],
+      ['Bank gateways', 'HDFC, ICICI, SBI, Axis and other bank-owned gateways', ['icon:landmark']],
       ['Stripe', 'International cards for schools with overseas parents', ['stripe']],
-      ['UPI QR at the counter', 'Static or dynamic QR codes at the fee desk', ['upi', 'icon:qr-code']],
+      ['UPI QR at the counter', 'Static or dynamic QR codes at the fee desk', ['icon:qr-code']],
       ['Any other gateway', 'Have a gateway already? If it has an API, we connect it.', ['icon:plug-zap']],
     ],
   },
   {
     id: 'messaging', name: 'Messaging', nav: 'Messaging', icon: 'message-circle',
-    why: 'Parents read WhatsApp and SMS. Campy sends alerts and reminders on the channel each school prefers, with templates registered the way Indian telecom (DLT) rules require.',
+    why: 'Parents read WhatsApp. Campy sends alerts, receipts and reminders through the official WhatsApp Business Platform, using message templates approved by Meta.',
     items: [
       ['WhatsApp Business Platform', 'Official Meta API: alerts, receipts, results and replies', ['whatsapp']],
-      ['SMS (DLT-registered)', 'MSG91, Gupshup, Twilio, Kaleyra or your current provider', ['msg91', 'gupshup', 'twilio']],
-      ['Email', 'Your own domain through SMTP, Amazon SES or SendGrid', ['icon:mail', 'aws']],
-      ['Push notifications', 'Firebase Cloud Messaging for Android and Apple push for iOS', ['firebase', 'apple']],
     ],
   },
   {
-    id: 'attendance', name: 'Attendance devices', nav: 'Attendance devices', icon: 'fingerprint', photo: 'biometric',
+    id: 'attendance', name: 'Attendance devices', nav: 'Attendance devices', icon: 'scan-face',
     why: 'Staff attendance from the device at the gate feeds payroll directly, and parents can be told the moment a child arrives.',
     items: [
-      ['Biometric devices', 'ZKTeco, eSSL, Realtime, Mantra and other fingerprint readers', ['zkteco', 'essl', 'realtime', 'mantra']],
       ['Face recognition terminals', 'Contactless attendance for staff and students', ['icon:scan-face']],
       ['RFID cards', 'Card taps at gates and on school buses', ['icon:nfc']],
       ['QR attendance', 'Scan from the staff app, with no hardware to buy', ['icon:qr-code']],
@@ -326,18 +297,18 @@ export const INTEGRATIONS = [
     id: 'finance', name: 'Accounting and banking', nav: 'Accounting and banking', icon: 'landmark',
     why: 'Your accountant keeps the software they know. Vouchers and payroll leave Campy in the formats auditors, banks and EPFO expect.',
     items: [
-      ['Tally Prime', 'Export vouchers and ledgers', ['tally']],
+      ['Tally Prime', 'Export vouchers and ledgers', ['icon:book-open-check']],
       ['Zoho Books and QuickBooks', 'Sync or export accounting entries', ['zoho', 'quickbooks']],
-      ['Bank salary files', 'Bulk upload formats for major Indian banks', ['hdfc', 'icici', 'sbi', 'axis']],
+      ['Bank salary files', 'Bulk upload formats for major Indian banks', ['icon:landmark']],
       ['EPFO ECR', 'Monthly provident fund return files', ['icon:receipt']],
-      ['Excel', 'Every list and report, ready for your spreadsheet', ['excel']],
+      ['Excel', 'Every list and report, ready for your spreadsheet', ['icon:file-spreadsheet']],
     ],
   },
   {
     id: 'learning', name: 'Learning and productivity', nav: 'Learning tools', icon: 'presentation',
     why: 'Teachers keep using the classroom tools they already like, while timetables, attendance and records stay in Campy.',
     items: [
-      ['Google Workspace for Education', 'Sign in with Google, Classroom, Meet, Calendar and Drive', ['google', 'googleclassroom', 'googlemeet', 'googledrive']],
+      ['Google Workspace for Education', 'Sign in with Google, Classroom, Meet, Calendar and Drive', ['googleworkspace']],
       ['Microsoft 365 Education', 'Sign in with Microsoft, Teams and OneDrive', ['microsoft']],
       ['Zoom', 'Online classes and parent meetings from the timetable', ['zoom']],
       ['YouTube', 'Lesson videos linked to homework', ['youtube']],

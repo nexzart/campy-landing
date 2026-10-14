@@ -10,6 +10,7 @@ const PLANS = ['Essential', 'Professional ERP', 'Enterprise ERP + CMS', 'Custom:
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^[+\d][\d\s-]{6,18}$/;
 const MAX_BODY = 16 * 1024;
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
 const SVG_ATTRS = 'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 const ICON_CHECK = `<svg ${SVG_ATTRS} class="lucide h-6 w-6"><path d="M20 6 9 17l-5-5"/></svg>`;
@@ -75,6 +76,31 @@ function sendEmails(env, ctx, type, lead, entry) {
   );
 }
 
+// Verifies the Cloudflare Turnstile token the form sent. Fails closed: with no secret
+// configured, or if Cloudflare can't be reached, the submission is rejected.
+async function humanVerified(form, env, request) {
+  if (!env.TURNSTILE_SECRET) {
+    console.error('TURNSTILE_SECRET missing, rejecting submission');
+    return false;
+  }
+  const token = form.get('cf-turnstile-response');
+  if (!token || token.length > 2048) return false;
+  const body = new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token });
+  const ip = request.headers.get('CF-Connecting-IP');
+  if (ip) body.set('remoteip', ip);
+  try {
+    const res = await fetch(TURNSTILE_VERIFY_URL, { method: 'POST', body });
+    const result = await res.json();
+    if (!result.success) console.log('Turnstile rejected', JSON.stringify(result['error-codes'] || []));
+    return result.success === true;
+  } catch (err) {
+    console.error('Turnstile verification failed', err);
+    return false;
+  }
+}
+
+const NOT_VERIFIED = 'Complete the verification check so we know you’re not a bot.';
+
 function errorList(errors) {
   return `<div class="rounded-xl border border-primary/20 bg-primary/[0.03] p-4 text-sm" role="alert">
   <p class="font-semibold">Check these fields and send again:</p>
@@ -107,6 +133,7 @@ async function handleDemo(request, env, ctx) {
   if (v('website')) return isHtmx ? html(demoSuccess(lead)) : redirect('/contact?sent=1');
 
   const errors = [];
+  if (!(await humanVerified(form, env, request))) errors.push(NOT_VERIFIED);
   if (!lead.name || lead.name.length > 100) errors.push('Enter your full name.');
   if (!EMAIL_RE.test(lead.email) || lead.email.length > 200) errors.push('Enter a work email address, like principal@yourschool.in.');
   if (!PHONE_RE.test(lead.phone)) errors.push('Enter a phone number we can call you on, like +91 98765 43210.');
@@ -129,6 +156,11 @@ async function handleDemo(request, env, ctx) {
 async function handleSubscribe(request, env, ctx) {
   const form = await readForm(request);
   const email = (form.get('email') || '').trim();
+  if (!(await humanVerified(form, env, request))) {
+    return html(`<p class="text-sm text-white/80">${NOT_VERIFIED}</p>`, {
+      headers: { 'HX-Retarget': '#subscribe-msg', 'HX-Reswap': 'innerHTML' },
+    });
+  }
   if (!EMAIL_RE.test(email) || email.length > 200) {
     return html('<p class="text-sm text-white/80">Enter a valid email address to subscribe.</p>', {
       headers: { 'HX-Retarget': '#subscribe-msg', 'HX-Reswap': 'innerHTML' },

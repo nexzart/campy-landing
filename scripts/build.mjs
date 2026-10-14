@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CATEGORIES, FEATURED, TOOLS } from '../src/tools/registry.mjs';
-import { MODULES, PLANS, SECTIONS } from './site-sections.mjs';
+import { MODULES, PLANS, SECTIONS, logoAssets } from './site-sections.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = path.join(ROOT, 'src');
@@ -20,6 +20,9 @@ const NM = path.join(ROOT, 'node_modules');
 const SITE_URL = (process.env.SITE_URL || 'https://campy.nexzart.com').replace(/\/$/, '');
 const TODAY = new Date().toISOString().slice(0, 10);
 const YEAR = new Date().getFullYear();
+// Cloudflare Turnstile site key (public). The default is Cloudflare's always-passes test key.
+const TURNSTILE_SITE_KEY = process.env.TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
+if (!process.env.TURNSTILE_SITE_KEY) console.warn('TURNSTILE_SITE_KEY not set: using the Turnstile test key, which accepts every visitor.');
 
 const NEXZART = {
   '@type': 'Organization',
@@ -67,7 +70,7 @@ const PAGES = [
   {
     file: 'integrations', path: '/integrations', type: 'WebPage', priority: '0.8', changefreq: 'monthly', crumb: 'Integrations',
     title: 'Integrations: Payment Gateways, WhatsApp, Biometric & More | Campy',
-    description: 'Campy works with any payment gateway, WhatsApp and SMS, biometric and RFID attendance, GPS bus tracking, Tally, Google Workspace and Microsoft 365.',
+    description: 'Campy works with any payment gateway, WhatsApp Business, face recognition and RFID attendance, GPS bus tracking, Tally, Google Workspace and Microsoft 365.',
   },
   {
     file: 'tools', path: '/tools', type: 'CollectionPage', priority: '0.9', changefreq: 'weekly', crumb: 'Free tools',
@@ -411,9 +414,9 @@ for (const w of [400, 500, 600, 700, 800]) {
 for (const f of ['campy-logo.png', 'campy-icon-light-browser.png', 'campy-logo-white.png', 'favicon-light-mode.png', 'favicon-dark-mode.png']) {
   copy(path.join(ROOT, 'asset', f), path.join(DIST, 'asset', f));
 }
-for (const dir of ['photos', 'logos']) {
-  fs.cpSync(path.join(ROOT, 'asset', dir), path.join(DIST, 'asset', dir), { recursive: true, filter: (f) => !f.endsWith('.md') });
-}
+fs.cpSync(path.join(ROOT, 'asset', 'photos'), path.join(DIST, 'asset', 'photos'), { recursive: true, filter: (f) => !f.endsWith('.md') });
+// Integration logos come from the CC0 logo packages, not from files in the repo.
+for (const [name, svg] of logoAssets()) write(path.join(DIST, 'asset', 'logos', name), svg);
 fs.cpSync(path.join(ROOT, 'public'), DIST, { recursive: true });
 
 const v = {
@@ -489,6 +492,7 @@ for (const page of [...PAGES, ...TOOL_PAGES]) {
   <link rel="preload" href="/fonts/poppins-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/poppins-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/css/app.css?v=${v.css}">
+  <script defer src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=campyTurnstileReady"></script>
   <script defer src="/js/htmx.min.js?v=${v.htmx}"></script>
   <script defer src="/js/app.js?v=${v.app}"></script>
   <script defer src="/js/dropdown.js?v=${v.dropdown}"></script>
@@ -504,7 +508,7 @@ ${partials.consent}
 </body>
 </html>
 `;
-  write(path.join(DIST, `${page.file}.html`), html);
+  write(path.join(DIST, `${page.file}.html`), html.replaceAll('{{turnstile-sitekey}}', TURNSTILE_SITE_KEY));
 }
 
 // 5. Crawling and install metadata

@@ -1,6 +1,7 @@
 // Renders src/site/catalog.mjs into HTML sections. Pages pull them in with {{site:name}};
 // see SECTIONS at the bottom for the names.
 
+import { createRequire } from 'node:module';
 import * as simpleIcons from 'simple-icons';
 import { ADDONS, INTEGRATIONS, LOGOS, MODULES, PLANS, PLATFORM_FEE_PERCENT } from '../src/site/catalog.mjs';
 
@@ -189,23 +190,42 @@ ${INTEGRATIONS.slice(0, 8).map((g) => `  <li class="rounded-2xl border border-pr
 </ul>`;
 }
 
+// Both logo sets are CC0. The brands themselves remain trademarks of their owners.
 const SIMPLE_ICONS = Object.fromEntries(Object.values(simpleIcons).map((i) => [i.slug, i]));
+const LOGO_SET = createRequire(import.meta.url)('@iconify-json/logos/icons.json');
 
 // One logo tile: a Simple Icons mark in its brand colour, an image from asset/logos, or a Lucide icon.
-function logoTile(key) {
-  if (key.startsWith('icon:')) {
-    return `<span class="logo-tile text-primary/60"><i data-lucide="${key.slice(5)}" class="h-5 w-5"></i></span>`;
-  }
+// A logo from LOGOS as a standalone SVG file, with its width and height.
+function logoSvg(key) {
   const logo = LOGOS[key];
   if (!logo) throw new Error(`Unknown integration logo "${key}"`);
   if (logo.si) {
     const icon = SIMPLE_ICONS[logo.si];
     if (!icon) throw new Error(`Simple Icons has no "${logo.si}"`);
-    return `<span class="logo-tile" title="${esc(logo.name)}"><svg role="img" viewBox="0 0 24 24" fill="#${icon.hex}" class="h-6 w-6"><title>${esc(logo.name)}</title><path d="${icon.path}"/></svg></span>`;
+    return { width: 24, height: 24, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${icon.hex}"><path d="${icon.path}"/></svg>` };
   }
+  const icon = LOGO_SET.icons[logo.logos];
+  if (!icon) throw new Error(`SVG Logos has no "${logo.logos}"`);
+  const width = icon.width ?? LOGO_SET.width ?? 16;
+  const height = icon.height ?? LOGO_SET.height ?? 16;
+  return { width, height, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">${icon.body}</svg>` };
+}
+
+// Every logo file the integrations page links to, for the build to write into /asset/logos.
+export function logoAssets() {
+  return Object.keys(LOGOS).map((key) => [`${key}.svg`, logoSvg(key).svg]);
+}
+
+// One logo tile: a brand logo, or a Lucide icon for a kind of thing.
+function logoTile(key) {
+  if (key.startsWith('icon:')) {
+    return `<span class="logo-tile text-primary/60"><i data-lucide="${key.slice(5)}" class="h-5 w-5"></i></span>`;
+  }
+  const logo = LOGOS[key];
+  const { width, height } = logoSvg(key);
   return logo.wide
-    ? `<span class="logo-tile logo-tile-wide" title="${esc(logo.name)}"><img src="/asset/logos/${logo.file}" alt="${esc(logo.name)}" loading="lazy" class="h-5 w-auto"></span>`
-    : `<span class="logo-tile" title="${esc(logo.name)}"><img src="/asset/logos/${logo.file}" alt="${esc(logo.name)}" loading="lazy" class="h-7 w-7 rounded-md object-contain"></span>`;
+    ? `<span class="logo-tile logo-tile-wide" title="${esc(logo.name)}"><img src="/asset/logos/${key}.svg" alt="${esc(logo.name)}" width="${Math.round((20 * width) / height)}" height="20" loading="lazy" class="h-5 w-auto"></span>`
+    : `<span class="logo-tile" title="${esc(logo.name)}"><img src="/asset/logos/${key}.svg" alt="${esc(logo.name)}" width="28" height="28" loading="lazy" class="h-7 w-7 object-contain"></span>`;
 }
 
 // /integrations: one section per category, each provider with its logo.

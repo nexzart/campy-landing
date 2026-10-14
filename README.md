@@ -33,7 +33,7 @@ Re-run `npm run build` after editing anything in `src/` while `npm run dev` is r
 | `apps-script/` | Google Apps Script web app that sends the form emails from admin@nexzart.com. |
 | `asset/` | Designer logo files, plus the cropped transparent `campy-*.png` copies and the `favicon-light-mode.png` / `favicon-dark-mode.png` tab icons (picked by the browser/OS colour scheme) that the build ships. |
 | `asset/photos/` | Unsplash photos used on the homepage, cropped to WebP. Sources and photographers are in `CREDITS.md`. |
-| `asset/logos/` | Logos of the integration partners shown on /integrations. Where each came from is in `SOURCES.md`; brands in Simple Icons are inlined from the `simple-icons` package instead. |
+| `asset/` (logos) | Integration logos aren't stored here. The build writes them to `/asset/logos` from two CC0 packages, `@iconify-json/logos` (SVG Logos, in colour) and `simple-icons`; see `LOGOS` in `src/site/catalog.mjs`. |
 | `public/` | Copied to the site root as-is: favicon, app icons, the 1200×630 social image. |
 
 ## Colours
@@ -113,6 +113,18 @@ The Worker sends the submission after it has answered the visitor, so a mail fai
 For `npm run dev`, put the same two values in a `.dev.vars` file (`APPS_SCRIPT_URL=…` on one line, `APPS_SCRIPT_SECRET=…` on the next). Without them, the Worker skips the emails and logs a line instead.
 
 After editing `Code.gs`, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same. Google Workspace accounts can send about 1,500 emails a day from Apps Script.
+
+## Bot protection (Cloudflare Turnstile)
+
+Both forms (the demo request and the footer subscribe form) carry a Cloudflare Turnstile widget. The Worker verifies the token with Cloudflare before saving or emailing anything, and rejects the submission if the token is missing, invalid, or Cloudflare can't be reached. The footer widget only appears if Cloudflare wants more proof; the demo form always shows it. The honeypot field stays as a second layer.
+
+Setup:
+
+1. In the Cloudflare dashboard, go to **Turnstile → Add widget**. Add `campy.nexzart.com` (and `localhost` if you want it for dev), choose **Managed**, and copy the **site key** and **secret key**.
+2. Build with the site key, which is public: `TURNSTILE_SITE_KEY=0x4AAAA… npm run deploy`. Without it the build uses Cloudflare's test key, which accepts everyone, and prints a warning.
+3. Give the Worker the secret: `npx wrangler secret put TURNSTILE_SECRET`. With no secret, every submission is rejected.
+
+For `npm run dev`, add `TURNSTILE_SECRET=1x0000000000000000000000000000000AA` to `.dev.vars` (Cloudflare's always-pass test secret, which pairs with the default test site key).
 
 ## Custom domain
 
