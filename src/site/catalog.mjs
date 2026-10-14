@@ -196,7 +196,9 @@ export const MODULES = [
 export const PLANS = [
   {
     id: 'essential', name: 'Essential', price: 35000, tagline: 'The academic and communication core for any school.',
-    storage: '40–50 GB', support: 'Email and phone support', cta: 'Start with Essential',
+    storage: '40–50 GB', support: 'Email and phone support', cta: 'Grab the deal',
+    // Highlighted on /pricing: sign up now and this yearly price never goes up.
+    deal: { badge: 'Lifetime deal', note: 'Just ₹35K a year, locked for life. Sign up now and your price never goes up.' },
     highlights: ['Academic Core', 'People and School Office', 'Parent Connect', 'Security and Compliance', 'Android and iOS apps, offline mode', 'Standard reports'],
   },
   {

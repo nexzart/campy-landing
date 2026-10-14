@@ -282,6 +282,32 @@ body {
   color: #fff;
   font-weight: 700;
 }
+/* A step you can click: green ring that pulses outwards. */
+.step-num-cta {
+  position: relative;
+  border: 2px solid var(--secondary);
+  transition: transform 0.15s ease;
+}
+.step-num-cta::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid var(--secondary);
+  animation: step-pulse 1.6s ease-out infinite;
+  pointer-events: none;
+}
+.step-num-cta:hover {
+  transform: scale(1.08);
+}
+.step-num-cta:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+@keyframes step-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
 
 /* Form fields */
 .field {

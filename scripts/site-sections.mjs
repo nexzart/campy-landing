@@ -99,21 +99,26 @@ function planCards() {
   return `<ul class="grid gap-6 lg:grid-cols-3">
 ${PLANS.map((p) => {
     const dark = p.popular;
-    return `  <li class="${dark ? 'on-dark relative overflow-hidden bg-primary text-white shadow-card' : 'border border-primary/10 bg-white'} flex flex-col rounded-3xl p-8">
+    const deal = p.deal;
+    const box = dark ? 'on-dark relative overflow-hidden bg-primary text-white shadow-card'
+      : deal ? 'relative border-2 border-secondary bg-secondary/[0.06] shadow-card' : 'border border-primary/10 bg-white';
+    return `  <li class="${box} flex flex-col rounded-3xl p-8">
     ${dark ? '<span class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-secondary/20" aria-hidden="true"></span>' : ''}
     <div class="relative flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
       <h3 class="text-lg font-semibold">${esc(p.name)}</h3>
       ${dark ? '<span class="whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">Most popular</span>' : ''}
+      ${deal ? `<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary"><i data-lucide="zap" class="h-3.5 w-3.5"></i>${esc(deal.badge)}</span>` : ''}
     </div>
     <p class="relative mt-2 text-[0.9375rem] ${dark ? 'text-white/75' : 'text-primary/65'}">${esc(p.tagline)}</p>
-    <p class="relative mt-6"><span class="font-display text-4xl font-bold">${rupees(p.price)}</span><span class="${dark ? 'text-white/70' : 'text-primary/60'}"> /year</span></p>
+    <p class="relative mt-6"><span class="font-display text-4xl font-bold${deal ? ' marker' : ''}">${rupees(p.price)}</span><span class="${dark ? 'text-white/70' : 'text-primary/60'}"> /year</span></p>
     <p class="relative mt-1 text-sm ${dark ? 'text-white/70' : 'text-primary/60'}">+ GST · unlimited students and staff</p>
+    ${deal ? `<p class="relative mt-4 flex gap-2 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold"><i data-lucide="lock" class="mt-0.5 h-4 w-4 shrink-0 text-secondary"></i>${esc(deal.note)}</p>` : ''}
     <ul class="relative mt-7 space-y-3 text-[0.9375rem]">
 ${p.highlights.map((h) => `      <li class="flex gap-3"><i data-lucide="circle-check" class="mt-0.5 h-5 w-5 text-secondary"></i>${esc(h)}</li>`).join('\n')}
       <li class="flex gap-3"><i data-lucide="hard-drive" class="mt-0.5 h-5 w-5 ${dark ? 'text-white/60' : 'text-primary/50'}"></i>${esc(p.storage)} storage</li>
       <li class="flex gap-3"><i data-lucide="life-buoy" class="mt-0.5 h-5 w-5 ${dark ? 'text-white/60' : 'text-primary/50'}"></i>${esc(p.support)}</li>
     </ul>
-    <a href="/contact?plan=${p.id}" class="btn ${dark ? 'btn-lime' : 'btn-outline'} relative mt-8">${esc(p.cta)}</a>
+    <a href="/contact?plan=${p.id}" class="btn ${dark || deal ? 'btn-lime' : 'btn-outline'} relative mt-8">${esc(p.cta)}${deal ? '<i data-lucide="arrow-right" class="h-4 w-4"></i>' : ''}</a>
   </li>`;
   }).join('\n')}
 </ul>`;

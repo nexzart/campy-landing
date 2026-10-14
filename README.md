@@ -33,6 +33,7 @@ Re-run `npm run build` after editing anything in `src/` while `npm run dev` is r
 | `apps-script/` | Google Apps Script web app that sends the form emails from admin@nexzart.com. |
 | `asset/` | Designer logo files, plus the cropped transparent `campy-*.png` copies and the `favicon-light-mode.png` / `favicon-dark-mode.png` tab icons (picked by the browser/OS colour scheme) that the build ships. |
 | `asset/photos/` | Unsplash photos used on the homepage, cropped to WebP. Sources and photographers are in `CREDITS.md`. |
+| `asset/logos/` | Logos of the integration partners shown on /integrations. Where each came from is in `SOURCES.md`; brands in Simple Icons are inlined from the `simple-icons` package instead. |
 | `public/` | Copied to the site root as-is: favicon, app icons, the 1200×630 social image. |
 
 ## Colours
