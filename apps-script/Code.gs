@@ -2,17 +2,20 @@
 //
 // The Cloudflare Worker (worker/index.js) posts each validated form submission here as JSON:
 //   { secret, type: 'demo' | 'subscribe', lead: {...}, meta: { receivedAt, country } }
-// and this script sends, from the account it is deployed under (admin@nexzart.com):
+// This script saves the submission to Google Sheets and uses an HTTPS Node.js relay
+// to send via GoDaddy SMTP from admin@nexzart.com:
 //   1. a branded confirmation to the visitor, and
 //   2. a notification to the team (CONFIG.notify), with Reply-To set to the visitor.
 //
 // The project has two files: this one and Logo.gs (the logo, sent as an inline image).
 //
 // Setup (see README "Form emails"):
-//   - Deploy while signed in as admin@nexzart.com: Deploy > New deployment > Web app,
+//   - Deploy signed in as the Google account that owns your sheet: Deploy > New deployment > Web app,
 //     Execute as "Me", Who has access "Anyone".
 //   - Project Settings > Script properties: add SHARED_SECRET with the same value as the
 //     Worker's APPS_SCRIPT_SECRET.
+//   - Also set SPREADSHEET_ID, SMTP_RELAY_URL (https://your-relay/send), and
+//     SMTP_RELAY_SECRET. See smtp-relay/README.md for the Node.js service setup.
 
 const CONFIG = {
   fromAddress: 'admin@nexzart.com',
@@ -20,7 +23,7 @@ const CONFIG = {
   // Visitors' replies go here.
   teamInbox: 'admin@nexzart.com',
   // Every form submission is reported to these addresses.
-  notify: ['nexzart.main@gmail.com', 'admin@nexzart.com'],
+  notify: ['nexzart.main@gmail.com'],
   notifyTeamOnSubscribe: true,
   site: 'https://campy.nexzart.com',
   company: 'https://nexzart.com',
@@ -49,14 +52,48 @@ function doPost(e) {
 
     const lead = body.lead || {};
     const meta = body.meta || {};
-    if (body.type === 'demo') sendDemo(lead, meta);
-    else if (body.type === 'subscribe') sendSubscribe(lead, meta);
-    else return json({ ok: false, error: 'unknown type' });
-
-    return json({ ok: true });
+    if (!['demo', 'subscribe'].includes(body.type)) return json({ ok: false, error: 'unknown type' });
+    if (!/^[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+$/.test(clean(lead.email))) {
+      return json({ ok: false, error: 'invalid email' });
+    }
+    const saved = saveSubmission(body.type, lead, meta);
+    const results = body.type === 'demo' ? sendDemo(lead, meta) : sendSubscribe(lead, meta);
+    saved.sheet.getRange(saved.row, 15, 1, 2).setValues([[
+      results[0].ok ? 'sent' : 'failed',
+      results[1] ? (results[1].ok ? 'sent' : 'failed') : 'disabled',
+    ]]);
+    return json({ ok: results.every(function (result) { return result.ok; }), saved: true, emails: results });
   } catch (err) {
     console.error(err);
     return json({ ok: false, error: String(err) });
+  }
+}
+
+// Save before sending. Raw JSON retains any additional fields in future forms.
+function saveSubmission(type, lead, meta) {
+  const id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+  if (!id) throw new Error('SPREADSHEET_ID is missing');
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const book = SpreadsheetApp.openById(id);
+    const sheet = book.getSheetByName('Contacts') || book.insertSheet('Contacts');
+    if (sheet.getLastRow() === 0) sheet.appendRow([
+      'Received at', 'Type', 'Name', 'Email', 'Phone', 'School', 'Role', 'Students',
+      'Plan', 'Message', 'Country', 'User agent', 'Lead JSON', 'Metadata JSON',
+      'Visitor email', 'Admin email',
+    ]);
+    const values = [meta.receivedAt || new Date().toISOString(), type, lead.name, lead.email,
+      lead.phone, lead.school, lead.role, lead.size, lead.plan, lead.message, meta.country,
+      meta.userAgent, JSON.stringify(lead), JSON.stringify(meta), 'pending', 'pending'];
+    // Prevent submitted text from being interpreted as spreadsheet formulas.
+    sheet.appendRow(values.map(function (value) {
+      const text = String(value == null ? '' : value);
+      return /^[=+\-@]/.test(text) ? "'" + text : text;
+    }));
+    return { sheet: sheet, row: sheet.getLastRow() };
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -106,7 +143,7 @@ function sendDemo(lead, meta) {
       ${signoff()}`,
   });
 
-  sendMail(lead.email, `Your Campy demo request – we’ll contact you within 24 hours`, visitorHtml, {
+  const visitor = sendMail(lead.email, `Your Campy demo request – we’ll contact you within 24 hours`, visitorHtml, {
     replyTo: CONFIG.teamInbox,
   });
 
@@ -121,9 +158,10 @@ function sendDemo(lead, meta) {
     internal: true,
   });
 
-  sendMail(CONFIG.notify.join(','), `New demo request: ${school} (${name})`, teamHtml, {
+  const admin = sendMail(CONFIG.notify.join(','), `New demo request: ${school} (${name})`, teamHtml, {
     replyTo: lead.email,
   });
+  return [visitor, admin];
 }
 
 // ---------------------------------------------------------------------------
@@ -142,9 +180,9 @@ function sendSubscribe(lead, meta) {
       ${signoff()}`,
   });
 
-  sendMail(lead.email, 'Welcome to Campy product updates', visitorHtml, { replyTo: CONFIG.teamInbox });
+  const visitor = sendMail(lead.email, 'Welcome to Campy product updates', visitorHtml, { replyTo: CONFIG.teamInbox });
 
-  if (!CONFIG.notifyTeamOnSubscribe) return;
+  if (!CONFIG.notifyTeamOnSubscribe) return [visitor];
   const teamHtml = layout({
     preheader: `${lead.email} subscribed to product updates.`,
     eyebrow: 'New subscriber',
@@ -153,24 +191,32 @@ function sendSubscribe(lead, meta) {
       ${detailTable([['Email', lead.email], ['Received', formatTime(meta.receivedAt)], ['Country', meta.country]])}`,
     internal: true,
   });
-  sendMail(CONFIG.notify.join(','), `New subscriber: ${clean(lead.email)}`, teamHtml, { replyTo: lead.email });
+  const admin = sendMail(CONFIG.notify.join(','), `New subscriber: ${clean(lead.email)}`, teamHtml, { replyTo: lead.email });
+  return [visitor, admin];
 }
 
 // ---------------------------------------------------------------------------
 // Sending
 
 function sendMail(to, subject, html, opts) {
-  const options = {
-    htmlBody: html,
-    name: CONFIG.fromName,
-    replyTo: opts.replyTo,
-    inlineImages: { campyLogo: Utilities.newBlob(Utilities.base64Decode(LOGO_PNG_BASE64), 'image/png', 'campy-logo.png') },
-  };
-  // When deployed from the admin@nexzart.com account this is already the sender. From any
-  // other account, admin@nexzart.com must be a verified "Send mail as" alias in Gmail.
-  const me = Session.getEffectiveUser().getEmail();
-  if (me && me.toLowerCase() !== CONFIG.fromAddress.toLowerCase()) options.from = CONFIG.fromAddress;
-  GmailApp.sendEmail(to, subject, toPlainText(html), options);
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const url = props.getProperty('SMTP_RELAY_URL');
+    const token = props.getProperty('SMTP_RELAY_SECRET');
+    if (!url || !/^https:\/\//.test(url) || !token) throw new Error('HTTPS SMTP_RELAY_URL and SMTP_RELAY_SECRET are required');
+    const response = UrlFetchApp.fetch(url, {
+      method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: { Authorization: 'Bearer ' + token },
+      payload: JSON.stringify({ to: to, subject: subject, html: html,
+        text: toPlainText(html), replyTo: opts.replyTo, logo: LOGO_PNG_BASE64 }),
+    });
+    const result = JSON.parse(response.getContentText());
+    if (response.getResponseCode() !== 200 || !result.ok) throw new Error('SMTP relay rejected the email');
+    return { ok: true };
+  } catch (err) {
+    console.error('Email failed: ' + String(err));
+    return { ok: false };
+  }
 }
 
 // ---------------------------------------------------------------------------

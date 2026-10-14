@@ -30,7 +30,8 @@ Re-run `npm run build` after editing anything in `src/` while `npm run dev` is r
 | `src/js/dropdown.js` | Turns every `<select>` into the custom dropdown. Write plain `<select>` markup (with `x-model`, `@change` or `name`) and it is upgraded automatically; add `data-native` to keep a browser dropdown. |
 | `scripts/build.mjs` | Page metadata (titles, descriptions, JSON-LD), icon inlining, Tailwind compile, sitemap, robots.txt, `_headers`. |
 | `worker/index.js` | Handles `POST /api/demo` and `POST /api/subscribe` and returns HTML fragments for htmx. |
-| `apps-script/` | Google Apps Script web app that sends the form emails from admin@nexzart.com. |
+| `apps-script/` | Saves form submissions to Google Sheets and calls the SMTP relay. |
+| `smtp-relay/` | Separate Node.js Nodemailer service for GoDaddy SMTP. |
 | `asset/` | Designer logo files, plus the cropped transparent `campy-*.png` copies and the `favicon-light-mode.png` / `favicon-dark-mode.png` tab icons (picked by the browser/OS colour scheme) that the build ships. |
 | `asset/photos/` | Unsplash photos used on the homepage, cropped to WebP. Sources and photographers are in `CREDITS.md`. |
 | `asset/` (logos) | Integration logos aren't stored here. The build writes them to `/asset/logos` from two CC0 packages, `@iconify-json/logos` (SVG Logos, in colour) and `simple-icons`; see `LOGOS` in `src/site/catalog.mjs`. |
@@ -83,36 +84,13 @@ npx wrangler kv key list --binding LEADS --remote
 npx wrangler kv key get "<key>" --binding LEADS --remote
 ```
 
-## Form emails
+## Form emails and Google Sheet
 
-Every valid demo request and product-update sign-up is also emailed, from admin@nexzart.com, by the Google Apps Script web app in `apps-script/` (`Code.gs`, plus `Logo.gs`, the logo as base64):
+Every valid demo request and subscription is forwarded to the Apps Script web app in `apps-script/`. It saves the submission to a Google Sheet, then calls the separate `smtp-relay/` Node.js service. Nodemailer sends the existing branded visitor confirmation and an admin notification through GoDaddy Professional Email SMTP as **admin@nexzart.com**. Notifications go to **nexzart.main@gmail.com**, with Reply-To set to the visitor.
 
-- **Demo request:** the visitor gets a confirmation that the team will contact them within 24 hours, with the steps and a copy of what they sent. The team gets a notification with every field and a call button, and Reply-To set to the visitor.
-- **Subscribe:** the visitor gets a welcome email with a book-a-demo link. The team gets a short notification (turn it off with `notifyTeamOnSubscribe`).
+See [smtp-relay/README.md](smtp-relay/README.md) for the full setup, required Script properties, SMTP credentials, hosting, and verification steps. The Apps Script can run under any Google account with edit access to the Sheet; a Google Workspace mailbox or Gmail alias for admin@nexzart.com is not required.
 
-Team notifications go to every address in `CONFIG.notify` (nexzart.main@gmail.com and admin@nexzart.com). Visitors' replies go to `CONFIG.teamInbox`.
-
-The emails use the site colours, and end with the contact details from `CONFIG` at the top of `Code.gs` (email, phone +91 74185 94229, website, address). The logo is attached as an inline image rather than linked, so it shows even when the mail client blocks remote images. If the logo changes, regenerate `Logo.gs` with the command in its header.
-
-The Worker sends the submission after it has answered the visitor, so a mail failure never blocks the form. The lead is still in KV, and the failure is in the Worker logs (`npx wrangler tail`).
-
-### Setup
-
-1. Signed in to Google as **admin@nexzart.com**, create a project at [script.google.com](https://script.google.com). Paste `apps-script/Code.gs` into `Code.gs`, then add a script file named `Logo` (**+ → Script**) and paste in `apps-script/Logo.gs`.
-2. Pick a long random secret, for example with `node -e "console.log(crypto.randomUUID())"`. In **Project Settings → Script properties**, add `SHARED_SECRET` with that value.
-3. In the editor, run `testSendDemo` once and allow the permissions. It sends both demo emails to your own inbox so you can check them. `testSendSubscribe` does the same for sign-ups.
-4. **Deploy → New deployment → Web app**, with *Execute as: Me* and *Who has access: Anyone*. Copy the web app URL.
-5. Give the Worker the URL and the secret, then deploy:
-
-   ```bash
-   npx wrangler secret put APPS_SCRIPT_URL
-   npx wrangler secret put APPS_SCRIPT_SECRET
-   npm run deploy
-   ```
-
-For `npm run dev`, put the same two values in a `.dev.vars` file (`APPS_SCRIPT_URL=…` on one line, `APPS_SCRIPT_SECRET=…` on the next). Without them, the Worker skips the emails and logs a line instead.
-
-After editing `Code.gs`, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same. Google Workspace accounts can send about 1,500 emails a day from Apps Script.
+The Worker uses its existing `APPS_SCRIPT_URL` and `APPS_SCRIPT_SECRET` secrets. Submissions also remain in KV. It answers the visitor before background Sheet/email processing completes, so check Worker logs for failures. The Sheet records each email's status; retries are manual.
 
 ## Bot protection (Cloudflare Turnstile)
 
