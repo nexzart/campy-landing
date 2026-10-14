@@ -104,7 +104,7 @@ ${PLANS.map((p) => {
     const deal = p.deal;
     const box = dark ? 'on-dark relative overflow-hidden bg-primary text-white shadow-card'
       : deal ? 'relative border-2 border-secondary bg-secondary/[0.06] shadow-card' : 'border border-primary/10 bg-white';
-    return `  <li class="${box} flex flex-col rounded-3xl p-8">
+    return `  <li class="${box} flex flex-col rounded-3xl p-5 sm:p-8">
     ${dark ? '<span class="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-secondary/20" aria-hidden="true"></span>' : ''}
     <div class="relative flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
       <h3 class="text-lg font-semibold">${esc(p.name)}</h3>

@@ -39,6 +39,7 @@
         sitekey: el.getAttribute('data-sitekey'),
         appearance: el.getAttribute('data-appearance') || 'always',
         theme: 'light',
+        size: el.clientWidth < 300 ? 'compact' : 'normal',
       });
     });
   }

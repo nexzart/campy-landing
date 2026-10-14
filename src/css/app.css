@@ -101,6 +101,60 @@ body {
   background: #fff;
 }
 
+/* Grid/flex children must be allowed to shrink to their phone-sized column.
+   Wide tables keep their own scrolling containers instead of widening the page. */
+.grid > *,
+.flex > div,
+.flex > p,
+.flex > label {
+  min-width: 0;
+}
+.field {
+  min-width: 0;
+}
+.lucide {
+  flex-shrink: 0;
+}
+
+@media screen and (max-width: 639px) {
+  h1.font-display {
+    font-size: clamp(2rem, 8.5vw, 2.5rem);
+  }
+  h2.font-display.text-4xl,
+  h2.font-display.text-5xl {
+    font-size: clamp(1.75rem, 7.5vw, 2.25rem);
+  }
+  p, h1, h2, h3, label, .prose-tool {
+    overflow-wrap: anywhere;
+  }
+  .btn {
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+  }
+  input.field, select.field, textarea.field {
+    font-size: 1rem;
+  }
+  .solution-card {
+    padding: 1.5rem;
+  }
+  #cookie-consent [role='region'] {
+    max-height: calc(100dvh - 1.5rem);
+    overflow-y: auto;
+  }
+  #mobile-menu {
+    max-height: calc(100dvh - 72px);
+    overflow-y: auto;
+  }
+  #id-preview {
+    align-items: flex-start;
+    overflow-x: auto;
+  }
+  #id-preview .id-card {
+    flex-shrink: 0;
+  }
+}
+
 /* Headlines: Poppins is wide, so tighten the tracking. */
 .font-display {
   letter-spacing: -0.015em;

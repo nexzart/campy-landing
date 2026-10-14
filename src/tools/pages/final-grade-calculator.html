@@ -20,7 +20,8 @@
   </div>
   <div class="panel">
     <h2 class="panel-title">Score needed for each target</h2>
-    <table class="tbl mt-4">
+    <div class="mt-4 overflow-x-auto">
+    <table class="tbl">
       <thead><tr><th>Target overall</th><th class="num">Final exam score needed</th></tr></thead>
       <tbody>
         <template x-for="r in table" :key="r.label">
@@ -34,6 +35,7 @@
         </template>
       </tbody>
     </table>
+    </div>
   </div>
 </div>
 
