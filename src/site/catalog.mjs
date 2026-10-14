@@ -195,19 +195,19 @@ export const MODULES = [
 
 export const PLANS = [
   {
-    id: 'essential', name: 'Essential', price: 35000, tagline: 'The academic and communication core for any school.',
+    id: 'essential', name: 'Essential', price: "35000+", tagline: 'The academic and communication core for any school.',
     storage: '40–50 GB', support: 'Email and phone support', cta: 'Grab the deal',
     // Highlighted on /pricing: sign up now and this yearly price never goes up.
     deal: { badge: 'Lifetime deal', note: 'Just ₹35K a year, locked for life. Sign up now and your price never goes up.' },
     highlights: ['Academic Core', 'People and School Office', 'Parent Connect', 'Security and Compliance', 'Android and iOS apps, offline mode', 'Standard reports'],
   },
   {
-    id: 'professional', name: 'Professional ERP', price: 100000, popular: true, tagline: 'The complete school ERP: academics, finance, HR and campus.',
+    id: 'professional', name: 'Professional ERP', price: "100000+", popular: true, tagline: 'The complete school ERP: academics, finance, HR and campus.',
     storage: '100 GB', support: 'Priority support, onboarding and data migration', cta: 'Choose Professional',
     highlights: ['Everything in Essential', 'Admissions and Enquiries', 'Fees and Online Payments', 'Accounts and Finance', 'HR and Payroll', 'Campus Operations', 'Reports and Analytics'],
   },
   {
-    id: 'enterprise', name: 'Enterprise ERP + CMS', price: 200000, tagline: 'Every module, your school website, and multi-campus control.',
+    id: 'enterprise', name: 'Enterprise ERP + CMS', price: "200000+", tagline: 'Every module, your school website, and multi-campus control.',
     storage: '250 GB', support: 'Dedicated success manager and on-site training', cta: 'Talk to us about Enterprise',
     highlights: ['Everything in Professional', 'School Website and CMS', 'Multi-branch and group dashboards', 'Custom roles, workflows and reports', 'API and webhooks', 'Uptime commitment in your contract'],
   },
@@ -230,11 +230,17 @@ export const ADDONS = [
 
 export const PLATFORM_FEE_PERCENT = 0.1;
 
-// Brand logos for /integrations, only from openly licensed (CC0) sets, written to /asset/logos
-// at build time. `logos` is an icon in the colour SVG Logos set (@iconify-json/logos); `si` is a
-// Simple Icons slug, drawn in the brand colour. `wide` marks a wordmark. Brands in neither set
-// get a Lucide icon in INTEGRATIONS instead.
+// Brand logos for /integrations, written to /asset/logos at build time. `logos` is an icon in the
+// colour SVG Logos set (@iconify-json/logos) and `si` a Simple Icons slug in the brand colour; both
+// sets are CC0. `file` is an official logo kept in asset/logos (see SOURCES.md there) for brands in
+// neither set. `wide` marks a wordmark.
 export const LOGOS = {
+  cashfree: { name: 'Cashfree Payments', file: 'cashfree.png' },
+  payu: { name: 'PayU', file: 'payu.svg', wide: true },
+  hdfc: { name: 'HDFC Bank', file: 'hdfc.svg' },
+  icici: { name: 'ICICI Bank', file: 'icici.png' },
+  sbi: { name: 'State Bank of India', file: 'sbi.svg' },
+  axis: { name: 'Axis Bank', file: 'axis.svg' },
   razorpay: { name: 'Razorpay', si: 'razorpay' },
   phonepe: { name: 'PhonePe', si: 'phonepe' },
   paytm: { name: 'Paytm', si: 'paytm' },
@@ -255,14 +261,15 @@ export const LOGOS = {
 export const INTEGRATIONS = [
   {
     id: 'payments', name: 'Payment gateways', nav: 'Payments', icon: 'credit-card',
+    layout: 'logos', eyebrow: 'Full fees management', // a centred wall of logos instead of cards
     why: 'Parents pay in seconds by UPI, card or netbanking. Money settles straight into the school’s own bank account, and every payment is matched to a receipt automatically.',
     items: [
       ['Razorpay', 'UPI, cards, netbanking, wallets and EMI', ['razorpay']],
       ['PhonePe Payment Gateway', 'UPI-first payments from India’s most used UPI app', ['phonepe']],
       ['Paytm', 'UPI, wallet and cards', ['paytm']],
-      ['Cashfree', 'Fast settlements and easy refunds', ['icon:credit-card']],
-      ['PayU', 'Cards, netbanking and pay-later', ['icon:credit-card']],
-      ['Bank gateways', 'HDFC, ICICI, SBI, Axis and other bank-owned gateways', ['icon:landmark']],
+      ['Cashfree', 'Fast settlements and easy refunds', ['cashfree']],
+      ['PayU', 'Cards, netbanking and pay-later', ['payu']],
+      ['Bank gateways', 'HDFC, ICICI, SBI, Axis and other bank-owned gateways', ['hdfc', 'icici', 'sbi', 'axis']],
       ['Stripe', 'International cards for schools with overseas parents', ['stripe']],
       ['UPI QR at the counter', 'Static or dynamic QR codes at the fee desk', ['icon:qr-code']],
       ['Any other gateway', 'Have a gateway already? If it has an API, we connect it.', ['icon:plug-zap']],
@@ -327,9 +334,9 @@ export const INTEGRATIONS = [
     id: 'developers', name: 'For your developers', nav: 'Developers', icon: 'code',
     why: 'Large groups and trusts can connect Campy to their own systems.',
     items: [
+      ['Single sign-on', 'Google and Microsoft accounts for staff', ['google', 'microsoft']],
       ['REST API', 'Read and write students, staff, fees and attendance (Enterprise)', ['icon:braces']],
       ['Webhooks', 'Get notified when a payment, admission or attendance event happens', ['icon:webhook']],
-      ['Single sign-on', 'Google and Microsoft accounts for staff', ['google', 'microsoft']],
     ],
   },
 ];

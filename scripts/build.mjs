@@ -415,7 +415,8 @@ for (const f of ['campy-logo.png', 'campy-icon-light-browser.png', 'campy-logo-w
   copy(path.join(ROOT, 'asset', f), path.join(DIST, 'asset', f));
 }
 fs.cpSync(path.join(ROOT, 'asset', 'photos'), path.join(DIST, 'asset', 'photos'), { recursive: true, filter: (f) => !f.endsWith('.md') });
-// Integration logos come from the CC0 logo packages, not from files in the repo.
+// Integration logos: generated from the CC0 logo packages, plus official files kept in asset/logos.
+fs.cpSync(path.join(ROOT, 'asset', 'logos'), path.join(DIST, 'asset', 'logos'), { recursive: true, filter: (f) => !f.endsWith('.md') });
 for (const [name, svg] of logoAssets()) write(path.join(DIST, 'asset', 'logos', name), svg);
 fs.cpSync(path.join(ROOT, 'public'), DIST, { recursive: true });
 

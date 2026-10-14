@@ -1,6 +1,7 @@
 // Renders src/site/catalog.mjs into HTML sections. Pages pull them in with {{site:name}};
 // see SECTIONS at the bottom for the names.
 
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as simpleIcons from 'simple-icons';
 import { ADDONS, INTEGRATIONS, LOGOS, MODULES, PLANS, PLATFORM_FEE_PERCENT } from '../src/site/catalog.mjs';
@@ -194,59 +195,103 @@ ${INTEGRATIONS.slice(0, 8).map((g) => `  <li class="rounded-2xl border border-pr
 const SIMPLE_ICONS = Object.fromEntries(Object.values(simpleIcons).map((i) => [i.slug, i]));
 const LOGO_SET = createRequire(import.meta.url)('@iconify-json/logos/icons.json');
 
-// One logo tile: a Simple Icons mark in its brand colour, an image from asset/logos, or a Lucide icon.
-// A logo from LOGOS as a standalone SVG file, with its width and height.
+const LOGO_DIR = new URL('../asset/logos/', import.meta.url);
+
+// Width and height of a logo file kept in asset/logos, from the SVG viewBox or the PNG header.
+function fileSize(file) {
+  const data = fs.readFileSync(new URL(file, LOGO_DIR));
+  if (file.endsWith('.png')) return { width: data.readUInt32BE(16), height: data.readUInt32BE(20) };
+  const box = data.toString('utf8').match(/viewBox="[\d.\s-]*?([\d.]+)[\s,]+([\d.]+)"/);
+  if (!box) throw new Error(`No viewBox in asset/logos/${file}`);
+  return { width: +box[1], height: +box[2] };
+}
+
+// A logo from LOGOS: where the page loads it from, its size, and for generated logos the SVG itself.
 function logoSvg(key) {
   const logo = LOGOS[key];
   if (!logo) throw new Error(`Unknown integration logo "${key}"`);
+  if (logo.file) return { src: `/asset/logos/${logo.file}`, ...fileSize(logo.file) };
+  const src = `/asset/logos/${key}.svg`;
   if (logo.si) {
     const icon = SIMPLE_ICONS[logo.si];
     if (!icon) throw new Error(`Simple Icons has no "${logo.si}"`);
-    return { width: 24, height: 24, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${icon.hex}"><path d="${icon.path}"/></svg>` };
+    return { src, width: 24, height: 24, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#${icon.hex}"><path d="${icon.path}"/></svg>` };
   }
   const icon = LOGO_SET.icons[logo.logos];
   if (!icon) throw new Error(`SVG Logos has no "${logo.logos}"`);
   const width = icon.width ?? LOGO_SET.width ?? 16;
   const height = icon.height ?? LOGO_SET.height ?? 16;
-  return { width, height, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">${icon.body}</svg>` };
+  return { src, width, height, svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">${icon.body}</svg>` };
 }
 
-// Every logo file the integrations page links to, for the build to write into /asset/logos.
+// The logos generated from the CC0 packages, for the build to write into /asset/logos.
+// Logos kept as files in asset/logos are copied as they are.
 export function logoAssets() {
-  return Object.keys(LOGOS).map((key) => [`${key}.svg`, logoSvg(key).svg]);
+  return Object.keys(LOGOS).filter((key) => !LOGOS[key].file).map((key) => [`${key}.svg`, logoSvg(key).svg]);
 }
 
 // One logo tile: a brand logo, or a Lucide icon for a kind of thing.
-function logoTile(key) {
+// size: 'sm' in cards, 'lg' on the logo wall, 'stack' for overlapping groups on the logo wall.
+const TILE = {
+  sm: { tile: '', icon: 'h-5 w-5', img: [28, 'h-7 w-7'], wide: [20, 'h-5 w-auto'] },
+  lg: { tile: ' logo-tile-lg', icon: 'h-8 w-8', img: [40, 'h-10 w-10'], wide: [28, 'h-7 w-auto'] },
+  stack: { tile: ' logo-tile-stack', icon: 'h-6 w-6', img: [32, 'h-8 w-8'], wide: [20, 'h-5 w-auto'] },
+};
+function logoTile(key, size = 'sm') {
+  const t = TILE[size];
   if (key.startsWith('icon:')) {
-    return `<span class="logo-tile text-primary/60"><i data-lucide="${key.slice(5)}" class="h-5 w-5"></i></span>`;
+    return `<span class="logo-tile${t.tile} text-primary/60"><i data-lucide="${key.slice(5)}" class="${t.icon}"></i></span>`;
   }
   const logo = LOGOS[key];
-  const { width, height } = logoSvg(key);
-  return logo.wide
-    ? `<span class="logo-tile logo-tile-wide" title="${esc(logo.name)}"><img src="/asset/logos/${key}.svg" alt="${esc(logo.name)}" width="${Math.round((20 * width) / height)}" height="20" loading="lazy" class="h-5 w-auto"></span>`
-    : `<span class="logo-tile" title="${esc(logo.name)}"><img src="/asset/logos/${key}.svg" alt="${esc(logo.name)}" width="28" height="28" loading="lazy" class="h-7 w-7 object-contain"></span>`;
+  const { src, width, height } = logoSvg(key);
+  const tile = `logo-tile${t.tile}${logo.wide ? ' logo-tile-wide' : ''}`;
+  const [h, cls] = logo.wide ? t.wide : t.img;
+  const w = logo.wide ? Math.round((h * width) / height) : h;
+  return `<span class="${tile}" title="${esc(logo.name)}"><img src="${src}" alt="${esc(logo.name)}" width="${w}" height="${h}" loading="lazy" class="${cls} object-contain"></span>`;
+}
+
+// The section heading: icon, optional eyebrow, title and why schools use it.
+function integrationIntro(g, centred) {
+  return `<span class="${centred ? 'mx-auto ' : ''}flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/25"><i data-lucide="${g.icon}" class="h-6 w-6"></i></span>
+      ${g.eyebrow ? `<p class="mt-6 text-sm font-semibold uppercase tracking-wider text-primary/50">${esc(g.eyebrow)}</p>` : ''}
+      <h2 id="${g.id}-title" class="font-display ${g.eyebrow ? 'mt-2' : 'mt-6'} text-3xl font-bold">${esc(g.name)}</h2>
+      <p class="mt-2 text-sm font-semibold uppercase tracking-wider text-primary/50">Why schools use it</p>
+      <p class="mt-2 text-lg leading-relaxed text-primary/70">${esc(g.why)}</p>`;
+}
+
+// A centred section that shows each provider as a logo with its name and role underneath.
+function integrationLogoWall(g) {
+  return `<div class="mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-20">
+    <div class="mx-auto max-w-2xl">
+      ${integrationIntro(g, true)}
+    </div>
+    <ul class="mt-12 flex flex-wrap justify-center gap-x-6 gap-y-10">
+${g.items.map(([name, desc, logos = []]) => `      <li class="flex w-36 flex-col items-center sm:w-44">
+        ${logos.length > 1
+          ? `<div class="logo-stack">${logos.map((l) => logoTile(l, 'stack')).join('')}</div>`
+          : `<div class="flex h-20 items-center justify-center">${logos.map((l) => logoTile(l, 'lg')).join('')}</div>`}
+        <p class="mt-4 font-semibold leading-snug">${esc(name)}</p>
+        <p class="mt-1 text-sm leading-relaxed text-primary/65">${esc(desc)}</p>
+      </li>`).join('\n')}
+    </ul>
+  </div>`;
 }
 
 // /integrations: one section per category, each provider with its logo.
 function integrationsDetail() {
   return INTEGRATIONS.map((g, i) => `<section id="${g.id}" class="scroll-mt-28 border-t border-primary/10${i % 2 ? ' bg-primary/[0.025]' : ''}" aria-labelledby="${g.id}-title">
-  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:px-8">
+  ${g.layout === 'logos' ? integrationLogoWall(g) : `<div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:px-8">
     <div>
-      <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary/25"><i data-lucide="${g.icon}" class="h-6 w-6"></i></span>
-      <h2 id="${g.id}-title" class="font-display mt-6 text-3xl font-bold">${esc(g.name)}</h2>
-      <p class="mt-2 text-sm font-semibold uppercase tracking-wider text-primary/50">Why schools use it</p>
-      <p class="mt-2 text-lg leading-relaxed text-primary/70">${esc(g.why)}</p>
-      ${g.photo ? `<img src="/asset/photos/${g.photo}.webp" width="1200" height="900" loading="lazy" alt="A face recognition attendance terminal mounted on a wall" class="mt-8 aspect-[4/3] w-full rounded-3xl object-cover">` : ''}
+      ${integrationIntro(g, false)}
     </div>
     <ul class="grid content-start gap-3 sm:grid-cols-2">
 ${g.items.map(([name, desc, logos = []]) => `      <li class="rounded-2xl border border-primary/10 bg-white p-5">
-        <div class="flex flex-wrap gap-2">${logos.map(logoTile).join('')}</div>
+        <div class="flex flex-wrap gap-2">${logos.map((l) => logoTile(l)).join('')}</div>
         <p class="mt-4 font-semibold">${esc(name)}</p>
         <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-primary/65">${esc(desc)}</p>
       </li>`).join('\n')}
     </ul>
-  </div>
+  </div>`}
 </section>`).join('\n');
 }
 

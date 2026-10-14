@@ -401,6 +401,41 @@ body {
 .logo-tile-wide {
   padding: 0 0.75rem;
 }
+.logo-tile-lg {
+  height: 5rem;
+  min-width: 5rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 24px -16px rgb(10 32 78 / 0.35);
+}
+.logo-tile-lg.logo-tile-wide {
+  padding: 0 1.25rem;
+}
+/* Several brands in one item (e.g. bank gateways): overlapping round tiles, as tall as one large tile. */
+.logo-stack {
+  display: flex;
+  height: 5rem;
+  align-items: center;
+  justify-content: center;
+}
+.logo-tile-stack {
+  width: 3rem;
+  min-width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 1px rgb(10 32 78 / 0.1), 0 6px 16px -10px rgb(10 32 78 / 0.4);
+}
+.logo-tile-stack + .logo-tile-stack {
+  margin-left: -0.875rem;
+}
+@media (min-width: 640px) {
+  .logo-tile-stack {
+    width: 3.5rem;
+    min-width: 3.5rem;
+    height: 3.5rem;
+  }
+}
 
 /* Accordion */
 details > summary {
